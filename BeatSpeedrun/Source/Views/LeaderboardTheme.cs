@@ -1,3 +1,4 @@
+using System;
 using BeatSpeedrun.Models;
 
 namespace BeatSpeedrun.Views
@@ -24,17 +25,45 @@ namespace BeatSpeedrun.Views
                 .Replace("<$accent>", $"<{AccentColor}>");
         }
 
-        internal static LeaderboardTheme FromSegment(Segment? _segment)
+        internal static LeaderboardTheme FromSegment(Segment? segment)
         {
-            // TODO
-            return Running;
+            if (segment == null) return RunningAtStart;
+
+            switch (segment.Value)
+            {
+                // TOOD: define for each segment
+                default:
+                    return Running;
+            }
         }
+
+        internal static readonly LeaderboardTheme RunningAtStart = new LeaderboardTheme
+        {
+            PrimaryColor = "#ffffff",
+            PrimaryGradFromColor = "#203057",
+            PrimaryGradToColor = "#333384",
+            PrimaryGradSkew = 0,
+            PrimaryInvColor = "#ffffff",
+            PrimaryInvSubColor = "#aaaaaa",
+            AccentColor = "#ef96fd",
+        };
 
         internal static readonly LeaderboardTheme Running = new LeaderboardTheme
         {
             PrimaryColor = "#2ff4ec",
             PrimaryGradFromColor = "#00af81",
             PrimaryGradToColor = "#002962",
+            PrimaryGradSkew = 0,
+            PrimaryInvColor = "#ffffff",
+            PrimaryInvSubColor = "#aaaaaa",
+            AccentColor = "#ef96fd",
+        };
+
+        internal static readonly LeaderboardTheme NotRunning = new LeaderboardTheme
+        {
+            PrimaryColor = "#ffffff",
+            PrimaryGradFromColor = "#20202f",
+            PrimaryGradToColor = "#333344",
             PrimaryGradSkew = 0,
             PrimaryInvColor = "#ffffff",
             PrimaryInvSubColor = "#aaaaaa",
