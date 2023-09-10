@@ -187,7 +187,9 @@ namespace BeatSpeedrun.Views
         [UIValue("confirm-stop-text")]
         private readonly string _confirmStopText =
             "Are you sure you want to stop the speedrun?" +
-            "\n<#ff7777>You cannot continue on this speedrun!";
+            "\nThe speedrun records are stored, but the feature" +
+            "\nto view them later has not yet been implemented." +
+            "\n\n<#ff7777>You cannot continue on this speedrun!";
 
         [UIAction("confirm-stop-clicked")]
         private void ConfirmStopClicked()

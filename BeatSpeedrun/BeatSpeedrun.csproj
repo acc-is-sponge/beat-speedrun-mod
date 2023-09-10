@@ -161,6 +161,7 @@
     <Compile Include="Source\Managers\RegulationManager.cs" />
     <Compile Include="Source\Managers\SpeedrunManager.cs" />
     <Compile Include="Source\Managers\CurrentSpeedrunManager.cs" />
+    <Compile Include="Source\Managers\LevelPlayManager.cs" />
     <Compile Include="Source\Managers\LeaderboardManager.cs" />
     <Compile Include="Source\Views\SettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />

@@ -11,6 +11,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<MapSetManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<SpeedrunManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<CurrentSpeedrunManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LevelPlayManager>().AsSingle().NonLazy();
         }
     }
 }

@@ -53,7 +53,7 @@
       id="confirm-stop-modal"
       click-off-closes="true"
       size-delta-x="70"
-      size-delta-y="30"
+      size-delta-y="45"
     >
       <vertical spacing="1">
         <text text="~confirm-stop-text" rich-text="true" align="Center" />
