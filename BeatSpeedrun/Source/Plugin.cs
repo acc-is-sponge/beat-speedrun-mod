@@ -20,6 +20,7 @@ namespace BeatSpeedrun
             Log = logger;
             PluginConfig.Instance = conf.Generated<PluginConfig>();
             zenjector.Install<AppInstaller>(Location.App);
+            zenjector.Install<MenuInstaller>(Location.Menu);
             Log.Info("BeatSpeedrun initialized.");
         }
     }

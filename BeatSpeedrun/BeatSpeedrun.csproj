@@ -143,8 +143,10 @@
   <ItemGroup>
     <Compile Include="Source\Plugin.cs" />
     <Compile Include="Source\PluginConfig.cs" />
-    <Compile Include="Source\Installers\AppInstaller.cs" />
     <Compile Include="Source\Extensions\SystemExtensions.cs" />
+    <Compile Include="Source\Extensions\BeatmapCoreExtensions.cs" />
+    <Compile Include="Source\Extensions\HMUIExtensions.cs" />
+    <Compile Include="Source\Extensions\BSMLExtensions.cs" />
     <Compile Include="Source\Models\DifficultyRaw.cs" />
     <Compile Include="Source\Models\MapSet.cs" />
     <Compile Include="Source\Models\Segment.cs" />
@@ -152,9 +154,24 @@
     <Compile Include="Source\Models\LatestRegulations.cs" />
     <Compile Include="Source\Managers\MapSetManager.cs" />
     <Compile Include="Source\Managers\RegulationManager.cs" />
+    <Compile Include="Source\Managers\LeaderboardManager.cs" />
+    <Compile Include="Source\Views\SettingsView.cs" />
+    <Compile Include="Source\Views\LeaderboardTheme.cs" />
+    <Compile Include="Source\Views\LeaderboardPanelView.cs" />
+    <Compile Include="Source\Views\LeaderboardMainView.cs" />
+    <Compile Include="Source\Controllers\SettingsViewController.cs" />
+    <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
+    <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
+    <Compile Include="Source\Installers\AppInstaller.cs" />
+    <Compile Include="Source\Installers\MenuInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Source\Views\Settings.bsml" />
+    <EmbeddedResource Include="Source\Views\LeaderboardPanel.bsml" />
+    <EmbeddedResource Include="Source\Views\LeaderboardMain.bsml" />
+    <EmbeddedResource Include="Source\Resources\trophy.png" />
+    <EmbeddedResource Include="Source\Resources\clock.png" />
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,123 @@
+<bg id="root" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd">
+  <macro.as-host host="view">
+    <vertical
+      preferred-width="100"
+      anchor-pos-x="4"
+      anchor-pos-y="9"
+      child-control-height="false"
+    >
+      <!-- STATUS BAR -->
+      <horizontal preferred-height="12" id="status-rect" bg="round-rect-panel" pad="1">
+        <vertical id="status-pp-rect" preferred-width="27" bg="round-rect-panel">
+          <text text="~status-pp-text" rich-text="true" font-size="7.5" align="Center" word-wrapping="false" />
+        </vertical>
+
+        <vertical preferred-width="44" pad="1" spacing="2">
+          <text text="~status-segment-text" font-size="7" align="Midline" word-wrapping="false" />
+        </vertical>
+
+        <vertical id="status-time-rect" preferred-width="27" bg="round-rect-panel" pad="1">
+          <text text="~status-time-text" rich-text="true" font-size="7.5" align="Center" word-wrapping="false" />
+        </vertical>
+      </horizontal>
+
+      <horizontal preferred-height="65">
+        <!-- SIDE CONTROL BAR -->
+        <horizontal spacing="1">
+          <horizontal pref-width="8" spacing="1">
+            <vertical bg="round-rect-panel" bg-color="white" pad="2" spacing="3">
+              <clickable-image
+                src="BeatSpeedrun.Source.Resources.trophy.png"
+                pref-width="4"
+                pref-height="4"
+                preserve-aspect="true"
+                hover-hint="Top Scores"
+                default-color="~top-scores-button-color"
+                on-click="top-scores-button-clicked"
+              />
+              <clickable-image
+                src="BeatSpeedrun.Source.Resources.clock.png"
+                pref-width="4"
+                pref-height="4"
+                preserve-aspect="true"
+                hover-hint="Recent Scores"
+                default-color="~recent-scores-button-color"
+                on-click="recent-scores-button-clicked"
+              />
+              <clickable-text
+                text="▲"
+                default-color="~prev-scores-button-color"
+                align="Midline"
+                font-size="4"
+                on-click="prev-scores-button-clicked"
+              />
+              <horizontal preferred-height="4">
+                <text
+                  text="~scores-page-text"
+                  align="Midline"
+                  font-size="4"
+                />
+              </horizontal>
+              <clickable-text
+                text="▼"
+                default-color="~next-scores-button-color"
+                align="Midline"
+                font-size="4"
+                on-click="next-scores-button-clicked"
+              />
+            </vertical>
+          </horizontal>
+
+          <!-- TOP/RECENT SCORES -->
+          <vertical preferred-width="88" expand-child-width="true">
+            <custom-list
+              id="score-list"
+              cell-size="8"
+              visible-cells="8"
+              contents="score-entries"
+              stick-scrolling="true"
+            >
+              <vertical>
+                <horizontal min-width="88">
+                  <vertical preferred-width="3.5">
+                    <text
+                      text="~rank"
+                      font-size="3"
+                      align="Left"
+                    />
+                  </vertical>
+                  <image
+                    id="cover"
+                    src="BeatSpeedrun.Source.Resources.trophy.png"
+                    preferred-width="7.5"
+                    preferred-height="7.5"
+                    preserve-aspect="true"
+                  />
+                  <vertical preferred-width="40" spacing="-2">
+                    <text text="~title" font-size="4" overflow-mode="Ellipsis" word-wrapping="false" />
+                    <text text="~sub-title" font-size="2.8" overflow-mode="Ellipsis" word-wrapping="false" />
+                  </vertical>
+                  <vertical preferred-width="11">
+                    <text text="~difficulty" font-size="3.5" align="Center" word-wrapping="false" />
+                  </vertical>
+                  <vertical preferred-width="11">
+                    <text text="~result" font-size="3.5" align="Center" word-wrapping="false" />
+                  </vertical>
+                  <vertical preferred-width="11">
+                    <text text="~meta" font-size="4" align="Center" word-wrapping="false" />
+                  </vertical>
+                </horizontal>
+                <horizontal preferred-width="88" preferred-height="0.25" bg="panel-top" bg-color="#ef96fd" />
+              </vertical>
+            </custom-list>
+          </vertical>
+        </horizontal>
+      </horizontal>
+
+      <!-- FOOTER -->
+      <horizontal preferred-height="6" id="footer-rect" bg="round-rect-panel" pad="1">
+        <text text="~footer-text" rich-text="true" font-size="4" align="Center" word-wrapping="false" />
+      </horizontal>
+    </vertical>
+  </macro.as-host>
+</bg>
