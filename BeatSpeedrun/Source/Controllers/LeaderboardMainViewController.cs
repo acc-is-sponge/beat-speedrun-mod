@@ -174,7 +174,7 @@ namespace BeatSpeedrun.Controllers
             {
                 _view.FooterText = theme.ReplaceRichText(
                     $"<$p-inv>{speedrun.Regulation.Title}<$accent> / <$p-inv>" +
-                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$p-inv>{t.RequiredPp:0.##}pp" : "no segment")
+                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$p-inv>{t.RequiredPp:0.##}pp" : "endless")
                 );
             }
         }

@@ -46,7 +46,7 @@ namespace BeatSpeedrun.Controllers
                 selectedSegmentOption =
                     speedrun.Progress.TargetSegment is Progress.SegmentProgress s
                         ? new SettingsView.SegmentOption(s.Segment, s.RequiredPp)
-                        : SettingsView.SegmentOption.NoSegment;
+                        : SettingsView.SegmentOption.Endless;
                 _selectedRegulation = selectedRegulationOption.Id;
                 _selectedSegment = selectedSegmentOption?.Segment;
 
@@ -93,8 +93,8 @@ namespace BeatSpeedrun.Controllers
             if (regulation == null)
             {
                 _view.DescriptionText = "loading...";
-                _view.ReplaceSegmentDropdownChoices(new[] { SettingsView.SegmentOption.NoSegment });
-                _view.SegmentDropdownValue = SettingsView.SegmentOption.NoSegment;
+                _view.ReplaceSegmentDropdownChoices(new[] { SettingsView.SegmentOption.Endless });
+                _view.SegmentDropdownValue = SettingsView.SegmentOption.Endless;
                 _view.SegmentDropdownInteractable = false;
                 _view.RunInteractable = false;
                 return;
@@ -105,7 +105,7 @@ namespace BeatSpeedrun.Controllers
                 .Select(s => new SettingsView.SegmentOption(s, regulation.Rules.SegmentRequirements.GetValue(s)))
                 .ToList();
             segmentOptions.Sort((a, b) => a.Pp.CompareTo(b.Pp));
-            segmentOptions.Insert(0, SettingsView.SegmentOption.NoSegment);
+            segmentOptions.Insert(0, SettingsView.SegmentOption.Endless);
 
             selectedSegmentOption = segmentOptions.FirstOrDefault(s => s.Segment == _selectedSegment);
             if (selectedSegmentOption == null)

@@ -84,7 +84,7 @@ namespace BeatSpeedrun.Views
         [UIComponent("segment-dropdown")]
         private readonly DropDownListSetting _segmentDropdown;
 
-        private SegmentOption _segmentDropdownValue = SegmentOption.NoSegment;
+        private SegmentOption _segmentDropdownValue = SegmentOption.Endless;
 
         [UIValue("segment-dropdown-value")]
         internal SegmentOption SegmentDropdownValue
@@ -95,7 +95,7 @@ namespace BeatSpeedrun.Views
 
         [UIValue("segment-dropdown-choices")]
         private readonly List<object> _segmentDropdownChoices =
-            new List<object>() { SegmentOption.NoSegment };
+            new List<object>() { SegmentOption.Endless };
 
         internal void ReplaceSegmentDropdownChoices(IEnumerable<SegmentOption> options)
         {
@@ -254,9 +254,9 @@ namespace BeatSpeedrun.Views
             }
 
             public override string ToString() =>
-                Segment is Segment s ? $"{s} / {Pp}pp" : "no segment";
+                Segment is Segment s ? $"{s} / {Pp}pp" : "endless";
 
-            internal static readonly SegmentOption NoSegment = new SegmentOption(null, 0);
+            internal static readonly SegmentOption Endless = new SegmentOption(null, 0);
         }
     }
 }
