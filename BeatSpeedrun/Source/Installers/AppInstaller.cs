@@ -9,6 +9,8 @@ namespace BeatSpeedrun.Installers
         {
             Container.BindInterfacesAndSelfTo<RegulationManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<MapSetManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<SpeedrunManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<CurrentSpeedrunManager>().AsSingle();
         }
     }
 }

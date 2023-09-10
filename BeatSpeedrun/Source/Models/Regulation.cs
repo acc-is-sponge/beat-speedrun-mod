@@ -116,7 +116,7 @@ namespace BeatSpeedrun.Models
 
     internal class ModifiersOverride
     {
-        public float NoPause { get; set; } = 1f;
+        public float UsePause { get; set; } = 1f;
         public float BatteryEnergy { get; set; } = 1f;
         public float NoFail { get; set; } = 0.5f;
         public float InstaFail { get; set; } = 1f;

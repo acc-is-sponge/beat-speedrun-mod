@@ -12,6 +12,11 @@ namespace BeatSpeedrun
         public static PluginConfig Instance { get; set; }
 
         /// <summary>
+        /// ID of the current speedrun. It will be null if not running.
+        /// </summary>
+        public virtual string CurrentSpeedrun { get; set; }
+
+        /// <summary>
         /// List of regulations. Each string must be an URI or a relative path to the regulation
         /// JSON from regulations repository (https://github.com/acc-is-sponge/beat-speedrun-regulations).
         /// For example, `scoresaber/092023.json` denotes the regulation defined in
