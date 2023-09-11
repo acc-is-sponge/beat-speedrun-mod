@@ -7,16 +7,14 @@ namespace BeatSpeedrun.Views
     {
         internal const string ResourceName = "BeatSpeedrun.Source.Views.LeaderboardPanel.bsml";
 
-        private string _titleText = "Beat Speedrun";
+        private string _iconColor;
 
-        [UIValue("title-text")]
-        internal string TitleText
+        [UIValue("icon-color")]
+        internal string IconColor
         {
-            get => _titleText;
-            set => ChangeProperty(ref _titleText, value);
+            get => _iconColor;
+            set => ChangeProperty(ref _iconColor, value);
         }
-
-        // TODO: Change icons by currrent segment
     }
 }
 

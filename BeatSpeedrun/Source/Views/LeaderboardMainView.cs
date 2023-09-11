@@ -32,9 +32,9 @@ namespace BeatSpeedrun.Views
         [UIComponent("status-rect")]
         private readonly Backgroundable _statusRect;
 
-        private (string, string, float) _statusRectGradient = ("#333333", "#666666", 0f);
+        private (string, string) _statusRectGradient = ("#333333", "#666666");
 
-        internal (string, string, float) StatusRectGradient
+        internal (string, string) StatusRectGradient
         {
             get => _statusRectGradient;
             set => ChangeProperty(ref _statusRectGradient, value, FillStatusRect);
@@ -42,10 +42,7 @@ namespace BeatSpeedrun.Views
 
         private void FillStatusRect()
         {
-            _statusRect.Fill(
-                _statusRectGradient.Item1,
-                _statusRectGradient.Item2,
-                _statusRectGradient.Item3);
+            _statusRect.Fill(_statusRectGradient.Item1, _statusRectGradient.Item2);
         }
 
         [UIComponent("status-pp-rect")]
@@ -53,7 +50,7 @@ namespace BeatSpeedrun.Views
 
         private void FillStatusPpRect()
         {
-            _statusPpRect.Fill("#00000066", "#000000bb", 0f);
+            _statusPpRect.Fill("#00000066", "#000000bb");
         }
 
         private string _statusPpText;
@@ -79,7 +76,7 @@ namespace BeatSpeedrun.Views
 
         private void FillStatusTimeRect()
         {
-            _statusTimeRect.Fill("#000000bb", "#00000066", 0f);
+            _statusTimeRect.Fill("#000000bb", "#00000066");
         }
 
         private string _statusTimeText;
@@ -268,9 +265,9 @@ namespace BeatSpeedrun.Views
         [UIComponent("footer-rect")]
         private readonly Backgroundable _footerRect;
 
-        private (string, string, float) _footerRectGradient = ("#333333", "#666666", 0f);
+        private (string, string) _footerRectGradient = ("#333333", "#666666");
 
-        internal (string, string, float) FooterRectGradient
+        internal (string, string) FooterRectGradient
         {
             get => _footerRectGradient;
             set => ChangeProperty(ref _footerRectGradient, value, FillFooterRect);
@@ -278,10 +275,7 @@ namespace BeatSpeedrun.Views
 
         private void FillFooterRect()
         {
-            _footerRect.Fill(
-                _footerRectGradient.Item1,
-                _footerRectGradient.Item2,
-                _footerRectGradient.Item3);
+            _footerRect.Fill(_footerRectGradient.Item1, _footerRectGradient.Item2);
         }
 
         private string _footerText;

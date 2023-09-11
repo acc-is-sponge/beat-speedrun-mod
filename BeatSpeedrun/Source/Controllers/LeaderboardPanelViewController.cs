@@ -10,7 +10,7 @@ namespace BeatSpeedrun.Controllers
 {
     [HotReload(RelativePathToLayout = "..\\Views\\LeaderboardPanel.bsml")]
     [ViewDefinition(LeaderboardPanelView.ResourceName)]
-    internal class LeaderboardPanelViewController : BSMLAutomaticViewController
+    internal class LeaderboardPanelViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         [Inject]
         private readonly CurrentSpeedrunManager _currentSpeedrunManager;
@@ -26,7 +26,7 @@ namespace BeatSpeedrun.Controllers
         private void Render()
         {
             var theme = CurrentTheme;
-            _view.TitleText = theme.ReplaceRichText("<$p>Beat Speedrun");
+            _view.IconColor = theme.PrimaryColor;
         }
 
         public void Initialize()

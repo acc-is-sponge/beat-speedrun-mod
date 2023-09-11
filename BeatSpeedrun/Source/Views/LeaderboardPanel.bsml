@@ -8,15 +8,23 @@
       pad="2"
     >
       <vertical pref-width="9" pref-height="9">
-        <image src="BeatSpeedrun.Source.Resources.trophy.png" preserve-aspect="true" />
+        <image
+          src="BeatSpeedrun.Source.Resources.trophy.png"
+          image-color="~icon-color"
+          preserve-aspect="true"
+        />
       </vertical>
 
       <vertical pref-width="70" pref-height="10">
-        <text text="~title-text" font-size="8" align="Center" />
+        <text text="Beat Speedrun" font-size="8" align="Center" />
       </vertical>
 
       <vertical pref-width="9" pref-height="9">
-        <image src="BeatSpeedrun.Source.Resources.trophy.png" preserve-aspect="true" />
+        <image
+          src="BeatSpeedrun.Source.Resources.trophy.png"
+          image-color="~icon-color"
+          preserve-aspect="true"
+        />
       </vertical>
     </horizontal>
   </macro.as-host>

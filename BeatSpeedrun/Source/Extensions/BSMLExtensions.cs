@@ -52,7 +52,7 @@ namespace BeatSpeedrun.Extensions
 
     internal static class BackgroundableExtensions
     {
-        internal static void Fill(this Backgroundable rect, string from, string to, float skew)
+        internal static void Fill(this Backgroundable rect, string from, string to)
         {
             var view = rect?.background as ImageView;
             if (view != null)
@@ -60,7 +60,6 @@ namespace BeatSpeedrun.Extensions
                 ColorUtility.TryParseHtmlString(from, out var a);
                 ColorUtility.TryParseHtmlString(to, out var b);
                 view.SetGradient(a, b);
-                view.SetSkew(skew);
             }
         }
     }

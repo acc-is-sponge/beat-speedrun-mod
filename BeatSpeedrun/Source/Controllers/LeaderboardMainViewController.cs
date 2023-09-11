@@ -59,7 +59,7 @@ namespace BeatSpeedrun.Controllers
                     $"<$p-inv>{speedrun.TotalPp.ToString("0.##").Replace(".", "<size=50%>.")}<size=80%>pp");
                 _view.StatusSegmentText = theme.ReplaceRichText(
                     "<line-height=45%><$p-inv>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$p-inv-sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
-                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$p-inv>{n.Segment}<$p-inv-sub> / {n.RequiredPp:0.##}pp" : ""));
+                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$p-inv>{n.Segment}<$p-inv-sub> / <$p-inv>{n.RequiredPp:0.##}pp" : ""));
             }
 
             RenderStatusBarTime();
