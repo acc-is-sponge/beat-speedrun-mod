@@ -78,12 +78,12 @@
               stick-scrolling="true"
             >
               <vertical>
-                <horizontal min-width="88">
+                <horizontal id="rect" min-width="88" bg="round-rect-panel">
                   <vertical preferred-width="3.5">
                     <text
                       text="~rank"
                       font-size="3"
-                      align="Left"
+                      align="Center"
                     />
                   </vertical>
                   <image

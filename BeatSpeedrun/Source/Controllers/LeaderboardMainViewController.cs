@@ -56,10 +56,10 @@ namespace BeatSpeedrun.Controllers
                 var next = speedrun.Progress.GetNextSegment();
 
                 _view.StatusPpText = theme.ReplaceRichText(
-                    $"<$p-inv>{speedrun.TotalPp.ToString("0.##").Replace(".", "<size=50%>.")}<size=80%>pp");
+                    $"<$p-inv>{speedrun.TotalPp:0.#}<size=80%>pp");
                 _view.StatusSegmentText = theme.ReplaceRichText(
                     "<line-height=45%><$p-inv>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$p-inv-sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
-                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$p-inv>{n.Segment}<$p-inv-sub> / <$p-inv>{n.RequiredPp:0.##}pp" : ""));
+                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$p-inv>{n.Segment}<$accent> / <$p-inv>{n.RequiredPp:0.#}pp" : ""));
             }
 
             RenderStatusBarTime();
@@ -133,6 +133,7 @@ namespace BeatSpeedrun.Controllers
 
             var scoreEntries = scores.Select(score =>
             {
+                var rectGradient = score.LatestPpChange.HasValue ? ("#ffff6622", "#ffff664f") : ("#00000000", "#00000000");
                 var rank = score.Rank?.ToString("00") ?? "<#777777>--";
                 var cover = score.GetCoverImageAsync(default);
                 var title = $"<line-height=45%><noparse>{score.SongName}</noparse> <size=80%><#cccccc><noparse>{score.SongSubName}</noparse>";
@@ -151,10 +152,15 @@ namespace BeatSpeedrun.Controllers
                 var modifiers = score.Source.Modifiers.ToString();
                 if (!string.IsNullOrEmpty(modifiers)) result += $"<#bbbbbb>,{modifiers}";
                 var meta = score.Pp != 0
-                    ? $"<{(score.Rank.HasValue ? "#ffff99" : "#777777")}>{score.Pp.ToString("0.##").Replace(".", "<size=50%>.")}<size=80%>pp"
+                    ? $"<{(score.Rank.HasValue ? "#ffff99" : "#777777")}>{score.Pp:0.#}<size=80%>pp"
                     : "<#777777>---";
+                if (score.LatestPpChange is float diff)
+                {
+                    meta = $"<line-height=45%>{meta}\n<size=60%><#33ff33>+{diff:0.#}<size=50%>pp";
+                }
 
-                return new LeaderboardMainView.ScoreEntry(rank, cover, title, subTitle, difficulty, result, meta);
+                return new LeaderboardMainView.ScoreEntry(
+                    rectGradient, rank, cover, title, subTitle, difficulty, result, meta);
             });
 
             _view.ReplaceScoreEntries(scoreEntries);
@@ -183,7 +189,7 @@ namespace BeatSpeedrun.Controllers
             {
                 _view.FooterText = theme.ReplaceRichText(
                     $"<$p-inv>{speedrun.Regulation.Title}<$accent> / <$p-inv>" +
-                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$p-inv>{t.RequiredPp:0.##}pp" : "endless")
+                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$p-inv>{t.RequiredPp:0.#}pp" : "endless")
                 );
             }
         }

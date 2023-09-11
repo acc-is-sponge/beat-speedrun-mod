@@ -204,6 +204,9 @@ namespace BeatSpeedrun.Views
 
         internal class ScoreEntry : BSMLView
         {
+            [UIComponent("rect")]
+            private readonly Backgroundable _rect;
+
             [UIValue("rank")]
             private string Rank { get; }
 
@@ -225,9 +228,11 @@ namespace BeatSpeedrun.Views
             [UIValue("meta")]
             private string Meta { get; }
 
+            private readonly (string, string) _rectGradient;
             private readonly Task<Sprite> _coverSprite;
 
             internal ScoreEntry(
+                (string, string) rectGradient,
                 string rank,
                 Task<Sprite> coverSprite,
                 string title,
@@ -236,6 +241,7 @@ namespace BeatSpeedrun.Views
                 string result,
                 string meta)
             {
+                _rectGradient = rectGradient;
                 Rank = rank;
                 Title = title;
                 SubTitle = subTitle;
@@ -246,8 +252,10 @@ namespace BeatSpeedrun.Views
             }
 
             [UIAction("#post-parse")]
-            private async void SetCoverAsync()
+            private async void PostParse()
             {
+                _rect.Fill(_rectGradient.Item1, _rectGradient.Item2);
+
                 try
                 {
                     var sprite = await _coverSprite;
