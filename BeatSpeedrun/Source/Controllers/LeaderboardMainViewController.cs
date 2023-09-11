@@ -43,12 +43,12 @@ namespace BeatSpeedrun.Controllers
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
 
-            _view.StatusRectGradient = theme.PrimaryGrad;
+            _view.StatusRectGradient = theme.Gradient;
 
             if (speedrun == null)
             {
-                _view.StatusPpText = theme.ReplaceRichText("<$p-inv>0<size=80%>pp");
-                _view.StatusSegmentText = theme.ReplaceRichText("<$p-inv>; )");
+                _view.StatusPpText = theme.ReplaceRichText("<$main>0<size=80%>pp");
+                _view.StatusSegmentText = theme.ReplaceRichText("<$main>; )");
             }
             else
             {
@@ -56,10 +56,10 @@ namespace BeatSpeedrun.Controllers
                 var next = speedrun.Progress.GetNextSegment();
 
                 _view.StatusPpText = theme.ReplaceRichText(
-                    $"<$p-inv>{speedrun.TotalPp:0.#}<size=80%>pp");
+                    $"<$main>{speedrun.TotalPp:0.#}<size=80%>pp");
                 _view.StatusSegmentText = theme.ReplaceRichText(
-                    "<line-height=45%><$p-inv>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$p-inv-sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
-                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$p-inv>{n.Segment}<$accent> / <$p-inv>{n.RequiredPp:0.#}pp" : ""));
+                    "<line-height=45%><$main>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
+                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$main>{n.Segment}<$accent> / <$main>{n.RequiredPp:0.#}pp" : ""));
             }
 
             RenderStatusBarTime();
@@ -72,15 +72,15 @@ namespace BeatSpeedrun.Controllers
 
             if (speedrun == null)
             {
-                _view.StatusTimeText = theme.ReplaceRichText($"<$p-inv>0:00:00");
+                _view.StatusTimeText = theme.ReplaceRichText($"<$main>0:00:00");
             }
             else
             {
                 var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
                 _view.StatusTimeText =
                     speedrun.Progress.TimeLimit <= time
-                        ? theme.ReplaceRichText($"<line-height=45%><size=70%><$p-inv>TIME IS UP!\n<size=50%><$p-inv-sub>{time:h\\:mm\\:ss}")
-                        : _view.StatusTimeText = theme.ReplaceRichText($"<$p-inv>{time:h\\:mm\\:ss}");
+                        ? theme.ReplaceRichText($"<line-height=45%><size=70%><$main>TIME IS UP!\n<size=50%><$sub>{time:h\\:mm\\:ss}")
+                        : _view.StatusTimeText = theme.ReplaceRichText($"<$main>{time:h\\:mm\\:ss}");
             }
 
         }
@@ -178,18 +178,18 @@ namespace BeatSpeedrun.Controllers
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
 
-            _view.FooterRectGradient = theme.PrimaryGrad;
+            _view.FooterRectGradient = theme.Gradient;
 
             if (speedrun == null)
             {
                 _view.FooterText = theme.ReplaceRichText(
-                    "<$p-inv>You can start your speedrun on the Beat Speedrun MOD tab");
+                    "<$main>You can start your speedrun on the Beat Speedrun MOD tab");
             }
             else
             {
                 _view.FooterText = theme.ReplaceRichText(
-                    $"<$p-inv>{speedrun.Regulation.Title}<$accent> / <$p-inv>" +
-                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$p-inv>{t.RequiredPp:0.#}pp" : "endless")
+                    $"<$main>{speedrun.Regulation.Title}<$accent> / <$main>" +
+                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$main>{t.RequiredPp:0.#}pp" : "endless")
                 );
             }
         }

@@ -4,21 +4,21 @@ namespace BeatSpeedrun.Views
 {
     internal class LeaderboardTheme
     {
-        public string PrimaryColor { get; set; }
-        public string PrimaryGradFromColor { get; set; }
-        public string PrimaryGradToColor { get; set; }
-        public string PrimaryInvColor { get; set; }
-        public string PrimaryInvSubColor { get; set; }
+        public string IconSource { get; set; }
+        public string IconColor { get; set; }
+        public string GradientFromColor { get; set; }
+        public string GradientToColor { get; set; }
+        public string GradientMainTextColor { get; set; }
+        public string GradientSubTextColor { get; set; }
         public string AccentColor { get; set; }
 
-        internal (string, string) PrimaryGrad => (PrimaryGradFromColor, PrimaryGradToColor);
+        internal (string, string) Gradient => (GradientFromColor, GradientToColor);
 
         internal string ReplaceRichText(string text)
         {
             return text
-                .Replace("<$p>", $"<{PrimaryColor}>")
-                .Replace("<$p-inv>", $"<{PrimaryInvColor}>")
-                .Replace("<$p-inv-sub>", $"<{PrimaryInvSubColor}>")
+                .Replace("<$main>", $"<{GradientMainTextColor}>")
+                .Replace("<$sub>", $"<{GradientSubTextColor}>")
                 .Replace("<$accent>", $"<{AccentColor}>");
         }
 
@@ -53,121 +53,133 @@ namespace BeatSpeedrun.Views
 
         internal static readonly LeaderboardTheme NotRunning = new LeaderboardTheme
         {
-            PrimaryColor = "#999999",
-            PrimaryGradFromColor = "#20202f",
-            PrimaryGradToColor = "#333344",
-            PrimaryInvColor = "#cccccc",
-            PrimaryInvSubColor = "#aaaaaa",
+            IconSource = "BeatSpeedrun.Source.Resources.trophy.png",
+            IconColor = "#999999",
+            GradientFromColor = "#20202f",
+            GradientToColor = "#333344",
+            GradientMainTextColor = "#cccccc",
+            GradientSubTextColor = "#aaaaaa",
             AccentColor = "#ef96fd",
         };
 
         internal static readonly LeaderboardTheme Start = new LeaderboardTheme
         {
-            PrimaryColor = "#ffffff",
-            PrimaryGradFromColor = "#203057",
-            PrimaryGradToColor = "#333384",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#aaaaaa",
+            IconSource = "BeatSpeedrun.Source.Resources.trophy.png",
+            IconColor = "#999999",
+            GradientFromColor = "#203057",
+            GradientToColor = "#333384",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#aaaaaa",
             AccentColor = "#ef96fd",
         };
 
         internal static readonly LeaderboardTheme Bronze = new LeaderboardTheme
         {
-            PrimaryColor = "#bb8855",
-            PrimaryGradFromColor = "#583a24",
-            PrimaryGradToColor = "#694438",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#aaaaaa",
+            IconSource = "BeatSpeedrun.Source.Resources.trophy.png",
+            IconColor = "#bb8855",
+            GradientFromColor = "#583a24",
+            GradientToColor = "#694438",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#aaaaaa",
             AccentColor = "#ffee77",
         };
 
         internal static readonly LeaderboardTheme Silver = new LeaderboardTheme
         {
-            PrimaryColor = "#aabbcc",
-            PrimaryGradFromColor = "#6a6a75",
-            PrimaryGradToColor = "#778797",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#aaaaaa",
+            IconSource = "BeatSpeedrun.Source.Resources.trophy.png",
+            IconColor = "#aabbcc",
+            GradientFromColor = "#6a6a75",
+            GradientToColor = "#778797",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#aaaaaa",
             AccentColor = "#ffee77",
         };
 
         internal static readonly LeaderboardTheme Gold = new LeaderboardTheme
         {
-            PrimaryColor = "#ffee77",
-            PrimaryGradFromColor = "#ada840",
-            PrimaryGradToColor = "#846a10",
-            PrimaryInvColor = "#ffffdd",
-            PrimaryInvSubColor = "#bbddbb",
+            IconSource = "BeatSpeedrun.Source.Resources.trophy.png",
+            IconColor = "#ffee77",
+            GradientFromColor = "#ada840",
+            GradientToColor = "#846a10",
+            GradientMainTextColor = "#ffffdd",
+            GradientSubTextColor = "#bbddbb",
             AccentColor = "#ff7744",
         };
 
         internal static readonly LeaderboardTheme Platinum = new LeaderboardTheme
         {
-            PrimaryColor = "#ddffdd",
-            PrimaryGradFromColor = "#ffffff",
-            PrimaryGradToColor = "#ffffff",
-            PrimaryInvColor = "#1a4752",
-            PrimaryInvSubColor = "#779aa7",
+            IconSource = "BeatSpeedrun.Source.Resources.trophy.png",
+            IconColor = "#ddffdd",
+            GradientFromColor = "#ffffff",
+            GradientToColor = "#ffffff",
+            GradientMainTextColor = "#1a4752",
+            GradientSubTextColor = "#779aa7",
             AccentColor = "#ff7744",
         };
 
         internal static readonly LeaderboardTheme Emerald = new LeaderboardTheme
         {
-            PrimaryColor = "#2ff4ec",
-            PrimaryGradFromColor = "#00af81",
-            PrimaryGradToColor = "#002962",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#aaaaaa",
+            IconSource = "BeatSpeedrun.Source.Resources.emerald.png",
+            IconColor = "#2ff4ec",
+            GradientFromColor = "#00af81",
+            GradientToColor = "#002962",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#aaaaaa",
             AccentColor = "#ef96fd",
         };
 
         internal static readonly LeaderboardTheme Sapphire = new LeaderboardTheme
         {
-            PrimaryColor = "#2f84ff",
-            PrimaryGradFromColor = "#0a9fdd",
-            PrimaryGradToColor = "#310a9f",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#cccccc",
+            IconSource = "BeatSpeedrun.Source.Resources.sapphire.png",
+            IconColor = "#2f84ff",
+            GradientFromColor = "#0a9fdd",
+            GradientToColor = "#310a9f",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#cccccc",
             AccentColor = "#54eadb",
         };
 
         internal static readonly LeaderboardTheme Ruby = new LeaderboardTheme
         {
-            PrimaryColor = "#ff3a5a",
-            PrimaryGradFromColor = "#ff5a00",
-            PrimaryGradToColor = "#570060",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#cccccc",
+            IconSource = "BeatSpeedrun.Source.Resources.ruby.png",
+            IconColor = "#ff3a5a",
+            GradientFromColor = "#ff5a00",
+            GradientToColor = "#570060",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#cccccc",
             AccentColor = "#ff7777",
         };
 
         internal static readonly LeaderboardTheme Diamond = new LeaderboardTheme
         {
-            PrimaryColor = "#eddff",
-            PrimaryGradFromColor = "#ffffff",
-            PrimaryGradToColor = "#e4a8f0",
-            PrimaryInvColor = "#000000",
-            PrimaryInvSubColor = "#666666",
+            IconSource = "BeatSpeedrun.Source.Resources.diamond.png",
+            IconColor = "#eddff",
+            GradientFromColor = "#f4ebff",
+            GradientToColor = "#e4a8f0",
+            GradientMainTextColor = "#000000",
+            GradientSubTextColor = "#666666",
             AccentColor = "#ee5aee",
         };
 
         internal static readonly LeaderboardTheme Master = new LeaderboardTheme
         {
-            PrimaryColor = "#bbbbbb",
-            PrimaryGradFromColor = "#6a3333",
-            PrimaryGradToColor = "#11114a",
-            PrimaryInvColor = "#ff7777",
-            PrimaryInvSubColor = "#7777ff",
+            IconSource = "BeatSpeedrun.Source.Resources.master.png",
+            IconColor = "#ff47ff",
+            GradientFromColor = "#6a3333",
+            GradientToColor = "#11114a",
+            GradientMainTextColor = "#ff7777",
+            GradientSubTextColor = "#7777ff",
             AccentColor = "#7777ff",
         };
 
         internal static readonly LeaderboardTheme Grandmaster = new LeaderboardTheme
         {
-            PrimaryColor = "#ffffff",
-            PrimaryGradFromColor = "#ff4f5c",
-            PrimaryGradToColor = "#5c4fff",
-            PrimaryInvColor = "#ffffff",
-            PrimaryInvSubColor = "#ffffff",
+            IconSource = "BeatSpeedrun.Source.Resources.master.png",
+            IconColor = "#ffb8ff",
+            GradientFromColor = "#ff4f5c",
+            GradientToColor = "#5c4fff",
+            GradientMainTextColor = "#ffffff",
+            GradientSubTextColor = "#ffffff",
             AccentColor = "#ffb8ff",
         };
     }

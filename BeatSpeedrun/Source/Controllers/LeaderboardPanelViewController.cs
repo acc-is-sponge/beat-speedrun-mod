@@ -26,7 +26,8 @@ namespace BeatSpeedrun.Controllers
         private void Render()
         {
             var theme = CurrentTheme;
-            _view.IconColor = theme.PrimaryColor;
+            _view.IconSource = theme.IconSource;
+            _view.IconColor = theme.IconColor;
         }
 
         public void Initialize()
