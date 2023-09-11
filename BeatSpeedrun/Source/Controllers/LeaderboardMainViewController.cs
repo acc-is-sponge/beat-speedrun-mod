@@ -49,21 +49,20 @@ namespace BeatSpeedrun.Controllers
             {
                 _view.StatusPpText = theme.ReplaceRichText("<$p-inv>0<size=80%>pp");
                 _view.StatusSegmentText = theme.ReplaceRichText("<$p-inv>; )");
-                _view.StatusTimeText = theme.ReplaceRichText("<$p-inv>0:00:00");
             }
             else
             {
                 var curr = speedrun.Progress.GetCurrentSegment();
                 var next = speedrun.Progress.GetNextSegment();
-                var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
 
                 _view.StatusPpText = theme.ReplaceRichText(
                     $"<$p-inv>{speedrun.TotalPp.ToString("0.##").Replace(".", "<size=50%>.")}<size=80%>pp");
                 _view.StatusSegmentText = theme.ReplaceRichText(
                     "<line-height=45%><$p-inv>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$p-inv-sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
                     (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$p-inv>{n.Segment}<$p-inv-sub> / {n.RequiredPp:0.##}pp" : ""));
-                _view.StatusTimeText = theme.ReplaceRichText($"<$p-inv>{time:h\\:mm\\:ss}");
             }
+
+            RenderStatusBarTime();
         }
 
         private void RenderStatusBarTime()
@@ -71,9 +70,19 @@ namespace BeatSpeedrun.Controllers
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
 
-            if (speedrun == null || speedrun.Progress.IsTargetReached) return;
-            var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
-            _view.StatusTimeText = theme.ReplaceRichText($"<$p-inv>{time:h\\:mm\\:ss}");
+            if (speedrun == null)
+            {
+                _view.StatusTimeText = theme.ReplaceRichText($"<$p-inv>0:00:00");
+            }
+            else
+            {
+                var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
+                _view.StatusTimeText =
+                    speedrun.Progress.TimeLimit <= time
+                        ? theme.ReplaceRichText($"<line-height=45%><size=70%><$p-inv>TIME IS UP!\n<size=50%><$p-inv-sub>{time:h\\:mm\\:ss}")
+                        : _view.StatusTimeText = theme.ReplaceRichText($"<$p-inv>{time:h\\:mm\\:ss}");
+            }
+
         }
 
         const string EnabledButtonColor = "#ffffff";
@@ -204,6 +213,9 @@ namespace BeatSpeedrun.Controllers
 
         public void Tick()
         {
+            var speedrun = _currentSpeedrunManager.Current;
+            if (speedrun == null || speedrun.Progress.IsTargetReached) return;
+
             RenderStatusBarTime();
         }
 

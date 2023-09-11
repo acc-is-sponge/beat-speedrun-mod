@@ -8,14 +8,14 @@ namespace BeatSpeedrun.Models.Speedrun
     internal class SongScore
     {
         internal string Id { get; }
-        internal SnapshotCompletedScore Source { get; }
+        internal SnapshotSongScore Source { get; }
         internal DifficultyRaw DifficultyRaw { get; }
         internal float Star { get; }
         internal float Pp { get; }
         internal int? Rank { get; set; } // set by Aggregate
         internal float? LatestPpChange { get; set; } // always cleared by Aggregate
 
-        internal SongScore(SnapshotCompletedScore source, MapSet mapSet, SongPpCalculator songPpCalculator)
+        internal SongScore(SnapshotSongScore source, MapSet mapSet, SongPpCalculator songPpCalculator)
         {
             // Scores are identified by song hash and difficulty
             Id = $"{source.SongHash}{source.DifficultyRaw}";

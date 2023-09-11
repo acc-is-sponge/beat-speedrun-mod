@@ -50,14 +50,7 @@ namespace BeatSpeedrun.Models.Speedrun
 
         internal TimeSpan TimeLimit { get; }
 
-        /// <summary>
-        /// Is the speedrun time up at the time?
-        /// </summary>
-        internal bool IsTimeUp(DateTime time, bool ignoresTarget = false)
-        {
-            if (!ignoresTarget && IsTargetReached) return false;
-            return time - StartedAt > TimeLimit;
-        }
+        internal DateTime TimeIsUpAt => StartedAt + TimeLimit;
 
         /// <summary>
         /// How much the speedrun has elapsed since the time.
@@ -65,7 +58,7 @@ namespace BeatSpeedrun.Models.Speedrun
         internal TimeSpan ElapsedTime(DateTime time, bool ignoresTarget = false)
         {
             if (!ignoresTarget && IsTargetReached) return TargetSegment.Value.ReachedAt.Value;
-            return IsTimeUp(time) ? TimeLimit : time - StartedAt;
+            return TimeIsUpAt < time ? TimeLimit : time - StartedAt;
         }
 
         internal Progress(
@@ -89,10 +82,12 @@ namespace BeatSpeedrun.Models.Speedrun
             _currentSegmentIndex = 0;
         }
 
-        internal void Update(float pp, DateTime ppChangedAt)
+        internal void Update(DateTime ppChangedAt, Func<float> applyPpChange, bool ignoresTarget = false)
         {
-            if (IsTimeUp(ppChangedAt)) return;
+            if (!ignoresTarget && IsTargetReached) return;
+            if (TimeIsUpAt < ppChangedAt) return;
 
+            var pp = applyPpChange();
             for (var i = _currentSegmentIndex + 1; i < Segments.Count; ++i)
             {
                 var nextSegment = Segments[i];

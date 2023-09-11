@@ -7,7 +7,7 @@ namespace BeatSpeedrun.Models.Speedrun
 {
     /// <summary>
     /// A serializable Speedrun snapshot.
-    /// This allows the speedrun to continue even if the application is restarted.
+    /// This allows players to continue the speedrun even if the application is restarted.
     /// </summary>
     internal class Snapshot
     {
@@ -28,8 +28,8 @@ namespace BeatSpeedrun.Models.Speedrun
         [JsonProperty("checksum")]
         internal SnapshotChecksum Checksum { get; set; }
 
-        [JsonProperty("completedScores")]
-        internal List<SnapshotCompletedScore> CompletedScores { get; set; }
+        [JsonProperty("songScores")]
+        internal List<SnapshotSongScore> SongScores { get; set; }
 
         internal static Snapshot FromJson(string json)
         {
@@ -73,9 +73,9 @@ namespace BeatSpeedrun.Models.Speedrun
     }
 
     /// <summary>
-    /// Every completed score (including non-high score) are recorded as this data
+    /// Every song score (including non-high score) are recorded as this data
     /// </summary>
-    internal class SnapshotCompletedScore
+    internal class SnapshotSongScore
     {
         [JsonProperty("completedAt")]
         internal DateTime CompletedAt { get; set; }

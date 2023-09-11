@@ -40,7 +40,7 @@ namespace BeatSpeedrun.Managers
                     Regulation = regulation.ComputeChecksum(),
                     MapSet = mapSet.Checksum,
                 },
-                CompletedScores = new List<SnapshotCompletedScore>(),
+                SongScores = new List<SnapshotSongScore>(),
             };
 
             var speedrun = new Speedrun(snapshot, regulation, mapSet);

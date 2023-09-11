@@ -135,7 +135,7 @@ namespace BeatSpeedrun.Managers
                     ProMode = results.gameplayModifiers.proMode,
                     SmallCubes = results.gameplayModifiers.smallCubes,
                 };
-                var score = new SnapshotCompletedScore
+                var score = new SnapshotSongScore
                 {
                     CompletedAt = DateTime.UtcNow,
                     SongHash = levelInfo[2],

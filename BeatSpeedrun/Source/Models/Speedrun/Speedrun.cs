@@ -45,19 +45,22 @@ namespace BeatSpeedrun.Models.Speedrun
                 regulation.Rules.ModifiersOverride);
             SongScores = new List<SongScore>();
 
-            // replay snapshot completed scores
+            // replay snapshot song scores
             _aggregateResult = new SongScore.AggregateResult(SongScores, 0f);
-            foreach (var score in snapshot.CompletedScores) AddScore(score);
+            foreach (var score in snapshot.SongScores) AddScore(score);
         }
 
-        internal void AddScore(SnapshotCompletedScore source)
+        internal void AddScore(SnapshotSongScore source)
         {
             var songScore = new SongScore(source, MapSet, SongPpCalculator);
             SongScores.Add(songScore);
-            var previousTotalPp = _aggregateResult.TotalPp;
-            _aggregateResult = SongScore.Aggregate(SongScores, Regulation.Rules.Weight);
-            Progress.Update(_aggregateResult.TotalPp, source.CompletedAt);
-            songScore.LatestPpChange = _aggregateResult.TotalPp - previousTotalPp;
+            Progress.Update(source.CompletedAt, () =>
+            {
+                var previousTotalPp = _aggregateResult.TotalPp;
+                _aggregateResult = SongScore.Aggregate(SongScores, Regulation.Rules.Weight);
+                songScore.LatestPpChange = _aggregateResult.TotalPp - previousTotalPp;
+                return _aggregateResult.TotalPp;
+            });
         }
 
         internal Snapshot ToSnapshot()
@@ -69,7 +72,7 @@ namespace BeatSpeedrun.Models.Speedrun
                 Regulation = RegulationId,
                 TargetSegment = Progress.TargetSegment?.Segment,
                 Checksum = _checksum,
-                CompletedScores = SongScores.Select(score => score.Source).ToList(),
+                SongScores = SongScores.Select(score => score.Source).ToList(),
             };
         }
     }
