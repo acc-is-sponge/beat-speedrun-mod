@@ -13,7 +13,7 @@ namespace BeatSpeedrun.Managers
 {
     internal class RegulationManager
     {
-        private readonly Task<List<string>> _regulationOptions;
+        private Task<List<string>> _regulationOptions;
         private readonly ConcurrentDictionary<string, Task<Regulation>> _regulations =
             new ConcurrentDictionary<string, Task<Regulation>>();
 
@@ -24,101 +24,100 @@ namespace BeatSpeedrun.Managers
 
         internal Task<List<string>> GetOptionsAsync(CancellationToken ct = default)
         {
+            if (_regulationOptions.IsFaulted)
+            {
+                _regulationOptions = FetchOptionsAsync();
+            }
             return _regulationOptions.WithCancellation(ct);
         }
 
         private async Task<List<string>> FetchOptionsAsync()
         {
-            if (PluginConfig.Instance.RegulationOptions != null)
-            {
-                return PluginConfig.Instance.RegulationOptions.ToList();
-            }
-            var uri = new Uri(RepositoryRoot + "latest-regulations.json");
+            var uri = new Uri(ModProvidedBaseUri + "latest-regulations.json");
             var json = await HttpClient.GetStringAsync(uri);
             var latestRegulations = LatestRegulations.FromJson(json);
-            return latestRegulations.Regulations.ToList();
+
+            var localCustomRegulations = Directory.Exists(CustomDirectory)
+                ? ListCustomRegulations(CustomDirectory)
+                : Enumerable.Empty<string>();
+
+            var uriCustomRegulations =
+                PluginConfig.Instance.RegulationUris?.Where(r => r.StartsWith("https:") || r.StartsWith("http:"))
+                ?? Enumerable.Empty<string>();
+
+            return latestRegulations.Regulations
+                .Concat(localCustomRegulations)
+                .Concat(uriCustomRegulations)
+                .ToList();
         }
 
-        internal Task<Regulation> GetAsync(string uriOrRelativePath, CancellationToken ct = default)
+        internal Task<Regulation> GetAsync(string regulationPath, CancellationToken ct = default)
         {
-            return _regulations.GetOrAdd(uriOrRelativePath, LoadAsync).WithCancellation(ct);
+            return _regulations
+                .AddOrUpdate(
+                    regulationPath,
+                    path => LoadAsync(path),
+                    (path, t) => t.IsFaulted ? LoadAsync(regulationPath, TimeSpan.FromSeconds(3)) : t)
+                .WithCancellation(ct);
         }
 
-        private async Task<Regulation> LoadAsync(string uriOrRelativePath)
+        private async Task<Regulation> LoadAsync(string regulationPath, TimeSpan delay = default)
         {
-            Uri uri;
+            await Task.Delay(delay);
 
             try
             {
-                uri = new Uri(uriOrRelativePath);
-            }
-            catch
-            {
-                uri = null;
-            }
-
-            if (uri != null && (uri.Scheme == "https" || uri.Scheme == "http"))
-            {
-                return await LoadFromWebAsync(uri);
-            }
-
-            var relativePath = uriOrRelativePath.Split('/');
-            if (relativePath.Any(part => part == ".."))
-            {
-                throw new ArgumentException("Regulation path cannot contain '..'");
-            }
-
-            try
-            {
-                return LoadFromCache(relativePath);
-            }
-            catch (Exception ex)
-            {
-                var isIgnorableError = ex is FileNotFoundException || ex is DirectoryNotFoundException;
-                if (!isIgnorableError)
+                if (regulationPath.StartsWith("https:") || regulationPath.StartsWith("http:"))
                 {
-                    Plugin.Log.Warn($"Could not load regulation '{string.Join("/", relativePath)}' from cache:\n{ex}");
+                    var uri = new Uri(regulationPath);
+                    var json = await HttpClient.GetStringAsync(uri);
+                    return Regulation.FromJson(json);
+                }
+
+                if (regulationPath.StartsWith("custom:"))
+                {
+                    var relativePath = regulationPath.Substring("custom:".Length).Replace('\\', '/').Split('/');
+                    if (relativePath.Any(part => part == ".."))
+                    {
+                        throw new ArgumentException("Custom Regulation path cannot contain '..'");
+                    }
+                    var filePath = Path.Combine(CustomDirectory, Path.Combine(relativePath));
+                    var json = File.ReadAllText(filePath);
+                    return Regulation.FromJson(json);
+                }
+
+                {
+                    var uri = new Uri(ModProvidedBaseUri + regulationPath);
+                    var json = await HttpClient.GetStringAsync(uri);
+                    return Regulation.FromJson(json);
                 }
             }
-
-            return await LoadFromRepositoryAsync(relativePath);
-        }
-
-        private async Task<Regulation> LoadFromWebAsync(Uri uri)
-        {
-            var json = await HttpClient.GetStringAsync(uri);
-            // We don't cache regulations from the web
-            return Regulation.FromJson(json);
-        }
-
-        private Regulation LoadFromCache(string[] relativePath)
-        {
-            // Indeed you can place your own regulations in the cache directory
-            var cache = Path.Combine(CacheDirectory, Path.Combine(relativePath));
-            var json = File.ReadAllText(cache);
-            return Regulation.FromJson(json);
-        }
-
-        private async Task<Regulation> LoadFromRepositoryAsync(string[] relativePath)
-        {
-            var uri = new Uri(RepositoryRoot + string.Join("/", relativePath));
-            var json = await HttpClient.GetStringAsync(uri);
-            var regulation = Regulation.FromJson(json);
-            try
+            catch (OperationCanceledException)
             {
-                var cache = Path.Combine(CacheDirectory, Path.Combine(relativePath));
-                Directory.CreateDirectory(Path.GetDirectoryName(cache));
-                File.WriteAllText(cache, json);
+                throw;
             }
             catch (Exception ex)
             {
-                Plugin.Log.Warn($"Failed to cache regulation '{string.Join("/", relativePath)}':\n{ex}");
+                Plugin.Log.Warn($"Could not load regulation '{regulationPath}':\n{ex}");
+                throw;
             }
-            return regulation;
         }
 
-        private static readonly string CacheDirectory = Path.Combine(Environment.CurrentDirectory, "UserData", "BeatSpeedrun", "Regulations");
-        private static readonly string RepositoryRoot = "https://raw.githubusercontent.com/acc-is-sponge/beat-speedrun-regulations/main/";
+        private static IEnumerable<string> ListCustomRegulations(string directory)
+        {
+            foreach (var file in Directory.GetFiles(directory))
+            {
+                yield return "custom:" + file.Substring(CustomDirectory.Length + 1).Replace('\\', '/');
+            }
+
+            foreach (var dir in Directory.GetDirectories(directory))
+            {
+                foreach (var file in ListCustomRegulations(dir)) yield return file;
+            }
+        }
+
+        private static readonly string CustomDirectory = Path.Combine(Environment.CurrentDirectory, "UserData", "BeatSpeedrun", "CustomRegulations");
+        private static readonly string ModProvidedBaseUri = "https://raw.githubusercontent.com/acc-is-sponge/beat-speedrun-regulations/main/";
         private static readonly HttpClient HttpClient = new HttpClient();
     }
 }

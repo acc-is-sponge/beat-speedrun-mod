@@ -10,7 +10,7 @@ namespace BeatSpeedrun.Models.Speedrun
     internal class Speedrun
     {
         internal string Id { get; }
-        internal string RegulationId { get; }
+        internal string RegulationPath { get; }
         internal Regulation Regulation { get; }
         internal MapSet MapSet { get; }
         internal Progress Progress { get; }
@@ -31,7 +31,7 @@ namespace BeatSpeedrun.Models.Speedrun
             _checksum = snapshot.Checksum;
 
             Id = snapshot.Id;
-            RegulationId = snapshot.Regulation;
+            RegulationPath = snapshot.Regulation;
             Regulation = regulation;
             MapSet = mapSet;
             Progress = new Progress(
@@ -69,7 +69,7 @@ namespace BeatSpeedrun.Models.Speedrun
             {
                 Id = Id,
                 StartedAt = Progress.StartedAt,
-                Regulation = RegulationId,
+                Regulation = RegulationPath,
                 TargetSegment = Progress.TargetSegment?.Segment,
                 Checksum = _checksum,
                 SongScores = SongScores.Select(score => score.Source).ToList(),

@@ -35,6 +35,16 @@ In additions to regulations, a set of difficulty rating for each map is defined 
 
 By default, this MOD fetches the current, up-to-date regulations from these repositories and lists them on the `BEAT SPEEDRUN` tab.
 
+## How to use custom regulations
+
+#### Use custom regulation files
+
+Put your regulation files into `$(BeatSaberDir)/UserData/BeatSpeedrun/CustomRegulations/`
+
+#### Use online custom regulations
+
+Add URIs to `RegulationUris` in `$(BeatSaberDir)/UserData/BeatSpeedrun.json`
+
 ## Credits
 
 - Thanks to [FaZPi](https://twitter.com/FaZ_Pi), [hatopop](https://github.com/hatopopvr) for testing!

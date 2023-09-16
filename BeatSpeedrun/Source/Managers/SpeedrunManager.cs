@@ -21,11 +21,11 @@ namespace BeatSpeedrun.Managers
         }
 
         internal async Task<Speedrun> CreateAsync(
-            string regulationUrlOrPath,
+            string regulationPath,
             Segment? targetSegment,
             CancellationToken ct)
         {
-            var regulation = await _regulationManager.GetAsync(regulationUrlOrPath, ct);
+            var regulation = await _regulationManager.GetAsync(regulationPath, ct);
             var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet, ct);
 
             var startedAt = DateTime.UtcNow;
@@ -33,7 +33,7 @@ namespace BeatSpeedrun.Managers
             {
                 Id = ((long)(startedAt - UnixEpoch).TotalMilliseconds).ToString(),
                 StartedAt = startedAt,
-                Regulation = regulationUrlOrPath,
+                Regulation = regulationPath,
                 TargetSegment = targetSegment,
                 Checksum = new SnapshotChecksum
                 {
