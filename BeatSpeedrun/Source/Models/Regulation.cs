@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using BeatSpeedrun.Extensions;
 using Newtonsoft.Json;
 
@@ -39,6 +40,41 @@ namespace BeatSpeedrun.Models
             }
             // TODO: more validations
             return regulation;
+        }
+
+        internal static bool IsCustomPath(string path)
+        {
+            return path.StartsWith("http:") || path.StartsWith("https:") || path.StartsWith("custom:");
+        }
+
+        internal static string ShortenPath(string path)
+        {
+            if (path.StartsWith("http:") || path.StartsWith("https:"))
+            {
+                try
+                {
+                    var uri = new Uri(path);
+                    path = uri.LocalPath;
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.Warn($"Cannot parse regulation path '{path}' as URI:\n{ex}");
+                    return path;
+                }
+                return path.EndsWith(".json") ? path.Substring(0, path.Length - 5) : path;
+            }
+
+            if (path.StartsWith("custom:"))
+            {
+                path = "(custom) " + path.Substring("custom:".Length);
+                return path.EndsWith(".json") ? path.Substring(0, path.Length - 5) : path;
+            }
+
+            // omit the last part
+            var pathParts = path.Split('/');
+            return 1 < pathParts.Length
+                ? string.Join("/", pathParts.Take(pathParts.Length - 1))
+                : path;
         }
     }
 
