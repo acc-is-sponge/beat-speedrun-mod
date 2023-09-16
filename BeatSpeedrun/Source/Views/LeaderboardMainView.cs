@@ -13,6 +13,7 @@ namespace BeatSpeedrun.Views
     {
         internal const string ResourceName = "BeatSpeedrun.Source.Views.LeaderboardMain.bsml";
 
+        internal event Action OnProgressSelected;
         internal event Action OnTopScoresSelected;
         internal event Action OnRecentScoresSelected;
         internal event Action OnNextScoresSelected;
@@ -89,6 +90,28 @@ namespace BeatSpeedrun.Views
         }
 
         // ----- SIDE CONTROL BAR -----
+
+        private string _progressButtonColor;
+
+        [UIValue("progress-button-color")]
+        internal string ProgressButtonColor
+        {
+            get => _progressButtonColor;
+            set => ChangeProperty(ref _progressButtonColor, value);
+        }
+
+        [UIAction("progress-button-clicked")]
+        private void ProgressButtonClicked()
+        {
+            try
+            {
+                OnProgressSelected?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Error($"Error while invoking OnProgressSelected event:\n{ex}");
+            }
+        }
 
         private string _topScoresButtonColor;
 
@@ -187,7 +210,125 @@ namespace BeatSpeedrun.Views
             }
         }
 
-        // ----- TOP/RECENT SCORES -----
+        // ----- PROGRESS -----
+
+        private bool _showProgress;
+
+        [UIValue("show-progress")]
+        internal bool ShowProgress
+        {
+            get => _showProgress;
+            set => ChangeProperty(ref _showProgress, value);
+        }
+
+        [UIComponent("progress-list")]
+        private readonly CustomCellListTableData _progressList;
+
+        [UIValue("progress-entries")]
+        private readonly List<object> _progressEntries = new List<object>();
+
+        internal void ReplaceProgressEntries(IEnumerable<ProgressEntry> entries)
+        {
+            _progressEntries.Clear();
+            ProgressEntry prev = null;
+            foreach (var entry in entries)
+            {
+                if (prev != null)
+                {
+                    _progressEntries.Add(new ProgressEntryPair(prev, entry));
+                    prev = null;
+                    continue;
+                }
+                prev = entry;
+            }
+            if (prev != null)
+            {
+                _progressEntries.Add(new ProgressEntryPair(prev));
+            }
+            _progressList?.tableView.ReloadData();
+        }
+
+        internal class ProgressEntryPair : BSMLView
+        {
+            [UIValue("item1")]
+            private readonly ProgressEntry _item1;
+
+            [UIValue("item2")]
+            private readonly ProgressEntry _item2;
+
+            internal ProgressEntryPair(ProgressEntry item1, ProgressEntry item2)
+            {
+                _item1 = item1;
+                _item2 = item2;
+            }
+
+            internal ProgressEntryPair(ProgressEntry item1)
+            {
+                _item1 = item1;
+                _item2 = ProgressEntry.Inactive;
+            }
+        }
+
+        internal class ProgressEntry : BSMLView
+        {
+            [UIComponent("rect")]
+            private readonly Backgroundable _rect;
+
+            [UIComponent("icon-rect")]
+            private readonly Backgroundable _iconRect;
+
+            [UIValue("icon-source")]
+            private string IconSource { get; }
+
+            [UIValue("icon-color")]
+            private string IconColor { get; }
+
+            [UIValue("text")]
+            private string Text { get; }
+
+            private readonly (string, string) _rectGradient;
+
+            private readonly (string, string) _iconRectGradient;
+
+            internal ProgressEntry(
+                (string, string) rectGradient,
+                string iconSource,
+                string iconColor,
+                (string, string) iconRectGradient,
+                string text)
+            {
+                _rectGradient = rectGradient;
+                IconSource = iconSource;
+                IconColor = iconColor;
+                _iconRectGradient = iconRectGradient;
+                Text = text;
+            }
+
+            [UIAction("#post-parse")]
+            private void PostParse()
+            {
+                _rect.Fill(_rectGradient.Item1, _rectGradient.Item2);
+                _iconRect.Fill(_iconRectGradient.Item1, _iconRectGradient.Item2);
+            }
+
+            internal static readonly ProgressEntry Inactive = new ProgressEntry(
+                ("#00000000", "#00000000"),
+                "BeatSpeedrun.Source.Resources.route.png",
+                "#00000000",
+                ("#00000000", "#00000000"),
+                "");
+        }
+
+        // ----- SCORES -----
+
+        private bool _showScores;
+
+        [UIValue("show-scores")]
+        internal bool ShowScores
+        {
+            get => _showScores;
+            set => ChangeProperty(ref _showScores, value);
+        }
 
         [UIComponent("score-list")]
         private readonly CustomCellListTableData _scoreList;

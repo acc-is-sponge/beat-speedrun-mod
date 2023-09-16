@@ -1,15 +1,16 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Managers;
 using BeatSpeedrun.Views;
+using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
 using Zenject;
 using SongCore;
-using System.Collections.Concurrent;
-using BeatSpeedrun.Models;
 
 namespace BeatSpeedrun.Controllers
 {
@@ -28,13 +29,20 @@ namespace BeatSpeedrun.Controllers
                 ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
                 : LeaderboardTheme.NotRunning;
 
+        private enum Show
+        {
+            TopScores,
+            RecentScores,
+            Progress,
+        }
+
         private int _scoresPage = 0;
-        private bool _showsTopScores = true;
+        private Show _show = Show.TopScores;
 
         private void Render()
         {
             RenderStatusBar();
-            RenderScores();
+            RenderContents();
             RenderFooter();
         }
 
@@ -88,32 +96,84 @@ namespace BeatSpeedrun.Controllers
         const string EnabledButtonColor = "#ffffff";
         const string DisabledButtonColor = "#777777";
 
-        private void RenderScores()
+        private void RenderContents()
         {
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
 
             if (speedrun == null)
             {
+                _view.ProgressButtonColor = DisabledButtonColor;
                 _view.TopScoresButtonColor = DisabledButtonColor;
                 _view.RecentScoresButtonColor = DisabledButtonColor;
                 _view.PrevScoresButtonColor = DisabledButtonColor;
                 _view.NextScoresButtonColor = DisabledButtonColor;
                 _view.ScoresPageText = "-";
-                _view.ReplaceScoreEntries(Enumerable.Empty<LeaderboardMainView.ScoreEntry>());
+                _view.ShowProgress = false;
+                _view.ShowScores = false;
                 return;
             }
 
-            _view.TopScoresButtonColor = _showsTopScores ? theme.AccentColor : EnabledButtonColor;
-            _view.RecentScoresButtonColor = !_showsTopScores ? theme.AccentColor : EnabledButtonColor;
+            _view.ProgressButtonColor = _show == Show.Progress ? theme.AccentColor : EnabledButtonColor;
+            _view.TopScoresButtonColor = _show == Show.TopScores ? theme.AccentColor : EnabledButtonColor;
+            _view.RecentScoresButtonColor = _show == Show.RecentScores ? theme.AccentColor : EnabledButtonColor;
 
-            var scoresCount = _showsTopScores ? speedrun.TopScores.Count : speedrun.SongScores.Count;
+            if (_show == Show.Progress)
+            {
+                RenderProgress(speedrun);
+            }
+            else
+            {
+                RenderScores(speedrun);
+            }
+        }
+
+        private void RenderProgress(Speedrun speedrun)
+        {
+            _view.ScoresPageText = "-";
+
+            var progressEntries = new List<LeaderboardMainView.ProgressEntry>();
+
+            foreach (var p in speedrun.Progress.Segments)
+            {
+                if (!p.Segment.HasValue) continue;
+
+                var theme = LeaderboardTheme.FromSegment(p.Segment);
+                var rectGradient = p.ReachedAt.HasValue
+                    ? theme.Gradient
+                    : LeaderboardTheme.NotRunning.Gradient;
+                var text = p.ReachedAt is TimeSpan at
+                    ? $"<line-height=70%><$main>{p.Segment}<size=80%><$accent> / <$main>{p.RequiredPp:0.#}pp"
+                        + $"\n<size=80%><$accent>reached at <$main>{at:h\\:mm\\:ss}"
+                    : $"<#aaaaaa>{p.Segment}<size=80%><$icon> / <#888888>{p.RequiredPp:0.#}pp";
+
+                progressEntries.Add(new LeaderboardMainView.ProgressEntry(
+                    rectGradient,
+                    theme.IconSource,
+                    theme.IconColor,
+                    ("#000000aa", "#000000dd"),
+                    theme.ReplaceRichText(text)));
+
+                if (p.Segment == speedrun.Progress.TargetSegment?.Segment) break;
+            }
+
+            _view.ShowProgress = true;
+            _view.ShowScores = false;
+            _view.ReplaceProgressEntries(progressEntries);
+        }
+
+        private void RenderScores(Speedrun speedrun)
+        {
+            var scoresCount = _show == Show.TopScores
+                ? speedrun.TopScores.Count
+                : speedrun.SongScores.Count;
             if (scoresCount == 0)
             {
                 _view.PrevScoresButtonColor = DisabledButtonColor;
                 _view.NextScoresButtonColor = DisabledButtonColor;
                 _view.ScoresPageText = "1";
-                _view.ReplaceScoreEntries(Enumerable.Empty<LeaderboardMainView.ScoreEntry>());
+                _view.ShowProgress = false;
+                _view.ShowScores = false;
                 return;
             }
 
@@ -127,7 +187,7 @@ namespace BeatSpeedrun.Controllers
                 _scoresPage < maxPage ? EnabledButtonColor : DisabledButtonColor;
             _view.ScoresPageText = (_scoresPage + 1).ToString();
 
-            var scores = _showsTopScores
+            var scores = _show == Show.TopScores
                 ? speedrun.TopScores.Skip(_scoresPage * 8).Take(8)
                 : Enumerable.Reverse(speedrun.SongScores).Skip(_scoresPage * 8).Take(8);
 
@@ -163,6 +223,8 @@ namespace BeatSpeedrun.Controllers
                     rectGradient, rank, cover, title, subTitle, difficulty, result, meta);
             });
 
+            _view.ShowProgress = false;
+            _view.ShowScores = true;
             _view.ReplaceScoreEntries(scoreEntries);
         }
 
@@ -170,7 +232,7 @@ namespace BeatSpeedrun.Controllers
             Loader _loader,
             ConcurrentDictionary<string, CustomPreviewBeatmapLevel> _dictionary)
         {
-            RenderScores();
+            RenderContents();
         }
 
         private void RenderFooter()
@@ -203,6 +265,7 @@ namespace BeatSpeedrun.Controllers
             Loader.SongsLoadedEvent += RenderScoresForSongCore;
             _view.OnNextScoresSelected += ShowNextScores;
             _view.OnPrevScoresSelected += ShowPrevScores;
+            _view.OnProgressSelected += ShowProgress;
             _view.OnTopScoresSelected += ShowTopScores;
             _view.OnRecentScoresSelected += ShowRecentScores;
             _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
@@ -215,6 +278,7 @@ namespace BeatSpeedrun.Controllers
             _currentSpeedrunManager.OnCurrentSpeedrunChanged -= Render;
             _view.OnRecentScoresSelected -= ShowRecentScores;
             _view.OnTopScoresSelected -= ShowTopScores;
+            _view.OnProgressSelected -= ShowProgress;
             _view.OnPrevScoresSelected -= ShowPrevScores;
             _view.OnNextScoresSelected -= ShowNextScores;
             Loader.SongsLoadedEvent -= RenderScoresForSongCore;
@@ -231,27 +295,34 @@ namespace BeatSpeedrun.Controllers
         internal void ShowNextScores()
         {
             _scoresPage++;
-            RenderScores();
+            RenderContents();
         }
 
         internal void ShowPrevScores()
         {
             _scoresPage--;
-            RenderScores();
+            RenderContents();
+        }
+
+        internal void ShowProgress()
+        {
+            _show = Show.Progress;
+            _scoresPage = 0;
+            RenderContents();
         }
 
         internal void ShowTopScores()
         {
-            _showsTopScores = true;
+            _show = Show.TopScores;
             _scoresPage = 0;
-            RenderScores();
+            RenderContents();
         }
 
         internal void ShowRecentScores()
         {
-            _showsTopScores = false;
+            _show = Show.RecentScores;
             _scoresPage = 0;
-            RenderScores();
+            RenderContents();
         }
     }
 }
