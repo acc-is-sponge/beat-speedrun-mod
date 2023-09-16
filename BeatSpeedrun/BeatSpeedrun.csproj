@@ -185,6 +185,7 @@
     <EmbeddedResource Include="Source\Resources\ruby.png" />
     <EmbeddedResource Include="Source\Resources\sapphire.png" />
     <EmbeddedResource Include="Source\Resources\trophy.png" />
+    <EmbeddedResource Include="Source\Resources\route.png" />
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>
