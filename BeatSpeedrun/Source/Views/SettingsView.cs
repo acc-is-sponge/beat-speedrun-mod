@@ -213,31 +213,16 @@ namespace BeatSpeedrun.Views
 
         internal class RegulationOption
         {
-            internal string Id { get; }
+            internal string Path { get; }
             internal string Label { get; }
 
-            internal RegulationOption(string id)
+            internal RegulationOption(string path)
             {
-                Id = id;
-                Label = ToLabel(id);
+                Path = path;
+                Label = Regulation.ShortenPath(path);
             }
 
             public override string ToString() => Label;
-
-            private static string ToLabel(string id)
-            {
-                // NOTE: Perhaps there is a better way
-                try
-                {
-                    var uri = new Uri(id);
-                    id = uri.LocalPath;
-                }
-                catch
-                {
-                    // ignored
-                }
-                return id.EndsWith(".json") ? id.Substring(0, id.Length - 5) : id;
-            }
 
             internal static readonly RegulationOption Loading = new RegulationOption("...");
         }

@@ -187,10 +187,13 @@ namespace BeatSpeedrun.Controllers
             }
             else
             {
-                _view.FooterText = theme.ReplaceRichText(
-                    $"<$main>{speedrun.Regulation.Title}<$accent> / <$main>" +
-                    (speedrun.Progress.TargetSegment is Progress.SegmentProgress t ? $"{t.Segment}<$accent> / <$main>{t.RequiredPp:0.#}pp" : "endless")
-                );
+                var title = Regulation.IsCustomPath(speedrun.RegulationPath)
+                    ? "<$accent>(custom) <$main>" + speedrun.Regulation.Title
+                    : "<$main>" + speedrun.Regulation.Title;
+                var target = speedrun.Progress.TargetSegment is Progress.SegmentProgress t
+                    ? $"<$main>{t.Segment}<$accent> / <$main>{t.RequiredPp:0.#}pp"
+                    : "<$main>endless";
+                _view.FooterText = theme.ReplaceRichText($"{title}<$accent> / {target}");
             }
         }
 

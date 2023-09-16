@@ -42,12 +42,12 @@ namespace BeatSpeedrun.Controllers
             if (_currentSpeedrunManager.Current is Speedrun speedrun)
             {
                 selectedRegulationOption =
-                    new SettingsView.RegulationOption(speedrun.RegulationId);
+                    new SettingsView.RegulationOption(speedrun.RegulationPath);
                 selectedSegmentOption =
                     speedrun.Progress.TargetSegment is Progress.SegmentProgress s
                         ? new SettingsView.SegmentOption(s.Segment, s.RequiredPp)
                         : SettingsView.SegmentOption.Endless;
-                _selectedRegulation = selectedRegulationOption.Id;
+                _selectedRegulation = selectedRegulationOption.Path;
                 _selectedSegment = selectedSegmentOption?.Segment;
 
                 _view.DescriptionText = speedrun.Regulation.Description;
@@ -77,11 +77,11 @@ namespace BeatSpeedrun.Controllers
                 return;
             }
 
-            selectedRegulationOption = regulationOptions.FirstOrDefault(r => r.Id == _selectedRegulation);
+            selectedRegulationOption = regulationOptions.FirstOrDefault(r => r.Path == _selectedRegulation);
             if (selectedRegulationOption == null)
             {
                 selectedRegulationOption = regulationOptions[0];
-                _selectedRegulation = selectedRegulationOption.Id;
+                _selectedRegulation = selectedRegulationOption.Path;
             }
 
             _view.ReplaceRegulationDropdownChoices(regulationOptions);
@@ -147,7 +147,7 @@ namespace BeatSpeedrun.Controllers
 
         internal void SelectRegulation(SettingsView.RegulationOption option)
         {
-            _selectedRegulation = option.Id;
+            _selectedRegulation = option.Path;
             Render();
         }
 
