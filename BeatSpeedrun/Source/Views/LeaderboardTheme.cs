@@ -17,6 +17,7 @@ namespace BeatSpeedrun.Views
         internal string ReplaceRichText(string text)
         {
             return text
+                .Replace("<$icon>", $"<{IconColor}>")
                 .Replace("<$main>", $"<{GradientMainTextColor}>")
                 .Replace("<$sub>", $"<{GradientSubTextColor}>")
                 .Replace("<$accent>", $"<{AccentColor}>");
@@ -153,7 +154,7 @@ namespace BeatSpeedrun.Views
         internal static readonly LeaderboardTheme Diamond = new LeaderboardTheme
         {
             IconSource = "BeatSpeedrun.Source.Resources.diamond.png",
-            IconColor = "#eddff",
+            IconColor = "#eeddff",
             GradientFromColor = "#f4ebff",
             GradientToColor = "#e4a8f0",
             GradientMainTextColor = "#000000",
