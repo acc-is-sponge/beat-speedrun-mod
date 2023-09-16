@@ -142,6 +142,9 @@ namespace BeatSpeedrun.Controllers
                 var rectGradient = p.ReachedAt.HasValue
                     ? theme.Gradient
                     : LeaderboardTheme.NotRunning.Gradient;
+                var iconColor = p.ReachedAt.HasValue
+                    ? theme.IconColor
+                    : "#666666";
                 var text = p.ReachedAt is TimeSpan at
                     ? $"<line-height=70%><$main>{p.Segment}<size=80%><$accent> / <$main>{p.RequiredPp:0.#}pp"
                         + $"\n<size=80%><$accent>reached at <$main>{at:h\\:mm\\:ss}"
@@ -150,7 +153,7 @@ namespace BeatSpeedrun.Controllers
                 progressEntries.Add(new LeaderboardMainView.ProgressEntry(
                     rectGradient,
                     theme.IconSource,
-                    theme.IconColor,
+                    iconColor,
                     ("#000000aa", "#000000dd"),
                     theme.ReplaceRichText(text)));
 

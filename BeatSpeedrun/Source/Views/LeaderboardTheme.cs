@@ -132,7 +132,7 @@ namespace BeatSpeedrun.Views
         internal static readonly LeaderboardTheme Sapphire = new LeaderboardTheme
         {
             IconSource = "BeatSpeedrun.Source.Resources.sapphire.png",
-            IconColor = "#2f84ff",
+            IconColor = "#4fa4ff",
             GradientFromColor = "#0a9fdd",
             GradientToColor = "#310a9f",
             GradientMainTextColor = "#ffffff",
