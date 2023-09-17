@@ -81,7 +81,10 @@ namespace BeatSpeedrun.Extensions
 
         public virtual void Dispose()
         {
-            GameplaySetup.instance.RemoveTab(TabName);
+            if (GameplaySetup.instance != null && BSMLParser.instance != null)
+            {
+                GameplaySetup.instance.RemoveTab(TabName);
+            }
         }
     }
 
