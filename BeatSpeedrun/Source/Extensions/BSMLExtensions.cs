@@ -79,8 +79,7 @@ namespace BeatSpeedrun.Extensions
 
         public virtual void Dispose()
         {
-            if (GameplaySetup.IsSingletonAvailable && BSMLParser.IsSingletonAvailable)
-                GameplaySetup.instance.RemoveTab(TabName);
+            GameplaySetup.instance.RemoveTab(TabName);
         }
     }
 }
