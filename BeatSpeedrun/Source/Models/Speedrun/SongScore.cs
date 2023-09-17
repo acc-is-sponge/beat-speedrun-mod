@@ -74,6 +74,7 @@ namespace BeatSpeedrun.Models.Speedrun
             public EnvironmentInfoSO environmentInfo => null;
             public EnvironmentInfoSO allDirectionsEnvironmentInfo => null;
             public IReadOnlyList<PreviewDifficultyBeatmapSet> previewDifficultyBeatmapSets => null;
+            public EnvironmentInfoSO[] environmentInfos => null;
             public Task<UnityEngine.Sprite> GetCoverImageAsync(CancellationToken _) => Task.FromResult<UnityEngine.Sprite>(null);
         }
 

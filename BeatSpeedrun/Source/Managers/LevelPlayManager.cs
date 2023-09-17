@@ -5,6 +5,7 @@ using BeatSpeedrun.Models.Speedrun;
 using Zenject;
 using BeatSpeedrun.Models;
 using System.Threading.Tasks;
+using IPA.Utilities;
 
 namespace BeatSpeedrun.Managers
 {
@@ -106,7 +107,7 @@ namespace BeatSpeedrun.Managers
                     return;
                 }
 
-                var defaultEnvironment = _customLevelLoader.LoadEnvironmentInfo(null, false);
+                var defaultEnvironment = FieldAccessor<CustomLevelLoader, EnvironmentInfoSO>.Get(_customLevelLoader, "_defaultEnvironmentInfo");
                 var beatmapData = await so.difficultyBeatmap.GetBeatmapDataAsync(defaultEnvironment, _playerDataModel.playerData.playerSpecificSettings);
 
                 var maxScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmapData);
