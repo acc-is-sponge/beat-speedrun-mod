@@ -49,6 +49,8 @@ namespace BeatSpeedrun.Models
 
         internal static string ShortenPath(string path)
         {
+            if (string.IsNullOrEmpty(path)) return "...";
+
             if (path.StartsWith("http:") || path.StartsWith("https:"))
             {
                 try

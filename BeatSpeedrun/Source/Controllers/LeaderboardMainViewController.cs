@@ -41,56 +41,57 @@ namespace BeatSpeedrun.Controllers
 
         private void Render()
         {
-            RenderStatusBar();
+            RenderStatusHeader();
             RenderContents();
             RenderFooter();
         }
 
-        private void RenderStatusBar()
+        private void RenderStatusHeader()
         {
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
+            var view = _view.StatusHeader;
 
-            _view.StatusRectGradient = theme.Gradient;
+            view.RectGradient = theme.Gradient;
 
             if (speedrun == null)
             {
-                _view.StatusPpText = theme.ReplaceRichText("<$main>0<size=80%>pp");
-                _view.StatusSegmentText = theme.ReplaceRichText("<$main>; )");
+                view.PpText = theme.ReplaceRichText("<$main>0<size=80%>pp");
+                view.SegmentText = theme.ReplaceRichText("<$main>; )");
             }
             else
             {
                 var curr = speedrun.Progress.GetCurrentSegment();
                 var next = speedrun.Progress.GetNextSegment();
 
-                _view.StatusPpText = theme.ReplaceRichText(
+                view.PpText = theme.ReplaceRichText(
                     $"<$main>{speedrun.TotalPp:0.#}<size=80%>pp");
-                _view.StatusSegmentText = theme.ReplaceRichText(
+                view.SegmentText = theme.ReplaceRichText(
                     "<line-height=45%><$main>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
-                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$main>{n.Segment}<$accent> / <$main>{n.RequiredPp:0.#}pp" : ""));
+                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$main>{n.Segment}<$accent> / <$main>{n.RequiredPp}pp" : ""));
             }
 
-            RenderStatusBarTime();
+            RenderStatusHeaderTime();
         }
 
-        private void RenderStatusBarTime()
+        private void RenderStatusHeaderTime()
         {
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
+            var view = _view.StatusHeader;
 
             if (speedrun == null)
             {
-                _view.StatusTimeText = theme.ReplaceRichText($"<$main>0:00:00");
+                view.TimeText = theme.ReplaceRichText($"<$main>0:00:00");
             }
             else
             {
                 var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
-                _view.StatusTimeText =
+                view.TimeText =
                     speedrun.Progress.TimeLimit <= time
                         ? theme.ReplaceRichText($"<line-height=45%><size=70%><$main>TIME IS UP!\n<size=50%><$sub>{time:h\\:mm\\:ss}")
-                        : _view.StatusTimeText = theme.ReplaceRichText($"<$main>{time:h\\:mm\\:ss}");
+                        : theme.ReplaceRichText($"<$main>{time:h\\:mm\\:ss}");
             }
-
         }
 
         const string EnabledButtonColor = "#ffffff";
@@ -103,20 +104,20 @@ namespace BeatSpeedrun.Controllers
 
             if (speedrun == null)
             {
-                _view.ProgressButtonColor = DisabledButtonColor;
-                _view.TopScoresButtonColor = DisabledButtonColor;
-                _view.RecentScoresButtonColor = DisabledButtonColor;
-                _view.PrevScoresButtonColor = DisabledButtonColor;
-                _view.NextScoresButtonColor = DisabledButtonColor;
-                _view.ScoresPageText = "-";
-                _view.ShowProgress = false;
-                _view.ShowScores = false;
+                _view.SideControl.ProgressButtonColor = DisabledButtonColor;
+                _view.SideControl.TopScoresButtonColor = DisabledButtonColor;
+                _view.SideControl.RecentScoresButtonColor = DisabledButtonColor;
+                _view.SideControl.PrevScoresButtonColor = DisabledButtonColor;
+                _view.SideControl.NextScoresButtonColor = DisabledButtonColor;
+                _view.SideControl.ScoresPageText = "-";
+                _view.Progress.Show = false;
+                _view.Scores.Show = false;
                 return;
             }
 
-            _view.ProgressButtonColor = _show == Show.Progress ? theme.AccentColor : EnabledButtonColor;
-            _view.TopScoresButtonColor = _show == Show.TopScores ? theme.AccentColor : EnabledButtonColor;
-            _view.RecentScoresButtonColor = _show == Show.RecentScores ? theme.AccentColor : EnabledButtonColor;
+            _view.SideControl.ProgressButtonColor = _show == Show.Progress ? theme.AccentColor : EnabledButtonColor;
+            _view.SideControl.TopScoresButtonColor = _show == Show.TopScores ? theme.AccentColor : EnabledButtonColor;
+            _view.SideControl.RecentScoresButtonColor = _show == Show.RecentScores ? theme.AccentColor : EnabledButtonColor;
 
             if (_show == Show.Progress)
             {
@@ -130,9 +131,7 @@ namespace BeatSpeedrun.Controllers
 
         private void RenderProgress(Speedrun speedrun)
         {
-            _view.ScoresPageText = "-";
-
-            var progressEntries = new List<LeaderboardMainView.ProgressEntry>();
+            var progressEntries = new List<LeaderboardProgressView.Entry>();
 
             foreach (var p in speedrun.Progress.Segments)
             {
@@ -146,11 +145,11 @@ namespace BeatSpeedrun.Controllers
                     ? theme.IconColor
                     : "#666666";
                 var text = p.ReachedAt is TimeSpan at
-                    ? $"<line-height=70%><$main>{p.Segment}<size=80%><$accent> / <$main>{p.RequiredPp:0.#}pp"
+                    ? $"<line-height=70%><$main>{p.Segment}<size=80%><$accent> / <$main>{p.RequiredPp}pp"
                         + $"\n<size=80%><$accent>reached at <$main>{at:h\\:mm\\:ss}"
-                    : $"<#aaaaaa>{p.Segment}<size=80%><$icon> / <#888888>{p.RequiredPp:0.#}pp";
+                    : $"<#aaaaaa>{p.Segment}<size=80%><$icon> / <#888888>{p.RequiredPp}pp";
 
-                progressEntries.Add(new LeaderboardMainView.ProgressEntry(
+                progressEntries.Add(new LeaderboardProgressView.Entry(
                     rectGradient,
                     theme.IconSource,
                     iconColor,
@@ -160,9 +159,10 @@ namespace BeatSpeedrun.Controllers
                 if (p.Segment == speedrun.Progress.TargetSegment?.Segment) break;
             }
 
-            _view.ShowProgress = true;
-            _view.ShowScores = false;
-            _view.ReplaceProgressEntries(progressEntries);
+            _view.SideControl.ScoresPageText = "-";
+            _view.Scores.Show = false;
+            _view.Progress.Show = true;
+            _view.Progress.ReplaceEntries(progressEntries);
         }
 
         private void RenderScores(Speedrun speedrun)
@@ -172,11 +172,11 @@ namespace BeatSpeedrun.Controllers
                 : speedrun.SongScores.Count;
             if (scoresCount == 0)
             {
-                _view.PrevScoresButtonColor = DisabledButtonColor;
-                _view.NextScoresButtonColor = DisabledButtonColor;
-                _view.ScoresPageText = "1";
-                _view.ShowProgress = false;
-                _view.ShowScores = false;
+                _view.SideControl.PrevScoresButtonColor = DisabledButtonColor;
+                _view.SideControl.NextScoresButtonColor = DisabledButtonColor;
+                _view.SideControl.ScoresPageText = "1";
+                _view.Progress.Show = false;
+                _view.Scores.Show = false;
                 return;
             }
 
@@ -184,11 +184,11 @@ namespace BeatSpeedrun.Controllers
             if (_scoresPage < 0) _scoresPage = 0;
             if (maxPage < _scoresPage) _scoresPage = maxPage;
 
-            _view.PrevScoresButtonColor =
+            _view.SideControl.PrevScoresButtonColor =
                 0 < _scoresPage ? EnabledButtonColor : DisabledButtonColor;
-            _view.NextScoresButtonColor =
+            _view.SideControl.NextScoresButtonColor =
                 _scoresPage < maxPage ? EnabledButtonColor : DisabledButtonColor;
-            _view.ScoresPageText = (_scoresPage + 1).ToString();
+            _view.SideControl.ScoresPageText = (_scoresPage + 1).ToString();
 
             var scores = _show == Show.TopScores
                 ? speedrun.TopScores.Skip(_scoresPage * 8).Take(8)
@@ -222,13 +222,13 @@ namespace BeatSpeedrun.Controllers
                     meta = $"<line-height=45%>{meta}\n<size=60%><#33ff33>+{diff:0.#}<size=50%>pp";
                 }
 
-                return new LeaderboardMainView.ScoreEntry(
+                return new LeaderboardScoresView.Entry(
                     rectGradient, rank, cover, title, subTitle, difficulty, result, meta);
             });
 
-            _view.ShowProgress = false;
-            _view.ShowScores = true;
-            _view.ReplaceScoreEntries(scoreEntries);
+            _view.Progress.Show = false;
+            _view.Scores.Show = true;
+            _view.Scores.ReplaceEntries(scoreEntries);
         }
 
         private void RenderScoresForSongCore(
@@ -242,12 +242,13 @@ namespace BeatSpeedrun.Controllers
         {
             var speedrun = _currentSpeedrunManager.Current;
             var theme = CurrentTheme;
+            var view = _view.Footer;
 
-            _view.FooterRectGradient = theme.Gradient;
+            view.RectGradient = theme.Gradient;
 
             if (speedrun == null)
             {
-                _view.FooterText = theme.ReplaceRichText(
+                view.Text = theme.ReplaceRichText(
                     "<$main>You can start your speedrun on the Beat Speedrun MOD tab");
             }
             else
@@ -256,9 +257,9 @@ namespace BeatSpeedrun.Controllers
                     ? "<$accent>(custom) <$main>" + speedrun.Regulation.Title
                     : "<$main>" + speedrun.Regulation.Title;
                 var target = speedrun.Progress.TargetSegment is Progress.SegmentProgress t
-                    ? $"<$main>{t.Segment}<$accent> / <$main>{t.RequiredPp:0.#}pp"
+                    ? $"<$main>{t.Segment}<$accent> / <$main>{t.RequiredPp}pp"
                     : "<$main>endless";
-                _view.FooterText = theme.ReplaceRichText($"{title}<$accent> / {target}");
+                view.Text = theme.ReplaceRichText($"{title}<$accent> / {target}");
             }
         }
 
@@ -266,11 +267,11 @@ namespace BeatSpeedrun.Controllers
         {
             Render();
             Loader.SongsLoadedEvent += RenderScoresForSongCore;
-            _view.OnNextScoresSelected += ShowNextScores;
-            _view.OnPrevScoresSelected += ShowPrevScores;
-            _view.OnProgressSelected += ShowProgress;
-            _view.OnTopScoresSelected += ShowTopScores;
-            _view.OnRecentScoresSelected += ShowRecentScores;
+            _view.SideControl.OnNextScoresSelected += ShowNextScores;
+            _view.SideControl.OnPrevScoresSelected += ShowPrevScores;
+            _view.SideControl.OnProgressSelected += ShowProgress;
+            _view.SideControl.OnTopScoresSelected += ShowTopScores;
+            _view.SideControl.OnRecentScoresSelected += ShowRecentScores;
             _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
             _currentSpeedrunManager.OnCurrentSpeedrunUpdated += Render;
         }
@@ -279,11 +280,11 @@ namespace BeatSpeedrun.Controllers
         {
             _currentSpeedrunManager.OnCurrentSpeedrunUpdated -= Render;
             _currentSpeedrunManager.OnCurrentSpeedrunChanged -= Render;
-            _view.OnRecentScoresSelected -= ShowRecentScores;
-            _view.OnTopScoresSelected -= ShowTopScores;
-            _view.OnProgressSelected -= ShowProgress;
-            _view.OnPrevScoresSelected -= ShowPrevScores;
-            _view.OnNextScoresSelected -= ShowNextScores;
+            _view.SideControl.OnRecentScoresSelected -= ShowRecentScores;
+            _view.SideControl.OnTopScoresSelected -= ShowTopScores;
+            _view.SideControl.OnProgressSelected -= ShowProgress;
+            _view.SideControl.OnPrevScoresSelected -= ShowPrevScores;
+            _view.SideControl.OnNextScoresSelected -= ShowNextScores;
             Loader.SongsLoadedEvent -= RenderScoresForSongCore;
         }
 
@@ -292,7 +293,7 @@ namespace BeatSpeedrun.Controllers
             var speedrun = _currentSpeedrunManager.Current;
             if (speedrun == null || speedrun.Progress.IsTargetReached) return;
 
-            RenderStatusBarTime();
+            RenderStatusHeaderTime();
         }
 
         internal void ShowNextScores()

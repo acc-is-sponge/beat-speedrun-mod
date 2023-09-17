@@ -102,7 +102,7 @@ namespace BeatSpeedrun.Models.Speedrun
         {
             internal Segment? Segment { get; set; }
 
-            internal float RequiredPp { get; set; }
+            internal int RequiredPp { get; set; }
 
             /// <summary>
             /// When the speedrun reached the segment?

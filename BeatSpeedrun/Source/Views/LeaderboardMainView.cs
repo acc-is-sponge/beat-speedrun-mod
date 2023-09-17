@@ -13,83 +13,99 @@ namespace BeatSpeedrun.Views
     {
         internal const string ResourceName = "BeatSpeedrun.Source.Views.LeaderboardMain.bsml";
 
+        [UIValue("status-header")]
+        internal LeaderboardStatusHeaderView StatusHeader { get; } = new LeaderboardStatusHeaderView();
+
+        [UIValue("side-control")]
+        internal LeaderboardSideControlView SideControl { get; } = new LeaderboardSideControlView();
+
+        [UIValue("progress")]
+        internal LeaderboardProgressView Progress { get; } = new LeaderboardProgressView();
+
+        [UIValue("scores")]
+        internal LeaderboardScoresView Scores { get; } = new LeaderboardScoresView();
+
+        [UIValue("footer")]
+        internal LeaderboardFooterView Footer { get; } = new LeaderboardFooterView();
+    }
+
+    internal class LeaderboardStatusHeaderView : BSMLView
+    {
+        [UIComponent("rect")]
+        private readonly Backgroundable _rect;
+
+        private (string, string) _rectGradient = ("#333333", "#666666");
+
+        internal (string, string) RectGradient
+        {
+            get => _rectGradient;
+            set => ChangeProperty(ref _rectGradient, value, FillRect);
+        }
+
+        private void FillRect()
+        {
+            _rect.Fill(_rectGradient.Item1, _rectGradient.Item2);
+        }
+
+        [UIComponent("pp-rect")]
+        private readonly Backgroundable _ppRect;
+
+        private void FillPpRect()
+        {
+            _ppRect.Fill("#00000066", "#000000bb");
+        }
+
+        private string _ppText;
+
+        [UIValue("pp-text")]
+        internal string PpText
+        {
+            get => _ppText;
+            set => ChangeProperty(ref _ppText, value);
+        }
+
+        private string _segmentText;
+
+        [UIValue("segment-text")]
+        internal string SegmentText
+        {
+            get => _segmentText;
+            set => ChangeProperty(ref _segmentText, value);
+        }
+
+        [UIComponent("time-rect")]
+        private readonly Backgroundable _timeRect;
+
+        private void FillTimeRect()
+        {
+            _timeRect.Fill("#000000bb", "#00000066");
+        }
+
+        private string _timeText;
+
+        [UIValue("time-text")]
+        internal string TimeText
+        {
+            get => _timeText;
+            set => ChangeProperty(ref _timeText, value);
+        }
+
+        [UIAction("#post-parse")]
+        private void PostParse()
+        {
+            FillRect();
+            FillPpRect();
+            FillTimeRect();
+        }
+    }
+
+    internal class LeaderboardSideControlView : BSMLView
+    {
         internal event Action OnProgressSelected;
         internal event Action OnTopScoresSelected;
         internal event Action OnRecentScoresSelected;
         internal event Action OnNextScoresSelected;
         internal event Action OnPrevScoresSelected;
-
-        [UIAction("#post-parse")]
-        private void PostParse()
-        {
-            FillStatusRect();
-            FillStatusPpRect();
-            FillStatusTimeRect();
-            FillFooterRect();
-        }
-
-        // ----- STATUS BAR -----
-
-        [UIComponent("status-rect")]
-        private readonly Backgroundable _statusRect;
-
-        private (string, string) _statusRectGradient = ("#333333", "#666666");
-
-        internal (string, string) StatusRectGradient
-        {
-            get => _statusRectGradient;
-            set => ChangeProperty(ref _statusRectGradient, value, FillStatusRect);
-        }
-
-        private void FillStatusRect()
-        {
-            _statusRect.Fill(_statusRectGradient.Item1, _statusRectGradient.Item2);
-        }
-
-        [UIComponent("status-pp-rect")]
-        private readonly Backgroundable _statusPpRect;
-
-        private void FillStatusPpRect()
-        {
-            _statusPpRect.Fill("#00000066", "#000000bb");
-        }
-
-        private string _statusPpText;
-
-        [UIValue("status-pp-text")]
-        internal string StatusPpText
-        {
-            get => _statusPpText;
-            set => ChangeProperty(ref _statusPpText, value);
-        }
-
-        private string _statusSegmentText;
-
-        [UIValue("status-segment-text")]
-        internal string StatusSegmentText
-        {
-            get => _statusSegmentText;
-            set => ChangeProperty(ref _statusSegmentText, value);
-        }
-
-        [UIComponent("status-time-rect")]
-        private readonly Backgroundable _statusTimeRect;
-
-        private void FillStatusTimeRect()
-        {
-            _statusTimeRect.Fill("#000000bb", "#00000066");
-        }
-
-        private string _statusTimeText;
-
-        [UIValue("status-time-text")]
-        internal string StatusTimeText
-        {
-            get => _statusTimeText;
-            set => ChangeProperty(ref _statusTimeText, value);
-        }
-
-        // ----- SIDE CONTROL BAR -----
 
         private string _progressButtonColor;
 
@@ -209,33 +225,34 @@ namespace BeatSpeedrun.Views
                 Plugin.Log.Error($"Error while invoking OnNextScoresSelected event:\n{ex}");
             }
         }
+    }
 
-        // ----- PROGRESS -----
+    internal class LeaderboardProgressView : BSMLView
+    {
+        private bool _show;
 
-        private bool _showProgress;
-
-        [UIValue("show-progress")]
-        internal bool ShowProgress
+        [UIValue("show")]
+        internal bool Show
         {
-            get => _showProgress;
-            set => ChangeProperty(ref _showProgress, value);
+            get => _show;
+            set => ChangeProperty(ref _show, value);
         }
 
-        [UIComponent("progress-list")]
-        private readonly CustomCellListTableData _progressList;
+        [UIComponent("list")]
+        private readonly CustomCellListTableData _list;
 
-        [UIValue("progress-entries")]
-        private readonly List<object> _progressEntries = new List<object>();
+        [UIValue("entries")]
+        private readonly List<object> _entries = new List<object>();
 
-        internal void ReplaceProgressEntries(IEnumerable<ProgressEntry> entries)
+        internal void ReplaceEntries(IEnumerable<Entry> entries)
         {
-            _progressEntries.Clear();
-            ProgressEntry prev = null;
+            _entries.Clear();
+            Entry prev = null;
             foreach (var entry in entries)
             {
                 if (prev != null)
                 {
-                    _progressEntries.Add(new ProgressEntryPair(prev, entry));
+                    _entries.Add(new EntryPair(prev, entry));
                     prev = null;
                     continue;
                 }
@@ -243,33 +260,33 @@ namespace BeatSpeedrun.Views
             }
             if (prev != null)
             {
-                _progressEntries.Add(new ProgressEntryPair(prev));
+                _entries.Add(new EntryPair(prev));
             }
-            _progressList?.tableView.ReloadData();
+            _list?.tableView.ReloadData();
         }
 
-        internal class ProgressEntryPair : BSMLView
+        internal class EntryPair : BSMLView
         {
             [UIValue("item1")]
-            private readonly ProgressEntry _item1;
+            private readonly Entry _item1;
 
             [UIValue("item2")]
-            private readonly ProgressEntry _item2;
+            private readonly Entry _item2;
 
-            internal ProgressEntryPair(ProgressEntry item1, ProgressEntry item2)
+            internal EntryPair(Entry item1, Entry item2)
             {
                 _item1 = item1;
                 _item2 = item2;
             }
 
-            internal ProgressEntryPair(ProgressEntry item1)
+            internal EntryPair(Entry item1)
             {
                 _item1 = item1;
-                _item2 = ProgressEntry.Inactive;
+                _item2 = Entry.Inactive;
             }
         }
 
-        internal class ProgressEntry : BSMLView
+        internal class Entry : BSMLView
         {
             [UIComponent("rect")]
             private readonly Backgroundable _rect;
@@ -290,7 +307,7 @@ namespace BeatSpeedrun.Views
 
             private readonly (string, string) _iconRectGradient;
 
-            internal ProgressEntry(
+            internal Entry(
                 (string, string) rectGradient,
                 string iconSource,
                 string iconColor,
@@ -311,39 +328,40 @@ namespace BeatSpeedrun.Views
                 _iconRect.Fill(_iconRectGradient.Item1, _iconRectGradient.Item2);
             }
 
-            internal static readonly ProgressEntry Inactive = new ProgressEntry(
+            internal static readonly Entry Inactive = new Entry(
                 ("#00000000", "#00000000"),
                 "BeatSpeedrun.Source.Resources.route.png",
                 "#00000000",
                 ("#00000000", "#00000000"),
                 "");
         }
+    }
 
-        // ----- SCORES -----
+    internal class LeaderboardScoresView : BSMLView
+    {
+        private bool _show;
 
-        private bool _showScores;
-
-        [UIValue("show-scores")]
-        internal bool ShowScores
+        [UIValue("show")]
+        internal bool Show
         {
-            get => _showScores;
-            set => ChangeProperty(ref _showScores, value);
+            get => _show;
+            set => ChangeProperty(ref _show, value);
         }
 
-        [UIComponent("score-list")]
-        private readonly CustomCellListTableData _scoreList;
+        [UIComponent("list")]
+        private readonly CustomCellListTableData _list;
 
-        [UIValue("score-entries")]
-        private readonly List<object> _scoreEntries = new List<object>();
+        [UIValue("entries")]
+        private readonly List<object> _entries = new List<object>();
 
-        internal void ReplaceScoreEntries(IEnumerable<ScoreEntry> entries)
+        internal void ReplaceEntries(IEnumerable<Entry> entries)
         {
-            _scoreEntries.Clear();
-            _scoreEntries.AddRange(entries);
-            _scoreList?.tableView.ReloadData();
+            _entries.Clear();
+            _entries.AddRange(entries);
+            _list?.tableView.ReloadData();
         }
 
-        internal class ScoreEntry : BSMLView
+        internal class Entry : BSMLView
         {
             [UIComponent("rect")]
             private readonly Backgroundable _rect;
@@ -372,7 +390,7 @@ namespace BeatSpeedrun.Views
             private readonly (string, string) _rectGradient;
             private readonly Task<Sprite> _coverSprite;
 
-            internal ScoreEntry(
+            internal Entry(
                 (string, string) rectGradient,
                 string rank,
                 Task<Sprite> coverSprite,
@@ -408,32 +426,39 @@ namespace BeatSpeedrun.Views
                 }
             }
         }
+    }
 
-        // ----- FOOTER -----
+    internal class LeaderboardFooterView : BSMLView
+    {
+        [UIComponent("rect")]
+        private readonly Backgroundable _rect;
 
-        [UIComponent("footer-rect")]
-        private readonly Backgroundable _footerRect;
+        private (string, string) _rectGradient = ("#333333", "#666666");
 
-        private (string, string) _footerRectGradient = ("#333333", "#666666");
-
-        internal (string, string) FooterRectGradient
+        internal (string, string) RectGradient
         {
-            get => _footerRectGradient;
-            set => ChangeProperty(ref _footerRectGradient, value, FillFooterRect);
+            get => _rectGradient;
+            set => ChangeProperty(ref _rectGradient, value, FillRect);
         }
 
-        private void FillFooterRect()
+        private void FillRect()
         {
-            _footerRect.Fill(_footerRectGradient.Item1, _footerRectGradient.Item2);
+            _rect.Fill(_rectGradient.Item1, _rectGradient.Item2);
         }
 
-        private string _footerText;
+        private string _text;
 
-        [UIValue("footer-text")]
-        internal string FooterText
+        [UIValue("text")]
+        internal string Text
         {
-            get => _footerText;
-            set => ChangeProperty(ref _footerText, value);
+            get => _text;
+            set => ChangeProperty(ref _text, value);
+        }
+
+        [UIAction("#post-parse")]
+        private void PostParse()
+        {
+            FillRect();
         }
     }
 }

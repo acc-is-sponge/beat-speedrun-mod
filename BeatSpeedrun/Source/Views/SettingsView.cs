@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models;
 using HMUI;
@@ -12,8 +10,6 @@ namespace BeatSpeedrun.Views
     {
         internal const string ResourceName = "BeatSpeedrun.Source.Views.Settings.bsml";
 
-        internal event Action<RegulationOption> OnRegulaionSelected;
-        internal event Action<SegmentOption> OnSegmentSelected;
         internal event Action OnStarted;
         internal event Action OnStopped;
 
@@ -32,102 +28,17 @@ namespace BeatSpeedrun.Views
             set => ChangeProperty(ref _descriptionText, value);
         }
 
-        [UIComponent("regulation-dropdown")]
-        private readonly DropDownListSetting _regulationDropdown;
+        [UIValue("regulation-dropdown")]
+        internal BSMLDropdownView<string> RegulationDropdown { get; } =
+            new BSMLDropdownView<string>(Regulation.ShortenPath);
 
-        private RegulationOption _regulationDropdownValue = RegulationOption.Loading;
+        [UIValue("segment-dropdown")]
+        internal BSMLDropdownView<(Segment?, int)> SegmentDropdown { get; } =
+            new BSMLDropdownView<(Segment?, int)>(SegmentSummary);
 
-        [UIValue("regulation-dropdown-value")]
-        internal RegulationOption RegulationDropdownValue
+        private static string SegmentSummary((Segment?, int) info)
         {
-            get => _regulationDropdownValue;
-            set => ChangeProperty(ref _regulationDropdownValue, value, _regulationDropdown);
-        }
-
-        [UIValue("regulation-dropdown-choices")]
-        private readonly List<object> _regulationDropdownChoices =
-            new List<object>() { RegulationOption.Loading };
-
-        internal void ReplaceRegulationDropdownChoices(IEnumerable<RegulationOption> options)
-        {
-            _regulationDropdownChoices.Clear();
-            _regulationDropdownChoices.AddRange(options);
-            if (_regulationDropdown != null)
-            {
-                _regulationDropdown.values = _regulationDropdownChoices;
-                _regulationDropdown.UpdateChoices();
-            }
-        }
-
-        [UIAction("regulation-selected")]
-        private void RegulationSelected(RegulationOption option)
-        {
-            try
-            {
-                OnRegulaionSelected?.Invoke(option);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.Error($"Error while invoking RegulationSelected event:\n{ex}");
-            }
-        }
-
-        private bool _regulationDropdownInteractable;
-
-        [UIValue("regulation-dropdown-interactable")]
-        internal bool RegulationDropdownInteractable
-        {
-            get => _regulationDropdownInteractable;
-            set => ChangeProperty(ref _regulationDropdownInteractable, value);
-        }
-
-        [UIComponent("segment-dropdown")]
-        private readonly DropDownListSetting _segmentDropdown;
-
-        private SegmentOption _segmentDropdownValue = SegmentOption.Endless;
-
-        [UIValue("segment-dropdown-value")]
-        internal SegmentOption SegmentDropdownValue
-        {
-            get => _segmentDropdownValue;
-            set => ChangeProperty(ref _segmentDropdownValue, value, _segmentDropdown);
-        }
-
-        [UIValue("segment-dropdown-choices")]
-        private readonly List<object> _segmentDropdownChoices =
-            new List<object>() { SegmentOption.Endless };
-
-        internal void ReplaceSegmentDropdownChoices(IEnumerable<SegmentOption> options)
-        {
-            _segmentDropdownChoices.Clear();
-            _segmentDropdownChoices.AddRange(options);
-            if (_segmentDropdown != null)
-            {
-                _segmentDropdown.values = _segmentDropdownChoices;
-                _segmentDropdown.UpdateChoices();
-            }
-        }
-
-        [UIAction("segment-selected")]
-        private void SegmentSelected(SegmentOption option)
-        {
-            try
-            {
-                OnSegmentSelected?.Invoke(option);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.Error($"Error while invoking RegulationSelected event:\n{ex}");
-            }
-        }
-
-        private bool _segmentDropdownInteractable;
-
-        [UIValue("segment-dropdown-interactable")]
-        internal bool SegmentDropdownInteractable
-        {
-            get => _segmentDropdownInteractable;
-            set => ChangeProperty(ref _segmentDropdownInteractable, value);
+            return info.Item1 is Segment s ? $"{s} / {info.Item2}pp" : "endless";
         }
 
         private bool _isRunning;
@@ -209,39 +120,6 @@ namespace BeatSpeedrun.Views
         private void CancelStopClicked()
         {
             _confirmStopModal.Hide(true);
-        }
-
-        internal class RegulationOption
-        {
-            internal string Path { get; }
-            internal string Label { get; }
-
-            internal RegulationOption(string path)
-            {
-                Path = path;
-                Label = Regulation.ShortenPath(path);
-            }
-
-            public override string ToString() => Label;
-
-            internal static readonly RegulationOption Loading = new RegulationOption("...");
-        }
-
-        internal class SegmentOption
-        {
-            internal Segment? Segment { get; }
-            internal float Pp { get; }
-
-            internal SegmentOption(Segment? segment, float pp)
-            {
-                Segment = segment;
-                Pp = pp;
-            }
-
-            public override string ToString() =>
-                Segment is Segment s ? $"{s} / {Pp}pp" : "endless";
-
-            internal static readonly SegmentOption Endless = new SegmentOption(null, 0);
         }
     }
 }

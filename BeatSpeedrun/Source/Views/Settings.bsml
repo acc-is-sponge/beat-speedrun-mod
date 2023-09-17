@@ -11,15 +11,9 @@
             <text text="Regulation" font-size="3" font-color="#888888" align="Midline" />
           </horizontal>
 
-          <dropdown-list-setting
-            id="regulation-dropdown"
-            text=""
-            value="regulation-dropdown-value"
-            choices="regulation-dropdown-choices"
-            on-change="regulation-selected"
-            interactable="~regulation-dropdown-interactable"
-            hover-hint="Select a Regulation"
-          />
+          <macro.as-host host="regulation-dropdown">
+            <dropdown-list-setting id="id" text="" value="value" choices="choices" interactable="~interactable" on-change="on-change" />
+          </macro.as-host>
         </vertical>
 
         <vertical preferred-width="36">
@@ -27,15 +21,9 @@
             <text text="Target Segment" font-size="3" font-color="#888888" align="Midline" />
           </horizontal>
 
-          <dropdown-list-setting
-            id="segment-dropdown"
-            text=""
-            value="segment-dropdown-value"
-            choices="segment-dropdown-choices"
-            on-change="segment-selected"
-            interactable="~segment-dropdown-interactable"
-            hover-hint="Select a Target Segment"
-          />
+          <macro.as-host host="segment-dropdown">
+            <dropdown-list-setting id="id" text="" value="value" choices="choices" interactable="~interactable" on-change="on-change" />
+          </macro.as-host>
         </vertical>
 
         <button
