@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Managers;
@@ -25,13 +26,14 @@ namespace BeatSpeedrun.Controllers
             _regulationManager = regulationManager;
             _currentSpeedrunManager = currentSpeedrunManager;
             _taskWaiter = new TaskWaiter(Render);
+            _view = new SettingsView(GetSegmentPp);
         }
 
         [UIValue("view")]
-        private readonly SettingsView _view = new SettingsView();
+        private readonly SettingsView _view;
 
         private string _selectedRegulation;
-        private (Segment?, int) _selectedSegment;
+        private Segment? _selectedSegment;
 
         private void Render()
         {
@@ -40,7 +42,7 @@ namespace BeatSpeedrun.Controllers
             {
                 var targetSegment = speedrun.Progress.TargetSegment;
                 _selectedRegulation = speedrun.RegulationPath;
-                _selectedSegment = (targetSegment?.Segment, targetSegment?.RequiredPp ?? 0);
+                _selectedSegment = targetSegment?.Segment;
 
                 _view.DescriptionText = speedrun.Regulation.Description;
                 _view.RegulationDropdown.Reset(_selectedRegulation);
@@ -71,21 +73,25 @@ namespace BeatSpeedrun.Controllers
             if (regulation == null)
             {
                 _view.DescriptionText = "loading...";
-                _view.SegmentDropdown.Reset((null, 0));
+                _view.SegmentDropdown.Reset(null);
                 _view.RunInteractable = false;
                 return;
             }
 
-            var segmentOptions = Enum.GetValues(typeof(Segment))
-                .Cast<Segment>()
-                .Select(s => ((Segment?)s, regulation.Rules.SegmentRequirements.GetValue(s)))
-                .ToList();
-            segmentOptions.Sort((a, b) => a.Item2.CompareTo(b.Item2));
-            segmentOptions.Insert(0, (null, 0));
+            var segmentOptions = Enum.GetValues(typeof(Segment)).Cast<Segment?>().ToList();
+            segmentOptions.Insert(0, null);
 
             _view.DescriptionText = regulation.Description;
             _view.SegmentDropdown.Reset(segmentOptions, ref _selectedSegment);
             _view.RunInteractable = true;
+        }
+
+        private int GetSegmentPp(Segment? segment)
+        {
+            if (segment == null) return 0;
+            var regulation = _regulationManager.GetAsync(_selectedRegulation);
+            if (regulation.Status != TaskStatus.RanToCompletion) return 0;
+            return regulation.Result.Rules.SegmentRequirements.GetValue(segment.Value);
         }
 
         public override void Initialize()
@@ -118,7 +124,7 @@ namespace BeatSpeedrun.Controllers
             Render();
         }
 
-        internal void SelectSegment((Segment?, int) segment)
+        internal void SelectSegment(Segment? segment)
         {
             _selectedSegment = segment;
             Render();
@@ -128,9 +134,7 @@ namespace BeatSpeedrun.Controllers
         {
             try
             {
-                await _currentSpeedrunManager.StartAsync(
-                    _selectedRegulation,
-                    _selectedSegment.Item1);
+                await _currentSpeedrunManager.StartAsync(_selectedRegulation, _selectedSegment);
             }
             catch (Exception ex)
             {
