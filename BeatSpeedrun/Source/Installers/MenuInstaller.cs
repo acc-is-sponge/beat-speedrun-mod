@@ -13,6 +13,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<LeaderboardPanelViewController>().FromNewComponentAsViewController().AsSingle();
 
             Container.BindInterfacesAndSelfTo<LeaderboardManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<SelectionStateManager>().AsSingle();
         }
     }
 }

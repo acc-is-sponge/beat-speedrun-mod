@@ -171,7 +171,7 @@ namespace BeatSpeedrun.Extensions
             Interactable = false;
         }
 
-        internal void Reset(List<T> items, ref T current)
+        internal T Reset(List<T> items, T current)
         {
             if (!items.Contains(current, _comparer))
             {
@@ -180,6 +180,7 @@ namespace BeatSpeedrun.Extensions
             Items = items;
             Current = current;
             Interactable = true;
+            return current;
         }
 
         private class Choice
