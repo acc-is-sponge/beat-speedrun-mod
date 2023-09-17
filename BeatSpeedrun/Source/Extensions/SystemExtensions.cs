@@ -24,6 +24,14 @@ namespace BeatSpeedrun.Extensions
         }
     }
 
+    internal static class TimeSpanExtensions
+    {
+        internal static string ToTimerString(this TimeSpan s)
+        {
+            return $"{(int)s.TotalHours}:{s:mm}:{s:ss}";
+        }
+    }
+
     internal static class TaskExtensions
     {
         internal static Task<T> WithCancellation<T>(this Task<T> task, CancellationToken ct)

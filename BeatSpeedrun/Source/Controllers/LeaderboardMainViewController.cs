@@ -67,7 +67,7 @@ namespace BeatSpeedrun.Controllers
                 view.PpText = theme.ReplaceRichText(
                     $"<$main>{speedrun.TotalPp:0.#}<size=80%>pp");
                 view.SegmentText = theme.ReplaceRichText(
-                    "<line-height=45%><$main>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$sub> at {curr.ReachedAt.Value:h\\:mm\\:ss}" +
+                    "<line-height=45%><$main>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$sub> at {curr.ReachedAt.Value.ToTimerString()}" +
                     (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$main>{n.Segment}<$accent> / <$main>{n.RequiredPp}pp" : ""));
             }
 
@@ -89,8 +89,8 @@ namespace BeatSpeedrun.Controllers
                 var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
                 view.TimeText =
                     speedrun.Progress.TimeLimit <= time
-                        ? theme.ReplaceRichText($"<line-height=45%><size=70%><$main>TIME IS UP!\n<size=50%><$sub>{time:h\\:mm\\:ss}")
-                        : theme.ReplaceRichText($"<$main>{time:h\\:mm\\:ss}");
+                        ? theme.ReplaceRichText($"<line-height=45%><size=70%><$main>TIME IS UP!\n<size=50%><$sub>{time.ToTimerString()}")
+                        : theme.ReplaceRichText($"<$main>{time.ToTimerString()}");
             }
         }
 
@@ -146,7 +146,7 @@ namespace BeatSpeedrun.Controllers
                     : "#666666";
                 var text = p.ReachedAt is TimeSpan at
                     ? $"<line-height=70%><$main>{p.Segment}<size=80%><$accent> / <$main>{p.RequiredPp}pp"
-                        + $"\n<size=80%><$accent>reached at <$main>{at:h\\:mm\\:ss}"
+                        + $"\n<size=80%><$accent>reached at <$main>{at.ToTimerString()}"
                     : $"<#aaaaaa>{p.Segment}<size=80%><$icon> / <#888888>{p.RequiredPp}pp";
 
                 progressEntries.Add(new LeaderboardProgressView.Entry(
