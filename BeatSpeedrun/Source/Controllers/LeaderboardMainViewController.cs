@@ -86,11 +86,20 @@ namespace BeatSpeedrun.Controllers
             }
             else
             {
-                var time = speedrun.Progress.ElapsedTime(DateTime.UtcNow);
-                view.TimeText =
-                    speedrun.Progress.TimeLimit <= time
-                        ? theme.ReplaceRichText($"<line-height=45%><size=70%><$main>TIME IS UP!\n<size=50%><$sub>{time.ToTimerString()}")
-                        : theme.ReplaceRichText($"<$main>{time.ToTimerString()}");
+
+                var now = DateTime.UtcNow;
+                var time = speedrun.Progress.ElapsedTime(now);
+                string text;
+                switch (speedrun.Progress.ComputeState(now))
+                {
+                    case Progress.State.TimeIsUp:
+                        text = $"<line-height=40%><size=80%><$main>TIME IS UP!\n<size=60%><$sub>{time.ToTimerString()}";
+                        break;
+                    default:
+                        text = $"<$main>{time.ToTimerString()}";
+                        break;
+                }
+                view.TimeText = theme.ReplaceRichText(text);
             }
         }
 

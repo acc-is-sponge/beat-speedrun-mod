@@ -149,6 +149,11 @@ namespace BeatSpeedrun.Managers
                         Plugin.Log.Warn($"Failed to delete an empty speedrun:\n{ex}");
                     }
                 }
+                else
+                {
+                    Current.Finish(DateTime.UtcNow);
+                    _speedrunManager.Save(Current);
+                }
 
                 PluginConfig.Instance.CurrentSpeedrun = null;
                 PluginConfig.Instance.Changed();

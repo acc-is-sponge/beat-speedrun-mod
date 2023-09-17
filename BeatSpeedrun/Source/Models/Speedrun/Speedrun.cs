@@ -24,6 +24,8 @@ namespace BeatSpeedrun.Models.Speedrun
 
         private readonly SnapshotChecksum _checksum;
 
+        internal bool IsFreezed => Progress.FinishedAt.HasValue; // finish == freeze
+
         internal Speedrun(Snapshot snapshot, Regulation regulation, MapSet mapSet)
         {
             snapshot.Validate(regulation, mapSet);
@@ -48,10 +50,13 @@ namespace BeatSpeedrun.Models.Speedrun
             // replay snapshot song scores
             _aggregateResult = new SongScore.AggregateResult(SongScores, 0f);
             foreach (var score in snapshot.SongScores) AddScore(score);
+            if (snapshot.FinishedAt is DateTime t) Finish(t);
         }
 
         internal void AddScore(SnapshotSongScore source)
         {
+            if (IsFreezed) return;
+
             var songScore = new SongScore(source, MapSet, SongPpCalculator);
             SongScores.Add(songScore);
             Progress.Update(source.CompletedAt, () =>
@@ -63,12 +68,20 @@ namespace BeatSpeedrun.Models.Speedrun
             });
         }
 
+        internal void Finish(DateTime finieshedAt)
+        {
+            if (IsFreezed) return;
+
+            Progress.Finish(finieshedAt);
+        }
+
         internal Snapshot ToSnapshot()
         {
             return new Snapshot()
             {
                 Id = Id,
                 StartedAt = Progress.StartedAt,
+                FinishedAt = Progress.FinishedAt,
                 Regulation = RegulationPath,
                 TargetSegment = Progress.TargetSegment?.Segment,
                 Checksum = _checksum,

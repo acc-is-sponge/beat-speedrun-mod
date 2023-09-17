@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BeatSpeedrun.Extensions;
 
 namespace BeatSpeedrun.Models.Speedrun
 {
@@ -44,21 +45,58 @@ namespace BeatSpeedrun.Models.Speedrun
         }
 
         /// <summary>
-        /// When the speedrun start?
+        /// When is the speedrun started?
         /// </summary>
         internal DateTime StartedAt { get; }
 
+        /// <summary>
+        /// When is the speedrun finished?
+        /// </summary>
+        internal DateTime? FinishedAt { get; private set; }
+
         internal TimeSpan TimeLimit { get; }
 
-        internal DateTime TimeIsUpAt => StartedAt + TimeLimit;
+        internal enum State
+        {
+            Running,
+            TargetReached,
+            TimeIsUp,
+            Finished,
+        }
+
+        internal State ComputeState(DateTime time, bool ignoresTarget = false)
+        {
+            // We can't update progress after TIME IS UP or FINISHED, so it can be checked first
+            if (!ignoresTarget && IsTargetReached) return State.TargetReached;
+
+            var upTime = StartedAt + TimeLimit;
+            var finishedTime = FinishedAt ?? DateTime.MaxValue;
+
+            // TIME IS UP before FINISHED
+            if (upTime < time && upTime < finishedTime) return State.TimeIsUp;
+
+            // FINISHED
+            if (finishedTime < time) return State.Finished;
+
+            return State.Running;
+        }
 
         /// <summary>
-        /// How much the speedrun has elapsed since the time.
+        /// Speedrun time elapsed to the argument time.
         /// </summary>
         internal TimeSpan ElapsedTime(DateTime time, bool ignoresTarget = false)
         {
-            if (!ignoresTarget && IsTargetReached) return TargetSegment.Value.ReachedAt.Value;
-            return TimeIsUpAt < time ? TimeLimit : time - StartedAt;
+            switch (ComputeState(time, ignoresTarget))
+            {
+                case State.TargetReached:
+                    return TargetSegment.Value.ReachedAt.Value;
+                case State.TimeIsUp:
+                    return TimeLimit;
+                case State.Finished:
+                    return FinishedAt.Value - StartedAt;
+                default:
+                    return time - StartedAt;
+            }
         }
 
         internal Progress(
@@ -84,8 +122,7 @@ namespace BeatSpeedrun.Models.Speedrun
 
         internal void Update(DateTime ppChangedAt, Func<float> applyPpChange, bool ignoresTarget = false)
         {
-            if (!ignoresTarget && IsTargetReached) return;
-            if (TimeIsUpAt < ppChangedAt) return;
+            if (ComputeState(ppChangedAt, ignoresTarget) != State.Running) return;
 
             var pp = applyPpChange();
             for (var i = _currentSegmentIndex + 1; i < Segments.Count; ++i)
@@ -96,6 +133,13 @@ namespace BeatSpeedrun.Models.Speedrun
                 Segments[i] = nextSegment;
                 _currentSegmentIndex = i;
             }
+        }
+
+        internal void Finish(DateTime finishedAt)
+        {
+            if (FinishedAt.HasValue) return;
+
+            FinishedAt = finishedAt;
         }
 
         internal struct SegmentProgress

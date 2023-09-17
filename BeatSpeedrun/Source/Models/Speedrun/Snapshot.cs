@@ -19,6 +19,9 @@ namespace BeatSpeedrun.Models.Speedrun
         [JsonProperty("startedAt")]
         internal DateTime StartedAt { get; set; }
 
+        [JsonProperty("finishedAt")]
+        internal DateTime? FinishedAt { get; set; }
+
         [JsonProperty("regulation")]
         internal string Regulation { get; set; }
 
