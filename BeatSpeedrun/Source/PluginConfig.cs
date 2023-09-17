@@ -17,6 +17,16 @@ namespace BeatSpeedrun
         public virtual string CurrentSpeedrun { get; set; }
 
         /// <summary>
+        /// Tracks the latest selected regulation.
+        /// </summary>
+        public virtual string LatestSelectedRegulation { get; set; }
+
+        /// <summary>
+        /// Tracks the latest selected segment.
+        /// </summary>
+        public virtual string LatestSelectedSegment { get; set; }
+
+        /// <summary>
         /// List of custom regulation URIs. Each string must be an URI.
         /// </summary>
         [UseConverter(typeof(ListConverter<string>))]

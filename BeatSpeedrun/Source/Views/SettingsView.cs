@@ -13,6 +13,12 @@ namespace BeatSpeedrun.Views
         internal event Action OnStarted;
         internal event Action OnStopped;
 
+        public SettingsView(Func<Segment?, int> getSegmentPp)
+        {
+            RegulationDropdown = new BSMLDropdownView<string>(Regulation.ShortenPath);
+            SegmentDropdown = new BSMLDropdownView<Segment?>(SegmentSummary(getSegmentPp));
+        }
+
         [UIAction("#post-parse")]
         private void PostParse()
         {
@@ -29,17 +35,10 @@ namespace BeatSpeedrun.Views
         }
 
         [UIValue("regulation-dropdown")]
-        internal BSMLDropdownView<string> RegulationDropdown { get; } =
-            new BSMLDropdownView<string>(Regulation.ShortenPath);
+        internal BSMLDropdownView<string> RegulationDropdown { get; }
 
         [UIValue("segment-dropdown")]
-        internal BSMLDropdownView<(Segment?, int)> SegmentDropdown { get; } =
-            new BSMLDropdownView<(Segment?, int)>(SegmentSummary);
-
-        private static string SegmentSummary((Segment?, int) info)
-        {
-            return info.Item1 is Segment s ? $"{s} / {info.Item2}pp" : "endless";
-        }
+        internal BSMLDropdownView<Segment?> SegmentDropdown { get; }
 
         private bool _isRunning;
 
@@ -120,6 +119,11 @@ namespace BeatSpeedrun.Views
         private void CancelStopClicked()
         {
             _confirmStopModal.Hide(true);
+        }
+
+        private Func<Segment?, string> SegmentSummary(Func<Segment?, int> getPp)
+        {
+            return segment => segment is Segment s ? $"{s} / {getPp(s)}pp" : "endless";
         }
     }
 }
