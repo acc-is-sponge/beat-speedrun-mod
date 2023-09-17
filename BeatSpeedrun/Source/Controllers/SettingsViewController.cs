@@ -99,25 +99,25 @@ namespace BeatSpeedrun.Controllers
 
         public override void Initialize()
         {
-            Render();
             base.Initialize();
             _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
             _currentSpeedrunManager.OnSpeedrunLoadingStateChanged += Render;
             _selectionStateManager.OnRegulationSelected += Render;
             _selectionStateManager.OnSegmentSelected += Render;
-            _view.RegulationDropdown.OnSelected += SelectRegulation;
-            _view.SegmentDropdown.OnSelected += SelectSegment;
-            _view.OnStarted += StartAsync;
-            _view.OnStopped += Stop;
+            _view.RegulationDropdown.OnSelected += OnSelectRegulation;
+            _view.SegmentDropdown.OnSelected += OnSelectSegment;
+            _view.OnStarted += OnStartAsync;
+            _view.OnStopped += OnStop;
+            Render();
         }
 
         public override void Dispose()
         {
             _taskWaiter.Dispose();
-            _view.OnStopped -= Stop;
-            _view.OnStarted -= StartAsync;
-            _view.SegmentDropdown.OnSelected -= SelectSegment;
-            _view.RegulationDropdown.OnSelected -= SelectRegulation;
+            _view.OnStopped -= OnStop;
+            _view.OnStarted -= OnStartAsync;
+            _view.SegmentDropdown.OnSelected -= OnSelectSegment;
+            _view.RegulationDropdown.OnSelected -= OnSelectRegulation;
             _selectionStateManager.OnSegmentSelected -= Render;
             _selectionStateManager.OnRegulationSelected -= Render;
             _currentSpeedrunManager.OnSpeedrunLoadingStateChanged -= Render;
@@ -125,17 +125,17 @@ namespace BeatSpeedrun.Controllers
             base.Dispose();
         }
 
-        internal void SelectRegulation(string regulation)
+        private void OnSelectRegulation(string regulation)
         {
             _selectionStateManager.SelectedRegulation = regulation;
         }
 
-        internal void SelectSegment(Segment? segment)
+        private void OnSelectSegment(Segment? segment)
         {
             _selectionStateManager.SelectedSegment = segment;
         }
 
-        internal async void StartAsync()
+        private async void OnStartAsync()
         {
             try
             {
@@ -149,7 +149,7 @@ namespace BeatSpeedrun.Controllers
             }
         }
 
-        internal void Stop()
+        private void OnStop()
         {
             _currentSpeedrunManager.Stop();
         }

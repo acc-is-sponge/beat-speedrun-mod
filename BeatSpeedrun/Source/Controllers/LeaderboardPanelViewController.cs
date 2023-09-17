@@ -18,14 +18,12 @@ namespace BeatSpeedrun.Controllers
         [UIValue("view")]
         private readonly LeaderboardPanelView _view = new LeaderboardPanelView();
 
-        private LeaderboardTheme CurrentTheme =>
-            _currentSpeedrunManager.Current is Speedrun speedrun
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
-                : LeaderboardTheme.NotRunning;
-
         private void Render()
         {
-            var theme = CurrentTheme;
+            var speedrun = _currentSpeedrunManager.Current;
+            var theme = speedrun != null
+                ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
+                : LeaderboardTheme.NotRunning;
             _view.IconSource = theme.IconSource;
             _view.IconColor = theme.IconColor;
         }
