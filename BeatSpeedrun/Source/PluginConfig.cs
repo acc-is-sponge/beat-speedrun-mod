@@ -32,6 +32,8 @@ namespace BeatSpeedrun
         [UseConverter(typeof(ListConverter<string>))]
         public virtual List<string> RegulationUris { get; set; }
 
+        public virtual int SpeedrunFileVersion { get; set; }
+
         public virtual void OnReload()
         {
             // Do stuff after config is read from disk.

@@ -6,10 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Zenject;
 
 namespace BeatSpeedrun.Managers
 {
-    internal class SpeedrunManager
+    internal class SpeedrunManager : IInitializable
     {
         private readonly RegulationManager _regulationManager;
         private readonly MapSetManager _mapSetManager;
@@ -18,6 +21,21 @@ namespace BeatSpeedrun.Managers
         {
             _regulationManager = regulationManager;
             _mapSetManager = mapSetManager;
+        }
+
+        void IInitializable.Initialize()
+        {
+            var version = PluginConfig.Instance.SpeedrunFileVersion;
+
+            if (version < 1)
+            {
+                MigrateToV1();
+                version = 1;
+            }
+
+            if (version == PluginConfig.Instance.SpeedrunFileVersion) return;
+            PluginConfig.Instance.SpeedrunFileVersion = version;
+            PluginConfig.Instance.Changed();
         }
 
         internal async Task<Speedrun> CreateAsync(
@@ -116,5 +134,50 @@ namespace BeatSpeedrun.Managers
 
         private static readonly string SpeedrunsDirectory = Path.Combine(Environment.CurrentDirectory, "UserData", "BeatSpeedrun", "Speedruns");
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+        private void MigrateToV1()
+        {
+            var wellKnownChecksums = new Dictionary<string, string>()
+            {
+                {"72f386326e140a092fa5094528873c84cac8fa0abd953328b4eda259a58d6a3e", "9db301b6408ef5e6e0b2bbe994b98462498dbca4c5b95705fa8efb9d2cb3e9eb"},
+                {"081a5125658050d85cbe90196c2afd4c47467cd8f144da37929725db62949aad", "78530580bfd33b4054e3857cb373dbaa30280b77f7661587736d1cc488ae135d"},
+            };
+
+            foreach (var path in Directory.GetFiles(SpeedrunsDirectory))
+            {
+                try
+                {
+                    var text = SomeDecrypt(File.ReadAllBytes(path));
+                    var json = JObject.Parse(text);
+                    var hasChange = false;
+
+                    // speedruns before v1 are not finished explicitly
+                    if (json.Value<string>("id") != PluginConfig.Instance.CurrentSpeedrun &&
+                        string.IsNullOrEmpty(json.Value<string>("finishedAt")))
+                    {
+                        json["finishedAt"] = DateTime.UtcNow;
+                        hasChange = true;
+                    }
+
+                    // speedruns before v1 have incompatible checksum, we try to fix it for official regulations
+                    var checksum = json["checksum"];
+                    if (wellKnownChecksums.TryGetValue(checksum.Value<string>("regulation"), out var c))
+                    {
+                        checksum["regulation"] = c;
+                        hasChange = true;
+                    }
+
+                    if (hasChange)
+                    {
+                        text = json.ToString(Formatting.None);
+                        File.WriteAllBytes(path, SomeEncrypt(text));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.Warn($"Error while speedrun file migrating (v1):\n{ex}");
+                }
+            }
+        }
     }
 }
