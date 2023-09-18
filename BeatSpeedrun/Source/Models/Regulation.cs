@@ -24,12 +24,7 @@ namespace BeatSpeedrun.Models
         [JsonProperty("rules")]
         internal Rules Rules { get; set; }
 
-        internal string ComputeChecksum()
-        {
-            // Since attributes other than rules are allowed to be changed,
-            // we can use `Rules.ComputeChecksum()` (see format for details).
-            return Rules.ComputeChecksum();
-        }
+        internal string Checksum { get; private set; }
 
         internal static Regulation FromJson(string json)
         {
@@ -38,7 +33,8 @@ namespace BeatSpeedrun.Models
             {
                 throw new ArgumentException($"Unsupported regulation version: {regulation.Version}");
             }
-            // TODO: more validations
+            // Here, for simplicity, the checksum computed from the original JSON string is used
+            regulation.Checksum = json.ComputeChecksum();
             return regulation;
         }
 
@@ -102,11 +98,6 @@ namespace BeatSpeedrun.Models
 
         [JsonProperty("modifiersOverride")]
         internal ModifiersOverride ModifiersOverride { get; set; } = new ModifiersOverride();
-
-        internal string ComputeChecksum()
-        {
-            return JsonConvert.SerializeObject(this).ComputeChecksum();
-        }
     }
 
     internal class SegmentRequirements

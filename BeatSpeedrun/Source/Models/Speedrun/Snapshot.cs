@@ -46,7 +46,7 @@ namespace BeatSpeedrun.Models.Speedrun
 
         internal void Validate(Regulation regulation, MapSet mapSet)
         {
-            if (Checksum.Regulation != regulation.ComputeChecksum())
+            if (Checksum.Regulation != regulation.Checksum)
             {
                 throw new ArgumentException("Regulation checksum mismatch");
             }

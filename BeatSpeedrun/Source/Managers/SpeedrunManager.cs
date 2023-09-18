@@ -37,7 +37,7 @@ namespace BeatSpeedrun.Managers
                 TargetSegment = targetSegment,
                 Checksum = new SnapshotChecksum
                 {
-                    Regulation = regulation.ComputeChecksum(),
+                    Regulation = regulation.Checksum,
                     MapSet = mapSet.Checksum,
                 },
                 SongScores = new List<SnapshotSongScore>(),
