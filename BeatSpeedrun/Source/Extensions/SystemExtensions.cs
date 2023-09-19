@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -49,6 +50,7 @@ namespace BeatSpeedrun.Extensions
         private readonly Action _action;
         private readonly CancellationTokenSource _disposeCts = new CancellationTokenSource();
 
+        /// <param name="action">An action triggerred after the task completion</param>
         internal TaskWaiter(Action action)
         {
             _action = action;
@@ -93,6 +95,26 @@ namespace BeatSpeedrun.Extensions
             }
             _waitingResources.Remove(resource);
             _action();
+        }
+    }
+
+    internal class TaskCache<TKey, TValue>
+    {
+        private readonly ConcurrentDictionary<TKey, Task<TValue>> _payload;
+        private readonly Func<TKey, Task<TValue>, Task<TValue>> _loadAsync;
+
+        internal TaskCache(Func<TKey, Task<TValue>, Task<TValue>> loadAsync)
+        {
+            _payload = new ConcurrentDictionary<TKey, Task<TValue>>();
+            _loadAsync = loadAsync;
+        }
+
+        internal Task<TValue> GetAsync(TKey key)
+        {
+            return _payload.AddOrUpdate(
+                key,
+                k => _loadAsync(k, null),
+                (k, t) => t.IsFaulted ? _loadAsync(k, t) : t);
         }
     }
 }

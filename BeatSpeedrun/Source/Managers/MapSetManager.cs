@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Extensions;
@@ -12,22 +10,21 @@ namespace BeatSpeedrun.Managers
 {
     internal class MapSetManager
     {
-        private readonly ConcurrentDictionary<string, Task<MapSet>> _mapSets =
-            new ConcurrentDictionary<string, Task<MapSet>>();
+        private readonly TaskCache<string, MapSet> _cache;
 
-        internal Task<MapSet> GetAsync(string mapSetPath, CancellationToken ct = default)
+        internal MapSetManager()
         {
-            return _mapSets
-                .AddOrUpdate(
-                    mapSetPath,
-                    path => LoadAsync(path),
-                    (path, t) => t.IsFaulted ? LoadAsync(path, TimeSpan.FromSeconds(3)) : t)
-                .WithCancellation(ct);
+            _cache = new TaskCache<string, MapSet>(LoadAsync);
         }
 
-        private async Task<MapSet> LoadAsync(string mapSetPath, TimeSpan delay = default)
+        internal Task<MapSet> GetAsync(string mapSetPath)
         {
-            await Task.Delay(delay);
+            return _cache.GetAsync(mapSetPath);
+        }
+
+        private async Task<MapSet> LoadAsync(string mapSetPath, Task<MapSet> previousLoadFail)
+        {
+            if (previousLoadFail != null) await Task.Delay(TimeSpan.FromSeconds(3));
 
             try
             {
@@ -55,10 +52,6 @@ namespace BeatSpeedrun.Managers
                     var json = await HttpClient.GetStringAsync(uri);
                     return MapSet.FromJson(json);
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
             }
             catch (Exception ex)
             {

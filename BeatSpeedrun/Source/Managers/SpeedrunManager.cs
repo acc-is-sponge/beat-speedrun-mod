@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
 using Newtonsoft.Json;
@@ -33,8 +34,8 @@ namespace BeatSpeedrun.Managers
             Segment? targetSegment,
             CancellationToken ct = default)
         {
-            var regulation = await _regulationManager.GetAsync(regulationPath, ct);
-            var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet, ct);
+            var regulation = await _regulationManager.GetAsync(regulationPath).WithCancellation(ct);
+            var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
 
             var startedAt = DateTime.UtcNow;
             var snapshot = new Snapshot
@@ -75,8 +76,8 @@ namespace BeatSpeedrun.Managers
             var path = Path.Combine(SpeedrunsDirectory, id);
             var json = SomeDecrypt(File.ReadAllBytes(path));
             var snapshot = Snapshot.FromJson(json);
-            var regulation = await _regulationManager.GetAsync(snapshot.Regulation, ct);
-            var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet, ct);
+            var regulation = await _regulationManager.GetAsync(snapshot.Regulation).WithCancellation(ct);
+            var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
             return new Speedrun(snapshot, regulation, mapSet);
         }
 

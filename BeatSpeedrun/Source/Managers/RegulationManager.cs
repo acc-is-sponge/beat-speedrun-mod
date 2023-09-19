@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
 using BeatSpeedrun.Models;
@@ -14,24 +12,29 @@ namespace BeatSpeedrun.Managers
     internal class RegulationManager
     {
         private Task<List<string>> _regulationOptions;
-        private readonly ConcurrentDictionary<string, Task<Regulation>> _regulations =
-            new ConcurrentDictionary<string, Task<Regulation>>();
+        private readonly TaskCache<string, Regulation> _cache;
 
         internal RegulationManager()
         {
-            _regulationOptions = FetchOptionsAsync();
+            _regulationOptions = LoadOptionsAsync();
+            _cache = new TaskCache<string, Regulation>(LoadAsync);
         }
 
-        internal Task<List<string>> GetOptionsAsync(CancellationToken ct = default)
+        internal Task<List<string>> GetOptionsAsync()
         {
             if (_regulationOptions.IsFaulted)
             {
-                _regulationOptions = FetchOptionsAsync();
+                _regulationOptions = LoadOptionsAsync();
             }
-            return _regulationOptions.WithCancellation(ct);
+            return _regulationOptions;
         }
 
-        private async Task<List<string>> FetchOptionsAsync()
+        internal Task<Regulation> GetAsync(string regulationPath)
+        {
+            return _cache.GetAsync(regulationPath);
+        }
+
+        private async Task<List<string>> LoadOptionsAsync()
         {
             var uri = new Uri(ModProvidedBaseUri + "latest-regulations.json");
             var json = await HttpClient.GetStringAsync(uri);
@@ -51,19 +54,9 @@ namespace BeatSpeedrun.Managers
                 .ToList();
         }
 
-        internal Task<Regulation> GetAsync(string regulationPath, CancellationToken ct = default)
+        private async Task<Regulation> LoadAsync(string regulationPath, Task<Regulation> previousTaskFail)
         {
-            return _regulations
-                .AddOrUpdate(
-                    regulationPath,
-                    path => LoadAsync(path),
-                    (path, t) => t.IsFaulted ? LoadAsync(regulationPath, TimeSpan.FromSeconds(3)) : t)
-                .WithCancellation(ct);
-        }
-
-        private async Task<Regulation> LoadAsync(string regulationPath, TimeSpan delay = default)
-        {
-            await Task.Delay(delay);
+            if (previousTaskFail != null) await Task.Delay(TimeSpan.FromSeconds(3));
 
             try
             {

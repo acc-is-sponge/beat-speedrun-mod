@@ -101,7 +101,7 @@ namespace BeatSpeedrun.Extensions
 
         internal BSMLDropdownView(Func<T, string> label = null, IEqualityComparer<T> comparer = null)
         {
-            _label = label ?? (v => v.ToString());
+            _label = label ?? (v => v?.ToString());
             _value = new Choice(default, _label(default));
             _choices.Add(_value);
             _comparer = comparer ?? EqualityComparer<T>.Default;
@@ -197,7 +197,7 @@ namespace BeatSpeedrun.Extensions
                 Label = label;
             }
 
-            public override string ToString() => Label;
+            public override string ToString() => Label ?? "";
         }
     }
 }
