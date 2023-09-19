@@ -13,11 +13,13 @@ namespace BeatSpeedrun.Models
 
         internal string Checksum { get; }
 
-        internal MapSet(Dictionary<string, Dictionary<string, float>> payload, string checksum)
+        private MapSet(Dictionary<string, Dictionary<string, float>> payload, string checksum)
         {
             _payload = payload;
             Checksum = checksum;
         }
+
+        internal Dictionary<string, Dictionary<string, float>>.KeyCollection Songs => _payload.Keys;
 
         internal float? GetStar(string songHash, DifficultyRaw difficultyRaw)
         {

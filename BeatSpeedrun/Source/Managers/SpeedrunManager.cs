@@ -25,23 +25,13 @@ namespace BeatSpeedrun.Managers
 
         void IInitializable.Initialize()
         {
-            var version = PluginConfig.Instance.SpeedrunFileVersion;
-
-            if (version < 1)
-            {
-                MigrateToV1();
-                version = 1;
-            }
-
-            if (version == PluginConfig.Instance.SpeedrunFileVersion) return;
-            PluginConfig.Instance.SpeedrunFileVersion = version;
-            PluginConfig.Instance.Changed();
+            Migrate();
         }
 
         internal async Task<Speedrun> CreateAsync(
             string regulationPath,
             Segment? targetSegment,
-            CancellationToken ct)
+            CancellationToken ct = default)
         {
             var regulation = await _regulationManager.GetAsync(regulationPath, ct);
             var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet, ct);
@@ -80,7 +70,7 @@ namespace BeatSpeedrun.Managers
             File.Delete(path);
         }
 
-        internal async Task<Speedrun> LoadAsync(string id, CancellationToken ct)
+        internal async Task<Speedrun> LoadAsync(string id, CancellationToken ct = default)
         {
             var path = Path.Combine(SpeedrunsDirectory, id);
             var json = SomeDecrypt(File.ReadAllBytes(path));
@@ -135,12 +125,39 @@ namespace BeatSpeedrun.Managers
         private static readonly string SpeedrunsDirectory = Path.Combine(Environment.CurrentDirectory, "UserData", "BeatSpeedrun", "Speedruns");
         private static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
+        #region migrations
+
+        /// <summary>
+        /// Migrate allows the plugin to load previous versions of speedruns.
+        /// Whether or not they have been migrated is recorded in PluginConfig.Instance.SpeedrunFileVersion.
+        /// </summary>
+        private void Migrate()
+        {
+            var version = PluginConfig.Instance.SpeedrunFileVersion;
+
+            if (version < 1) // _ -> 1
+            {
+                MigrateToV1();
+                version = 1;
+            }
+
+            if (version == PluginConfig.Instance.SpeedrunFileVersion) return;
+            PluginConfig.Instance.SpeedrunFileVersion = version;
+            PluginConfig.Instance.Changed();
+        }
+
         private void MigrateToV1()
         {
-            var wellKnownChecksums = new Dictionary<string, string>()
+            var modProvidedRegulationChecksumChanges = new Dictionary<string, string>()
             {
-                {"72f386326e140a092fa5094528873c84cac8fa0abd953328b4eda259a58d6a3e", "9db301b6408ef5e6e0b2bbe994b98462498dbca4c5b95705fa8efb9d2cb3e9eb"},
-                {"081a5125658050d85cbe90196c2afd4c47467cd8f144da37929725db62949aad", "78530580bfd33b4054e3857cb373dbaa30280b77f7661587736d1cc488ae135d"},
+                {
+                    "72f386326e140a092fa5094528873c84cac8fa0abd953328b4eda259a58d6a3e",
+                    "9db301b6408ef5e6e0b2bbe994b98462498dbca4c5b95705fa8efb9d2cb3e9eb"
+                },
+                {
+                    "081a5125658050d85cbe90196c2afd4c47467cd8f144da37929725db62949aad",
+                    "78530580bfd33b4054e3857cb373dbaa30280b77f7661587736d1cc488ae135d"
+                },
             };
 
             foreach (var path in Directory.GetFiles(SpeedrunsDirectory))
@@ -149,25 +166,25 @@ namespace BeatSpeedrun.Managers
                 {
                     var text = SomeDecrypt(File.ReadAllBytes(path));
                     var json = JObject.Parse(text);
-                    var hasChange = false;
+                    var isChanged = false;
 
                     // speedruns before v1 are not finished explicitly
                     if (json.Value<string>("id") != PluginConfig.Instance.CurrentSpeedrun &&
                         string.IsNullOrEmpty(json.Value<string>("finishedAt")))
                     {
                         json["finishedAt"] = DateTime.UtcNow;
-                        hasChange = true;
+                        isChanged = true;
                     }
 
-                    // speedruns before v1 have incompatible checksum, we try to fix it for official regulations
+                    // speedruns before v1 have incompatible checksum, we try to fix it about MOD-provided regulations
                     var checksum = json["checksum"];
-                    if (wellKnownChecksums.TryGetValue(checksum.Value<string>("regulation"), out var c))
+                    if (modProvidedRegulationChecksumChanges.TryGetValue(checksum.Value<string>("regulation"), out var c))
                     {
                         checksum["regulation"] = c;
-                        hasChange = true;
+                        isChanged = true;
                     }
 
-                    if (hasChange)
+                    if (isChanged)
                     {
                         text = json.ToString(Formatting.None);
                         File.WriteAllBytes(path, SomeEncrypt(text));
@@ -179,5 +196,7 @@ namespace BeatSpeedrun.Managers
                 }
             }
         }
+
+        #endregion
     }
 }

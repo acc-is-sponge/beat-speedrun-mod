@@ -16,15 +16,10 @@ namespace BeatSpeedrun.Models.Speedrun
         internal Progress Progress { get; }
         internal SongPpCalculator SongPpCalculator { get; }
         internal List<SongScore> SongScores { get; }
-
-        private SongScore.AggregateResult _aggregateResult;
-
-        internal List<SongScore> TopScores => _aggregateResult.TopScores;
-        internal float TotalPp => _aggregateResult.TotalPp;
+        internal List<SongScore> TopScores { get; private set; }
+        internal float TotalPp { get; private set; }
 
         private readonly SnapshotChecksum _checksum;
-
-        internal bool IsFreezed => Progress.FinishedAt.HasValue; // finish == freeze
 
         internal Speedrun(Snapshot snapshot, Regulation regulation, MapSet mapSet)
         {
@@ -46,31 +41,41 @@ namespace BeatSpeedrun.Models.Speedrun
                 regulation.Rules.Curve,
                 regulation.Rules.ModifiersOverride);
             SongScores = new List<SongScore>();
+            TopScores = new List<SongScore>();
 
             // replay snapshot song scores
-            _aggregateResult = new SongScore.AggregateResult(SongScores, 0f);
             foreach (var score in snapshot.SongScores) AddScore(score);
             if (snapshot.FinishedAt is DateTime t) Finish(t);
         }
 
         internal void AddScore(SnapshotSongScore source)
         {
-            if (IsFreezed) return;
+            if (Progress.FinishedAt.HasValue) return;
 
             var songScore = new SongScore(source, MapSet, SongPpCalculator);
             SongScores.Add(songScore);
             Progress.Update(source.CompletedAt, () =>
             {
-                var previousTotalPp = _aggregateResult.TotalPp;
-                _aggregateResult = SongScore.Aggregate(SongScores, Regulation.Rules.Weight);
-                songScore.LatestPpChange = _aggregateResult.TotalPp - previousTotalPp;
-                return _aggregateResult.TotalPp;
+                var previousTotalPp = TotalPp;
+                TopScores = SongScore.ComputeTopScores(SongScores);
+                TotalPp = SongScore.ComputeTotalPp(TopScores, Regulation.Rules.Weight);
+
+                foreach (var score in SongScores)
+                {
+                    score.Rank = null;
+                    score.LatestPpChange = null;
+                }
+                var rank = 1;
+                foreach (var topScore in TopScores) topScore.Rank = rank++;
+                songScore.LatestPpChange = TotalPp - previousTotalPp;
+
+                return TotalPp;
             });
         }
 
         internal void Finish(DateTime finieshedAt)
         {
-            if (IsFreezed) return;
+            if (Progress.FinishedAt.HasValue) return;
 
             Progress.Finish(finieshedAt);
         }
@@ -90,4 +95,3 @@ namespace BeatSpeedrun.Models.Speedrun
         }
     }
 }
-

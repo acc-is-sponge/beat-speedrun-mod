@@ -12,8 +12,8 @@ namespace BeatSpeedrun.Models.Speedrun
         internal DifficultyRaw DifficultyRaw { get; }
         internal float Star { get; }
         internal float Pp { get; }
-        internal int? Rank { get; set; } // set by Aggregate
-        internal float? LatestPpChange { get; set; } // always cleared by Aggregate
+        internal int? Rank { get; set; } // set by Speedrun
+        internal float? LatestPpChange { get; set; } // set by Speedrun
 
         internal SongScore(SnapshotSongScore source, MapSet mapSet, SongPpCalculator songPpCalculator)
         {
@@ -80,15 +80,12 @@ namespace BeatSpeedrun.Models.Speedrun
 
         #endregion
 
-        internal static AggregateResult Aggregate(IEnumerable<SongScore> scores, float weight)
+        internal static List<SongScore> ComputeTopScores(IEnumerable<SongScore> scores)
         {
             var topScoresById = new Dictionary<string, SongScore>();
 
             foreach (var score in scores)
             {
-                score.Rank = null; // reset
-                score.LatestPpChange = null; // clear
-
                 // Collect top scores for each id
                 if (!topScoresById.TryGetValue(score.Id, out var topScore) || topScore.Pp < score.Pp)
                 {
@@ -101,30 +98,19 @@ namespace BeatSpeedrun.Models.Speedrun
                 .Where(score => score.Pp > 0f)
                 .ToList();
             topScores.Sort((a, b) => b.Pp.CompareTo(a.Pp));
-
-            var rank = 1;
-            var totalPp = 0f;
-
-            foreach (var topScore in topScores)
-            {
-                totalPp += topScore.Pp * UnityEngine.Mathf.Pow(weight, rank - 1);
-
-                topScore.Rank = rank++;
-            }
-
-            return new AggregateResult(topScores, totalPp);
+            return topScores;
         }
 
-        internal readonly struct AggregateResult
+        internal static float ComputeTotalPp(IEnumerable<SongScore> scores, float weight)
         {
-            internal List<SongScore> TopScores { get; }
-            internal float TotalPp { get; }
-
-            internal AggregateResult(List<SongScore> topScores, float totalPp)
+            var rank = 0;
+            var totalPp = 0f;
+            foreach (var score in scores)
             {
-                TopScores = topScores;
-                TotalPp = totalPp;
+                totalPp += score.Pp * UnityEngine.Mathf.Pow(weight, rank);
+                rank++;
             }
+            return totalPp;
         }
     }
 }

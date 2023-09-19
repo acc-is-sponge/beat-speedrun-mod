@@ -99,9 +99,9 @@ namespace BeatSpeedrun.Extensions
         private readonly Func<T, string> _label;
         private readonly IEqualityComparer<T> _comparer;
 
-        internal BSMLDropdownView(Func<T, string> label, IEqualityComparer<T> comparer = null)
+        internal BSMLDropdownView(Func<T, string> label = null, IEqualityComparer<T> comparer = null)
         {
-            _label = label;
+            _label = label ?? (v => v.ToString());
             _value = new Choice(default, _label(default));
             _choices.Add(_value);
             _comparer = comparer ?? EqualityComparer<T>.Default;
@@ -174,7 +174,7 @@ namespace BeatSpeedrun.Extensions
             Interactable = false;
         }
 
-        internal T Reset(List<T> items, T current)
+        internal T Reset(IReadOnlyList<T> items, T current)
         {
             if (!items.Contains(current, _comparer))
             {
