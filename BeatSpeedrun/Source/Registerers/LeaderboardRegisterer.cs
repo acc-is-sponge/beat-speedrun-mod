@@ -4,15 +4,15 @@ using HMUI;
 using LeaderboardCore.Managers;
 using LeaderboardCore.Models;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Registerers
 {
-    internal class LeaderboardManager : CustomLeaderboard, IDisposable
+    internal class LeaderboardRegisterer : CustomLeaderboard, IDisposable
     {
         private readonly CustomLeaderboardManager _customLeaderboardManager;
         private readonly LeaderboardPanelViewController _panel;
         private readonly LeaderboardMainViewController _main;
 
-        internal LeaderboardManager(
+        internal LeaderboardRegisterer(
             CustomLeaderboardManager customLeaderboardManager,
             LeaderboardPanelViewController panel,
             LeaderboardMainViewController main)

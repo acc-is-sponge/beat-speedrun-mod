@@ -163,7 +163,6 @@
     <Compile Include="Source\Managers\SelectionStateManager.cs" />
     <Compile Include="Source\Managers\CurrentSpeedrunManager.cs" />
     <Compile Include="Source\Managers\LevelPlayManager.cs" />
-    <Compile Include="Source\Managers\LeaderboardManager.cs" />
     <Compile Include="Source\Views\SettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />
@@ -171,6 +170,8 @@
     <Compile Include="Source\Controllers\SettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
+    <Compile Include="Source\Registerers\SettingsRegisterer.cs" />
+    <Compile Include="Source\Registerers\LeaderboardRegisterer.cs" />
     <Compile Include="Source\Installers\AppInstaller.cs" />
     <Compile Include="Source\Installers\MenuInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

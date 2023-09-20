@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberMarkupLanguage.GameplaySetup;
 using HMUI;
 using UnityEngine;
-using Zenject;
 
 namespace BeatSpeedrun.Extensions
 {
@@ -62,28 +59,6 @@ namespace BeatSpeedrun.Extensions
                 ColorUtility.TryParseHtmlString(from, out var a);
                 ColorUtility.TryParseHtmlString(to, out var b);
                 view.SetGradient(a, b);
-            }
-        }
-    }
-
-    // FIXME: Can we replace this with `BSMLAutomaticViewController` and introduce `SettingsManager`
-    // to add/remove tab? It seems that it is incompatible with `GameplaySetup.instance.AddTab` interface.
-    internal abstract class BSMLTabViewController : IInitializable, IDisposable
-    {
-        abstract protected string TabName { get; }
-
-        abstract protected string TabResource { get; }
-
-        public virtual void Initialize()
-        {
-            GameplaySetup.instance.AddTab(TabName, TabResource, this);
-        }
-
-        public virtual void Dispose()
-        {
-            if (GameplaySetup.instance != null && BSMLParser.instance != null)
-            {
-                GameplaySetup.instance.RemoveTab(TabName);
             }
         }
     }

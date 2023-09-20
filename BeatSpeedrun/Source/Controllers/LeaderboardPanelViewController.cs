@@ -2,7 +2,6 @@ using System;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSpeedrun.Managers;
-using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Views;
 using Zenject;
 

@@ -8,13 +8,15 @@ using BeatSpeedrun.Managers;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Views;
+using Zenject;
 
 namespace BeatSpeedrun.Controllers
 {
-    internal class SettingsViewController : BSMLTabViewController
+    internal class SettingsViewController : IInitializable, IDisposable
     {
-        protected override string TabName => "Beat Speedrun";
-        protected override string TabResource => SettingsView.ResourceName;
+        // Since this class cannot be directly derived from BSMLViewController,
+        // it is redefined for SettingsRegisterer
+        internal const string TabResource = SettingsView.ResourceName;
 
         private readonly RegulationProvider _regulationProvider;
         private readonly CurrentSpeedrunManager _currentSpeedrunManager;
@@ -98,9 +100,9 @@ namespace BeatSpeedrun.Controllers
             return regulation.Result.Rules.SegmentRequirements.GetValue(segment.Value);
         }
 
-        public override void Initialize()
+        void IInitializable.Initialize()
         {
-            base.Initialize();
+            Render();
             _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
             _currentSpeedrunManager.OnSpeedrunLoadingStateChanged += Render;
             _selectionStateManager.OnRegulationSelected += Render;
@@ -109,10 +111,9 @@ namespace BeatSpeedrun.Controllers
             _view.SegmentDropdown.OnSelected += OnSelectSegment;
             _view.OnStarted += OnStartAsync;
             _view.OnStopped += OnStop;
-            Render();
         }
 
-        public override void Dispose()
+        void IDisposable.Dispose()
         {
             _taskWaiter.Dispose();
             _view.OnStopped -= OnStop;
@@ -123,7 +124,6 @@ namespace BeatSpeedrun.Controllers
             _selectionStateManager.OnRegulationSelected -= Render;
             _currentSpeedrunManager.OnSpeedrunLoadingStateChanged -= Render;
             _currentSpeedrunManager.OnCurrentSpeedrunChanged -= Render;
-            base.Dispose();
         }
 
         private void OnSelectRegulation(string regulation)
