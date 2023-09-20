@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Providers;
-using BeatSpeedrun.Managers;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
+using BeatSpeedrun.Services;
 using BeatSpeedrun.Views;
 using Zenject;
 
@@ -19,18 +19,18 @@ namespace BeatSpeedrun.Controllers
         internal const string TabResource = SettingsView.ResourceName;
 
         private readonly RegulationProvider _regulationProvider;
-        private readonly CurrentSpeedrunManager _currentSpeedrunManager;
-        private readonly SelectionStateManager _selectionStateManager;
+        private readonly SpeedrunFacilitator _speedrunFacilitator;
+        private readonly SelectionState _selectionState;
         private readonly TaskWaiter _taskWaiter;
 
         public SettingsViewController(
             RegulationProvider regulationProvider,
-            CurrentSpeedrunManager currentSpeedrunManager,
-            SelectionStateManager selectionStateManager)
+            SpeedrunFacilitator speedrunFacilitator,
+            SelectionState selectionState)
         {
             _regulationProvider = regulationProvider;
-            _currentSpeedrunManager = currentSpeedrunManager;
-            _selectionStateManager = selectionStateManager;
+            _speedrunFacilitator = speedrunFacilitator;
+            _selectionState = selectionState;
             _taskWaiter = new TaskWaiter(Render);
             _view = new SettingsView(GetSegmentPp);
         }
@@ -41,17 +41,17 @@ namespace BeatSpeedrun.Controllers
         private void Render()
         {
             // Speedrunning!
-            if (_currentSpeedrunManager.Current is Speedrun speedrun)
+            if (_speedrunFacilitator.Current is Speedrun speedrun)
             {
                 var targetSegment = speedrun.Progress.TargetSegment;
-                _selectionStateManager.SelectedRegulation = speedrun.RegulationPath;
-                _selectionStateManager.SelectedSegment = targetSegment?.Segment;
+                _selectionState.SelectedRegulation = speedrun.RegulationPath;
+                _selectionState.SelectedSegment = targetSegment?.Segment;
 
                 _view.DescriptionText = speedrun.Regulation.Description;
-                _view.RegulationDropdown.Reset(_selectionStateManager.SelectedRegulation);
-                _view.SegmentDropdown.Reset(_selectionStateManager.SelectedSegment);
+                _view.RegulationDropdown.Reset(_selectionState.SelectedRegulation);
+                _view.SegmentDropdown.Reset(_selectionState.SelectedSegment);
                 _view.IsRunning = true;
-                _view.RunInteractable = !_currentSpeedrunManager.IsLoading;
+                _view.RunInteractable = !_speedrunFacilitator.IsLoading;
                 return;
             }
 
@@ -59,7 +59,7 @@ namespace BeatSpeedrun.Controllers
                 .Wait(_regulationProvider.GetOptionsAsync())?
                 .ToList();
 
-            if (_currentSpeedrunManager.IsLoading || regulationOptions == null)
+            if (_speedrunFacilitator.IsLoading || regulationOptions == null)
             {
                 _view.DescriptionText = "loading...";
                 _view.RegulationDropdown.Interactable = false;
@@ -69,12 +69,12 @@ namespace BeatSpeedrun.Controllers
                 return;
             }
 
-            _selectionStateManager.SelectedRegulation =
-                _view.RegulationDropdown.Reset(regulationOptions, _selectionStateManager.SelectedRegulation);
+            _selectionState.SelectedRegulation =
+                _view.RegulationDropdown.Reset(regulationOptions, _selectionState.SelectedRegulation);
             _view.IsRunning = false;
 
             var regulation = _taskWaiter.Wait(
-                _regulationProvider.GetAsync(_selectionStateManager.SelectedRegulation));
+                _regulationProvider.GetAsync(_selectionState.SelectedRegulation));
             if (regulation == null)
             {
                 _view.DescriptionText = "loading...";
@@ -87,15 +87,15 @@ namespace BeatSpeedrun.Controllers
             segmentOptions.Insert(0, null);
 
             _view.DescriptionText = regulation.Description;
-            _selectionStateManager.SelectedSegment =
-                _view.SegmentDropdown.Reset(segmentOptions, _selectionStateManager.SelectedSegment);
+            _selectionState.SelectedSegment =
+                _view.SegmentDropdown.Reset(segmentOptions, _selectionState.SelectedSegment);
             _view.RunInteractable = true;
         }
 
         private int GetSegmentPp(Segment? segment)
         {
             if (segment == null) return 0;
-            var regulation = _regulationProvider.GetAsync(_selectionStateManager.SelectedRegulation);
+            var regulation = _regulationProvider.GetAsync(_selectionState.SelectedRegulation);
             if (regulation.Status != TaskStatus.RanToCompletion) return 0;
             return regulation.Result.Rules.SegmentRequirements.GetValue(segment.Value);
         }
@@ -103,10 +103,10 @@ namespace BeatSpeedrun.Controllers
         void IInitializable.Initialize()
         {
             Render();
-            _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
-            _currentSpeedrunManager.OnSpeedrunLoadingStateChanged += Render;
-            _selectionStateManager.OnRegulationSelected += Render;
-            _selectionStateManager.OnSegmentSelected += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnSpeedrunLoadingStateChanged += Render;
+            _selectionState.OnRegulationSelected += Render;
+            _selectionState.OnSegmentSelected += Render;
             _view.RegulationDropdown.OnSelected += OnSelectRegulation;
             _view.SegmentDropdown.OnSelected += OnSelectSegment;
             _view.OnStarted += OnStartAsync;
@@ -120,29 +120,29 @@ namespace BeatSpeedrun.Controllers
             _view.OnStarted -= OnStartAsync;
             _view.SegmentDropdown.OnSelected -= OnSelectSegment;
             _view.RegulationDropdown.OnSelected -= OnSelectRegulation;
-            _selectionStateManager.OnSegmentSelected -= Render;
-            _selectionStateManager.OnRegulationSelected -= Render;
-            _currentSpeedrunManager.OnSpeedrunLoadingStateChanged -= Render;
-            _currentSpeedrunManager.OnCurrentSpeedrunChanged -= Render;
+            _selectionState.OnSegmentSelected -= Render;
+            _selectionState.OnRegulationSelected -= Render;
+            _speedrunFacilitator.OnSpeedrunLoadingStateChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
         }
 
         private void OnSelectRegulation(string regulation)
         {
-            _selectionStateManager.SelectedRegulation = regulation;
+            _selectionState.SelectedRegulation = regulation;
         }
 
         private void OnSelectSegment(Segment? segment)
         {
-            _selectionStateManager.SelectedSegment = segment;
+            _selectionState.SelectedSegment = segment;
         }
 
         private async void OnStartAsync()
         {
             try
             {
-                await _currentSpeedrunManager.StartAsync(
-                    _selectionStateManager.SelectedRegulation,
-                    _selectionStateManager.SelectedSegment);
+                await _speedrunFacilitator.StartAsync(
+                    _selectionState.SelectedRegulation,
+                    _selectionState.SelectedSegment);
             }
             catch (Exception ex)
             {
@@ -152,7 +152,7 @@ namespace BeatSpeedrun.Controllers
 
         private void OnStop()
         {
-            _currentSpeedrunManager.Stop();
+            _speedrunFacilitator.Stop();
         }
     }
 }

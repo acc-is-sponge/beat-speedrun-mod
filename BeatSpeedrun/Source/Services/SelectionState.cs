@@ -1,14 +1,14 @@
 using System;
 using BeatSpeedrun.Models;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Services
 {
-    internal class SelectionStateManager
+    internal class SelectionState
     {
         internal event Action OnRegulationSelected;
         internal event Action OnSegmentSelected;
 
-        internal SelectionStateManager()
+        internal SelectionState()
         {
             _selectedRegulation = PluginConfig.Instance.LatestSelectedRegulation;
             _selectedSegment =

@@ -6,9 +6,9 @@ using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Repositories;
 using Zenject;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Services
 {
-    internal class CurrentSpeedrunManager : IInitializable, IDisposable
+    internal class SpeedrunFacilitator : IInitializable, IDisposable
     {
         internal event Action OnCurrentSpeedrunChanged;
         internal event Action OnCurrentSpeedrunUpdated;
@@ -19,7 +19,7 @@ namespace BeatSpeedrun.Managers
         private bool _isLoading = true;
         private Speedrun _current;
 
-        internal CurrentSpeedrunManager(SpeedrunRepository speedrunRepository)
+        internal SpeedrunFacilitator(SpeedrunRepository speedrunRepository)
         {
             _speedrunRepository = speedrunRepository;
         }

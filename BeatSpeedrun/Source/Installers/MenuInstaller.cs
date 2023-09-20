@@ -1,6 +1,6 @@
-using BeatSpeedrun.Managers;
-using BeatSpeedrun.Registerers;
+using BeatSpeedrun.Services;
 using BeatSpeedrun.Controllers;
+using BeatSpeedrun.Registerers;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
@@ -15,7 +15,7 @@ namespace BeatSpeedrun.Installers
 
             Container.BindInterfacesAndSelfTo<SettingsRegisterer>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardRegisterer>().AsSingle();
-            Container.BindInterfacesAndSelfTo<SelectionStateManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<SelectionState>().AsSingle();
         }
     }
 }

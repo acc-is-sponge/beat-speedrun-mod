@@ -7,20 +7,20 @@ using BeatSpeedrun.Models;
 using System.Threading.Tasks;
 using IPA.Utilities;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Services
 {
-    internal class LevelPlayManager : IInitializable, IDisposable
+    internal class LevelPlayObserver : IInitializable, IDisposable
     {
-        private readonly CurrentSpeedrunManager _currrntSpeedrunManager;
+        private readonly SpeedrunFacilitator _speedrunFacilitator;
         private readonly CustomLevelLoader _customLevelLoader;
         private readonly PlayerDataModel _playerDataModel;
 
-        public LevelPlayManager(
-            CurrentSpeedrunManager currrntSpeedrunManager,
+        public LevelPlayObserver(
+            SpeedrunFacilitator speedrunFacilitator,
             CustomLevelLoader customLevelLoader,
             PlayerDataModel playerDataModel)
         {
-            _currrntSpeedrunManager = currrntSpeedrunManager;
+            _speedrunFacilitator = speedrunFacilitator;
             _customLevelLoader = customLevelLoader;
             _playerDataModel = playerDataModel;
         }
@@ -66,7 +66,7 @@ namespace BeatSpeedrun.Managers
         {
             try
             {
-                var speedrun = _currrntSpeedrunManager.Current;
+                var speedrun = _speedrunFacilitator.Current;
                 if (speedrun == null) return;
 
                 if (ScoreSubmission.Disabled || ScoreSubmission.WasDisabled || ScoreSubmission.ProlongedDisabled)
@@ -150,10 +150,10 @@ namespace BeatSpeedrun.Managers
 
                 Plugin.Log.Debug("Trying to add a song score to the current speedrun...");
                 speedrun.AddScore(score);
-                _currrntSpeedrunManager.Save();
+                _speedrunFacilitator.Save();
                 Plugin.Log.Debug("Done.");
 
-                _currrntSpeedrunManager.NotifyUpdated();
+                _speedrunFacilitator.NotifyUpdated();
             }
             catch (Exception ex)
             {

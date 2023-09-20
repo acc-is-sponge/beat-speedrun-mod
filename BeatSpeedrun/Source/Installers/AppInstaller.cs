@@ -1,6 +1,6 @@
 using BeatSpeedrun.Providers;
 using BeatSpeedrun.Repositories;
-using BeatSpeedrun.Managers;
+using BeatSpeedrun.Services;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
@@ -12,8 +12,8 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<RegulationProvider>().AsSingle();
             Container.BindInterfacesAndSelfTo<MapSetProvider>().AsSingle();
             Container.BindInterfacesAndSelfTo<SpeedrunRepository>().AsSingle();
-            Container.BindInterfacesAndSelfTo<CurrentSpeedrunManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<LevelPlayManager>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<SpeedrunFacilitator>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LevelPlayObserver>().AsSingle().NonLazy();
         }
     }
 }

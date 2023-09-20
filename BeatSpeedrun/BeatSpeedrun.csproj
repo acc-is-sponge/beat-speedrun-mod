@@ -160,9 +160,9 @@
     <Compile Include="Source\Providers\MapSetProvider.cs" />
     <Compile Include="Source\Providers\RegulationProvider.cs" />
     <Compile Include="Source\Repositories\SpeedrunRepository.cs" />
-    <Compile Include="Source\Managers\SelectionStateManager.cs" />
-    <Compile Include="Source\Managers\CurrentSpeedrunManager.cs" />
-    <Compile Include="Source\Managers\LevelPlayManager.cs" />
+    <Compile Include="Source\Services\SelectionState.cs" />
+    <Compile Include="Source\Services\SpeedrunFacilitator.cs" />
+    <Compile Include="Source\Services\LevelPlayObserver.cs" />
     <Compile Include="Source\Views\SettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />

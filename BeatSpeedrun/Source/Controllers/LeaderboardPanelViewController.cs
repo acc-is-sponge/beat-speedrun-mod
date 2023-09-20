@@ -1,7 +1,7 @@
 using System;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using BeatSpeedrun.Managers;
+using BeatSpeedrun.Services;
 using BeatSpeedrun.Views;
 using Zenject;
 
@@ -12,14 +12,14 @@ namespace BeatSpeedrun.Controllers
     internal class LeaderboardPanelViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         [Inject]
-        private readonly CurrentSpeedrunManager _currentSpeedrunManager;
+        private readonly SpeedrunFacilitator _speedrunFacilitator;
 
         [UIValue("view")]
         private readonly LeaderboardPanelView _view = new LeaderboardPanelView();
 
         private void Render()
         {
-            var speedrun = _currentSpeedrunManager.Current;
+            var speedrun = _speedrunFacilitator.Current;
             var theme = speedrun != null
                 ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
                 : LeaderboardTheme.NotRunning;
@@ -30,14 +30,14 @@ namespace BeatSpeedrun.Controllers
         public void Initialize()
         {
             Render();
-            _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
-            _currentSpeedrunManager.OnCurrentSpeedrunUpdated += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
         }
 
         public void Dispose()
         {
-            _currentSpeedrunManager.OnCurrentSpeedrunUpdated -= Render;
-            _currentSpeedrunManager.OnCurrentSpeedrunChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
         }
     }
 }

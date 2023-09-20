@@ -5,10 +5,10 @@ using System.Collections.Concurrent;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSpeedrun.Extensions;
-using BeatSpeedrun.Managers;
-using BeatSpeedrun.Views;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
+using BeatSpeedrun.Services;
+using BeatSpeedrun.Views;
 using Zenject;
 using SongCore;
 
@@ -19,13 +19,13 @@ namespace BeatSpeedrun.Controllers
     internal class LeaderboardMainViewController : BSMLAutomaticViewController, IInitializable, IDisposable, ITickable
     {
         [Inject]
-        private readonly CurrentSpeedrunManager _currentSpeedrunManager;
+        private readonly SpeedrunFacilitator _speedrunFacilitator;
 
         [UIValue("view")]
         private readonly LeaderboardMainView _view = new LeaderboardMainView();
 
         private LeaderboardTheme CurrentTheme =>
-            _currentSpeedrunManager.Current is Speedrun speedrun
+            _speedrunFacilitator.Current is Speedrun speedrun
                 ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
                 : LeaderboardTheme.NotRunning;
 
@@ -48,7 +48,7 @@ namespace BeatSpeedrun.Controllers
 
         private void RenderStatusHeader()
         {
-            var speedrun = _currentSpeedrunManager.Current;
+            var speedrun = _speedrunFacilitator.Current;
             var theme = CurrentTheme;
             var view = _view.StatusHeader;
 
@@ -76,7 +76,7 @@ namespace BeatSpeedrun.Controllers
 
         private void RenderStatusHeaderTime()
         {
-            var speedrun = _currentSpeedrunManager.Current;
+            var speedrun = _speedrunFacilitator.Current;
             var theme = CurrentTheme;
             var view = _view.StatusHeader;
 
@@ -108,7 +108,7 @@ namespace BeatSpeedrun.Controllers
 
         private void RenderContents()
         {
-            var speedrun = _currentSpeedrunManager.Current;
+            var speedrun = _speedrunFacilitator.Current;
             var theme = CurrentTheme;
 
             if (speedrun == null)
@@ -249,7 +249,7 @@ namespace BeatSpeedrun.Controllers
 
         private void RenderFooter()
         {
-            var speedrun = _currentSpeedrunManager.Current;
+            var speedrun = _speedrunFacilitator.Current;
             var theme = CurrentTheme;
             var view = _view.Footer;
 
@@ -281,14 +281,14 @@ namespace BeatSpeedrun.Controllers
             _view.SideControl.OnProgressSelected += ShowProgress;
             _view.SideControl.OnTopScoresSelected += ShowTopScores;
             _view.SideControl.OnRecentScoresSelected += ShowRecentScores;
-            _currentSpeedrunManager.OnCurrentSpeedrunChanged += Render;
-            _currentSpeedrunManager.OnCurrentSpeedrunUpdated += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
         }
 
         public void Dispose()
         {
-            _currentSpeedrunManager.OnCurrentSpeedrunUpdated -= Render;
-            _currentSpeedrunManager.OnCurrentSpeedrunChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
             _view.SideControl.OnRecentScoresSelected -= ShowRecentScores;
             _view.SideControl.OnTopScoresSelected -= ShowTopScores;
             _view.SideControl.OnProgressSelected -= ShowProgress;
@@ -299,7 +299,7 @@ namespace BeatSpeedrun.Controllers
 
         public void Tick()
         {
-            var speedrun = _currentSpeedrunManager.Current;
+            var speedrun = _speedrunFacilitator.Current;
             if (speedrun == null || speedrun.Progress.IsTargetReached) return;
 
             RenderStatusHeaderTime();
