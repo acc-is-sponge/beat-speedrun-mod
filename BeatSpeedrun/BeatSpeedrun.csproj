@@ -159,7 +159,7 @@
     <Compile Include="Source\Models\Speedrun\Speedrun.cs" />
     <Compile Include="Source\Providers\MapSetProvider.cs" />
     <Compile Include="Source\Providers\RegulationProvider.cs" />
-    <Compile Include="Source\Managers\SpeedrunManager.cs" />
+    <Compile Include="Source\Repositories\SpeedrunRepository.cs" />
     <Compile Include="Source\Managers\SelectionStateManager.cs" />
     <Compile Include="Source\Managers\CurrentSpeedrunManager.cs" />
     <Compile Include="Source\Managers\LevelPlayManager.cs" />

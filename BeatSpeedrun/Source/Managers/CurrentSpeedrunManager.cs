@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
+using BeatSpeedrun.Repositories;
 using Zenject;
 
 namespace BeatSpeedrun.Managers
@@ -13,14 +14,14 @@ namespace BeatSpeedrun.Managers
         internal event Action OnCurrentSpeedrunUpdated;
         internal event Action OnSpeedrunLoadingStateChanged;
 
-        private readonly SpeedrunManager _speedrunManager;
+        private readonly SpeedrunRepository _speedrunRepository;
         private readonly CancellationTokenSource _disposeCts = new CancellationTokenSource();
         private bool _isLoading = true;
         private Speedrun _current;
 
-        internal CurrentSpeedrunManager(SpeedrunManager speedrunManager)
+        internal CurrentSpeedrunManager(SpeedrunRepository speedrunRepository)
         {
-            _speedrunManager = speedrunManager;
+            _speedrunRepository = speedrunRepository;
         }
 
         public void Initialize()
@@ -40,7 +41,7 @@ namespace BeatSpeedrun.Managers
             Speedrun current;
             try
             {
-                current = await _speedrunManager.LoadAsync(currentId, ct);
+                current = await _speedrunRepository.LoadAsync(currentId, ct);
             }
             catch (TaskCanceledException)
             {
@@ -117,7 +118,7 @@ namespace BeatSpeedrun.Managers
             Speedrun current;
             try
             {
-                current = await _speedrunManager.CreateAsync(regulation, targetSegment, _disposeCts.Token);
+                current = await _speedrunRepository.CreateAsync(regulation, targetSegment, _disposeCts.Token);
             }
             catch (Exception ex)
             {
@@ -142,7 +143,7 @@ namespace BeatSpeedrun.Managers
                 {
                     try
                     {
-                        _speedrunManager.Delete(Current.Id);
+                        _speedrunRepository.Delete(Current.Id);
                     }
                     catch (Exception ex)
                     {
@@ -152,7 +153,7 @@ namespace BeatSpeedrun.Managers
                 else
                 {
                     Current.Finish(DateTime.UtcNow);
-                    _speedrunManager.Save(Current);
+                    _speedrunRepository.Save(Current);
                 }
 
                 PluginConfig.Instance.CurrentSpeedrun = null;
@@ -181,7 +182,7 @@ namespace BeatSpeedrun.Managers
         {
             if (!IsLoading && Current != null)
             {
-                _speedrunManager.Save(Current);
+                _speedrunRepository.Save(Current);
             }
         }
     }

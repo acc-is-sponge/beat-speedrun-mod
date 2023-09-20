@@ -12,14 +12,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Zenject;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Repositories
 {
-    internal class SpeedrunManager : IInitializable
+    internal class SpeedrunRepository : IInitializable
     {
         private readonly RegulationProvider _regulationProvider;
         private readonly MapSetProvider _mapSetProvider;
 
-        internal SpeedrunManager(RegulationProvider regulationProvider, MapSetProvider mapSetProvider)
+        internal SpeedrunRepository(RegulationProvider regulationProvider, MapSetProvider mapSetProvider)
         {
             _regulationProvider = regulationProvider;
             _mapSetProvider = mapSetProvider;
