@@ -7,14 +7,14 @@ using BeatSpeedrun.Models;
 using BeatSpeedrun.Extensions;
 using System.Linq;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Providers
 {
-    internal class RegulationManager
+    internal class RegulationProvider
     {
         private Task<List<string>> _regulationOptions;
         private readonly TaskCache<string, Regulation> _cache;
 
-        internal RegulationManager()
+        internal RegulationProvider()
         {
             _regulationOptions = LoadOptionsAsync();
             _cache = new TaskCache<string, Regulation>(LoadAsync);

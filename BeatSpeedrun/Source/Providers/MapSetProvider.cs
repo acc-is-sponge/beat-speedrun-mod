@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Extensions;
 
-namespace BeatSpeedrun.Managers
+namespace BeatSpeedrun.Providers
 {
-    internal class MapSetManager
+    internal class MapSetProvider
     {
         private readonly TaskCache<string, MapSet> _cache;
 
-        internal MapSetManager()
+        internal MapSetProvider()
         {
             _cache = new TaskCache<string, MapSet>(LoadAsync);
         }

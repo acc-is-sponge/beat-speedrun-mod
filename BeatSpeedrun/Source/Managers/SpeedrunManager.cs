@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using BeatSpeedrun.Extensions;
+using BeatSpeedrun.Providers;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
 using Newtonsoft.Json;
@@ -15,13 +16,13 @@ namespace BeatSpeedrun.Managers
 {
     internal class SpeedrunManager : IInitializable
     {
-        private readonly RegulationManager _regulationManager;
-        private readonly MapSetManager _mapSetManager;
+        private readonly RegulationProvider _regulationProvider;
+        private readonly MapSetProvider _mapSetProvider;
 
-        internal SpeedrunManager(RegulationManager regulationManager, MapSetManager mapSetManager)
+        internal SpeedrunManager(RegulationProvider regulationProvider, MapSetProvider mapSetProvider)
         {
-            _regulationManager = regulationManager;
-            _mapSetManager = mapSetManager;
+            _regulationProvider = regulationProvider;
+            _mapSetProvider = mapSetProvider;
         }
 
         void IInitializable.Initialize()
@@ -34,8 +35,8 @@ namespace BeatSpeedrun.Managers
             Segment? targetSegment,
             CancellationToken ct = default)
         {
-            var regulation = await _regulationManager.GetAsync(regulationPath).WithCancellation(ct);
-            var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
+            var regulation = await _regulationProvider.GetAsync(regulationPath).WithCancellation(ct);
+            var mapSet = await _mapSetProvider.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
 
             var startedAt = DateTime.UtcNow;
             var snapshot = new Snapshot
@@ -76,8 +77,8 @@ namespace BeatSpeedrun.Managers
             var path = Path.Combine(SpeedrunsDirectory, id);
             var json = SomeDecrypt(File.ReadAllBytes(path));
             var snapshot = Snapshot.FromJson(json);
-            var regulation = await _regulationManager.GetAsync(snapshot.Regulation).WithCancellation(ct);
-            var mapSet = await _mapSetManager.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
+            var regulation = await _regulationProvider.GetAsync(snapshot.Regulation).WithCancellation(ct);
+            var mapSet = await _mapSetProvider.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
             return new Speedrun(snapshot, regulation, mapSet);
         }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSpeedrun.Extensions;
+using BeatSpeedrun.Providers;
 using BeatSpeedrun.Managers;
 using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
@@ -15,17 +16,17 @@ namespace BeatSpeedrun.Controllers
         protected override string TabName => "Beat Speedrun";
         protected override string TabResource => SettingsView.ResourceName;
 
-        private readonly RegulationManager _regulationManager;
+        private readonly RegulationProvider _regulationProvider;
         private readonly CurrentSpeedrunManager _currentSpeedrunManager;
         private readonly SelectionStateManager _selectionStateManager;
         private readonly TaskWaiter _taskWaiter;
 
         public SettingsViewController(
-            RegulationManager regulationManager,
+            RegulationProvider regulationProvider,
             CurrentSpeedrunManager currentSpeedrunManager,
             SelectionStateManager selectionStateManager)
         {
-            _regulationManager = regulationManager;
+            _regulationProvider = regulationProvider;
             _currentSpeedrunManager = currentSpeedrunManager;
             _selectionStateManager = selectionStateManager;
             _taskWaiter = new TaskWaiter(Render);
@@ -53,7 +54,7 @@ namespace BeatSpeedrun.Controllers
             }
 
             var regulationOptions = _taskWaiter
-                .Wait(_regulationManager.GetOptionsAsync())?
+                .Wait(_regulationProvider.GetOptionsAsync())?
                 .ToList();
 
             if (_currentSpeedrunManager.IsLoading || regulationOptions == null)
@@ -71,7 +72,7 @@ namespace BeatSpeedrun.Controllers
             _view.IsRunning = false;
 
             var regulation = _taskWaiter.Wait(
-                _regulationManager.GetAsync(_selectionStateManager.SelectedRegulation));
+                _regulationProvider.GetAsync(_selectionStateManager.SelectedRegulation));
             if (regulation == null)
             {
                 _view.DescriptionText = "loading...";
@@ -92,7 +93,7 @@ namespace BeatSpeedrun.Controllers
         private int GetSegmentPp(Segment? segment)
         {
             if (segment == null) return 0;
-            var regulation = _regulationManager.GetAsync(_selectionStateManager.SelectedRegulation);
+            var regulation = _regulationProvider.GetAsync(_selectionStateManager.SelectedRegulation);
             if (regulation.Status != TaskStatus.RanToCompletion) return 0;
             return regulation.Result.Rules.SegmentRequirements.GetValue(segment.Value);
         }

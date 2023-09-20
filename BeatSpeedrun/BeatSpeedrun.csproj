@@ -157,8 +157,8 @@
     <Compile Include="Source\Models\Speedrun\Progress.cs" />
     <Compile Include="Source\Models\Speedrun\SongScore.cs" />
     <Compile Include="Source\Models\Speedrun\Speedrun.cs" />
-    <Compile Include="Source\Managers\MapSetManager.cs" />
-    <Compile Include="Source\Managers\RegulationManager.cs" />
+    <Compile Include="Source\Providers\MapSetProvider.cs" />
+    <Compile Include="Source\Providers\RegulationProvider.cs" />
     <Compile Include="Source\Managers\SpeedrunManager.cs" />
     <Compile Include="Source\Managers\SelectionStateManager.cs" />
     <Compile Include="Source\Managers\CurrentSpeedrunManager.cs" />
