@@ -160,13 +160,13 @@
     <Compile Include="Source\Providers\MapSetProvider.cs" />
     <Compile Include="Source\Providers\RegulationProvider.cs" />
     <Compile Include="Source\Repositories\SpeedrunRepository.cs" />
-    <Compile Include="Source\Services\SelectionState.cs" />
     <Compile Include="Source\Services\SpeedrunFacilitator.cs" />
     <Compile Include="Source\Services\LevelPlayObserver.cs" />
     <Compile Include="Source\Views\SettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />
     <Compile Include="Source\Views\LeaderboardMainView.cs" />
+    <Compile Include="Source\Controllers\Support\SelectionState.cs" />
     <Compile Include="Source\Controllers\SettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />

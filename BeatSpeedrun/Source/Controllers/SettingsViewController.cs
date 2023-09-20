@@ -8,6 +8,7 @@ using BeatSpeedrun.Models;
 using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Services;
 using BeatSpeedrun.Views;
+using BeatSpeedrun.Controllers.Support;
 using Zenject;
 
 namespace BeatSpeedrun.Controllers

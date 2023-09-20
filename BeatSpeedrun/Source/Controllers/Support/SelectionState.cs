@@ -1,7 +1,7 @@
 using System;
 using BeatSpeedrun.Models;
 
-namespace BeatSpeedrun.Services
+namespace BeatSpeedrun.Controllers.Support
 {
     internal class SelectionState
     {
