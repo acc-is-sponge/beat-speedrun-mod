@@ -1,6 +1,7 @@
 using BeatSpeedrun.Controllers;
 using BeatSpeedrun.Controllers.Support;
 using BeatSpeedrun.Registerers;
+using BeatSpeedrun.Source.Views;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
@@ -17,6 +18,8 @@ namespace BeatSpeedrun.Installers
 
             Container.BindInterfacesAndSelfTo<SettingsRegisterer>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardRegisterer>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<StarDisplay>().AsSingle();
         }
     }
 }
