@@ -11,7 +11,7 @@ namespace BeatSpeedrun.Installers
         {
             Container.BindInterfacesAndSelfTo<SelectionState>().AsSingle();
 
-            Container.BindInterfacesAndSelfTo<SettingsViewController>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<SettingsViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanelViewController>().FromNewComponentAsViewController().AsSingle();
 

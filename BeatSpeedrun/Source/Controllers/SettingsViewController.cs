@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Attributes;
@@ -36,6 +37,26 @@ namespace BeatSpeedrun.Controllers
             _view = new SettingsView(GetSegmentPp);
         }
 
+        private int GetSegmentPp(Segment? segment)
+        {
+            if (segment == null) return 0;
+            var regulation = _regulationProvider.GetAsync(_selectionState.SelectedRegulation);
+            if (regulation.Status != TaskStatus.RanToCompletion) return 0;
+            return regulation.Result.Rules.SegmentRequirements.GetValue(segment.Value);
+        }
+
+        #region hooks
+
+        private List<string> UseRegulationOptions() =>
+            _taskWaiter.Wait(_regulationProvider.GetOptionsAsync());
+
+        private Regulation UseRegulation(string regulation) =>
+            _taskWaiter.Wait(_regulationProvider.GetAsync(regulation));
+
+        #endregion
+
+        #region render
+
         [UIValue("view")]
         private readonly SettingsView _view;
 
@@ -56,10 +77,7 @@ namespace BeatSpeedrun.Controllers
                 return;
             }
 
-            var regulationOptions = _taskWaiter
-                .Wait(_regulationProvider.GetOptionsAsync())?
-                .ToList();
-
+            var regulationOptions = UseRegulationOptions();
             if (_speedrunFacilitator.IsLoading || regulationOptions == null)
             {
                 _view.DescriptionText = "loading...";
@@ -74,8 +92,7 @@ namespace BeatSpeedrun.Controllers
                 _view.RegulationDropdown.Reset(regulationOptions, _selectionState.SelectedRegulation);
             _view.IsRunning = false;
 
-            var regulation = _taskWaiter.Wait(
-                _regulationProvider.GetAsync(_selectionState.SelectedRegulation));
+            var regulation = UseRegulation(_selectionState.SelectedRegulation);
             if (regulation == null)
             {
                 _view.DescriptionText = "loading...";
@@ -93,13 +110,9 @@ namespace BeatSpeedrun.Controllers
             _view.RunInteractable = true;
         }
 
-        private int GetSegmentPp(Segment? segment)
-        {
-            if (segment == null) return 0;
-            var regulation = _regulationProvider.GetAsync(_selectionState.SelectedRegulation);
-            if (regulation.Status != TaskStatus.RanToCompletion) return 0;
-            return regulation.Result.Rules.SegmentRequirements.GetValue(segment.Value);
-        }
+        #endregion
+
+        #region callbacks
 
         void IInitializable.Initialize()
         {
@@ -155,5 +168,7 @@ namespace BeatSpeedrun.Controllers
         {
             _speedrunFacilitator.Stop();
         }
+
+        #endregion
     }
 }
