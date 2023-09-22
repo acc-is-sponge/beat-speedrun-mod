@@ -78,6 +78,11 @@ namespace BeatSpeedrun.Source.Views
             BeatmapDifficulty difficulty = standardLevelDetailView.selectedDifficultyBeatmap.difficulty;
             IDifficultyBeatmapSet difficultyBeatmapSet = standardLevelDetailView.selectedDifficultyBeatmap.parentDifficultyBeatmapSet;
             string[] levelInfo = beatmapLevel.levelID.Split('_');
+            // For official maps
+            if(levelInfo.Length < 3)
+            {
+                return null;
+            }
             string characteristic = difficultyBeatmapSet.beatmapCharacteristic.serializedName;
             float? star = speedrun?.MapSet?.GetStar(levelInfo[2], new DifficultyRaw(difficulty, "Solo" + characteristic));
             return star;
