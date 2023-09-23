@@ -16,7 +16,7 @@ namespace BeatSpeedrun.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<TimerInGame>().AsSingle();
+            Container.BindInterfacesAndSelfTo<TimerInGameViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<TimerInGameView>().FromNewComponentAsViewController().AsSingle();
         }
     }

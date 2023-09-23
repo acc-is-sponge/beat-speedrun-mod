@@ -11,7 +11,7 @@ using Zenject;
 
 namespace BeatSpeedrun.Source.Views
 {
-    internal class TimerInGame: IInitializable, ITickable
+    internal class TimerInGameViewController: IInitializable, ITickable
     {
         private FloatingScreen _floatingScreen;
         private readonly TimerInGameView _timeInGameView;
@@ -22,7 +22,7 @@ namespace BeatSpeedrun.Source.Views
                 ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
                 : LeaderboardTheme.NotRunning;
 
-        public TimerInGame(PhysicsRaycasterWithCache physicsRaycasterWithCache, SpeedrunFacilitator speedrunFacilitator, TimerInGameView timeInGameView)
+        public TimerInGameViewController(PhysicsRaycasterWithCache physicsRaycasterWithCache, SpeedrunFacilitator speedrunFacilitator, TimerInGameView timeInGameView)
         {
             _physicsRaycasterWithCache = physicsRaycasterWithCache;
             _speedrunFacilitator = speedrunFacilitator;

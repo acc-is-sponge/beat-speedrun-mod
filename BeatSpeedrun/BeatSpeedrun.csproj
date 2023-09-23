@@ -193,7 +193,7 @@
     <Compile Include="Source\Installers\AppInstaller.cs" />
     <Compile Include="Source\Installers\MenuInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\Views\TimerInGame.cs" />
+    <Compile Include="Source\Controllers\TimerInGameViewController.cs" />
     <Compile Include="Source\Views\TimerInGameView.cs" />
   </ItemGroup>
   <ItemGroup>
