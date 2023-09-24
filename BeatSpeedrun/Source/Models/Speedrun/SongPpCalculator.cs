@@ -24,9 +24,8 @@ namespace BeatSpeedrun.Models.Speedrun
             float accuracy,
             SnapshotModifiers modifiers)
         {
-            var weight = _curve.ValueAt(accuracy);
             var modifiersFactor = _modifiersFactor.Calculate(modifiers);
-            return _base * star * weight * modifiersFactor;
+            return _base * star * _curve.ValueAt(accuracy * modifiersFactor);
         }
     }
 
