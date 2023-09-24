@@ -1,7 +1,6 @@
 using BeatSpeedrun.Controllers;
 using BeatSpeedrun.Controllers.Support;
 using BeatSpeedrun.Registerers;
-using BeatSpeedrun.Source.Views;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
@@ -15,11 +14,10 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<SettingsViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanelViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<SpeedrunStarViewController>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<SettingsRegisterer>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardRegisterer>().AsSingle();
-
-            Container.BindInterfacesAndSelfTo<StarDisplay>().AsSingle();
         }
     }
 }

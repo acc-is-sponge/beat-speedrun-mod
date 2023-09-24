@@ -151,10 +151,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Harmony\StandardLevelDetailViewPatch.cs" />
-    <Compile Include="Source\Views\StarDisplay.cs" />
     <Compile Include="Source\Plugin.cs" />
     <Compile Include="Source\PluginConfig.cs" />
+    <Compile Include="Source\Harmony\StandardLevelDetailViewPatch.cs" />
     <Compile Include="Source\Extensions\SystemExtensions.cs" />
     <Compile Include="Source\Extensions\BeatmapCoreExtensions.cs" />
     <Compile Include="Source\Extensions\HMUIExtensions.cs" />
@@ -178,10 +177,12 @@
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />
     <Compile Include="Source\Views\LeaderboardMainView.cs" />
+    <Compile Include="Source\Views\SpeedrunStarView.cs" />
     <Compile Include="Source\Controllers\Support\SelectionState.cs" />
     <Compile Include="Source\Controllers\SettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
+    <Compile Include="Source\Controllers\SpeedrunStarViewController.cs" />
     <Compile Include="Source\Registerers\SettingsRegisterer.cs" />
     <Compile Include="Source\Registerers\LeaderboardRegisterer.cs" />
     <Compile Include="Source\Installers\AppInstaller.cs" />
