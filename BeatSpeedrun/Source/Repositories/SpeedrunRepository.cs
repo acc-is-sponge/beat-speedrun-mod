@@ -150,6 +150,8 @@ namespace BeatSpeedrun.Repositories
 
         private void MigrateToV1()
         {
+            if (!Directory.Exists(SpeedrunsDirectory)) return;
+
             var modProvidedRegulationChecksumChanges = new Dictionary<string, string>()
             {
                 {
