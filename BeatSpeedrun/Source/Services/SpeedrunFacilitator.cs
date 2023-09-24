@@ -13,7 +13,7 @@ namespace BeatSpeedrun.Services
     /// </summary>
     internal class SpeedrunFacilitator : IInitializable, IDisposable
     {
-        internal event Action OnCurrentSpeedrunChanged;
+        internal event Action<(Speedrun, Speedrun)> OnCurrentSpeedrunChanged;
         internal event Action OnCurrentSpeedrunUpdated;
         internal event Action OnSpeedrunLoadingStateChanged;
 
@@ -106,10 +106,11 @@ namespace BeatSpeedrun.Services
             private set
             {
                 if (_current == value) return;
+                var prevCurrent = _current;
                 _current = value;
                 try
                 {
-                    OnCurrentSpeedrunChanged?.Invoke();
+                    OnCurrentSpeedrunChanged?.Invoke((prevCurrent, _current));
                 }
                 catch (Exception ex)
                 {

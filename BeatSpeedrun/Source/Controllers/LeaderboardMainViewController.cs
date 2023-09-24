@@ -315,7 +315,7 @@ namespace BeatSpeedrun.Controllers
             _view.SideControl.OnPageChanged += MovePage;
             _view.TopControl.OnIndexGroupChanged += SwitchIndexGroup;
             _view.Cards.OnSelected += OnCardSelected;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += OnCurrentSpeedrunChanged;
             _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
             _selectionState.OnRegulationSelected += Render;
             Render();
@@ -325,7 +325,7 @@ namespace BeatSpeedrun.Controllers
         {
             _selectionState.OnRegulationSelected -= Render;
             _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= OnCurrentSpeedrunChanged;
             _view.Cards.OnSelected -= OnCardSelected;
             _view.TopControl.OnIndexGroupChanged -= SwitchIndexGroup;
             _view.SideControl.OnPageChanged -= MovePage;
@@ -349,6 +349,17 @@ namespace BeatSpeedrun.Controllers
         }
 
         private void OnCardSelected(string id) { /* TODO */ }
+
+        private void OnCurrentSpeedrunChanged((Speedrun, Speedrun) diff)
+        {
+            _leaderboardState.ClearCaches();
+            _stateStack.Clear();
+            if (diff.Item1 != null && diff.Item2 == null && diff.Item1.SongScores.Count != 0)
+            {
+                MoveToSpeedrun(diff.Item1.Id);
+            }
+            Render();
+        }
 
         #endregion
 

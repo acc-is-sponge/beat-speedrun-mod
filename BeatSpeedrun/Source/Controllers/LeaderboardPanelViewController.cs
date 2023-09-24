@@ -25,17 +25,19 @@ namespace BeatSpeedrun.Controllers
             _view.IconColor = theme.IconColor;
         }
 
-        public void Initialize()
+        void IInitializable.Initialize()
         {
             Render();
-            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += OnCurrentSpeedrunChanged;
             _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= OnCurrentSpeedrunChanged;
         }
+
+        private void OnCurrentSpeedrunChanged((Speedrun, Speedrun) _) => Render();
     }
 }
