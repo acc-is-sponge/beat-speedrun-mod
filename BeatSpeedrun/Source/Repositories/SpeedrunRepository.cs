@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,6 +81,11 @@ namespace BeatSpeedrun.Repositories
             var regulation = await _regulationProvider.GetAsync(snapshot.Regulation).WithCancellation(ct);
             var mapSet = await _mapSetProvider.GetAsync(regulation.Rules.MapSet).WithCancellation(ct);
             return new Speedrun(snapshot, regulation, mapSet);
+        }
+
+        internal IEnumerable<string> List()
+        {
+            return Directory.GetFiles(SpeedrunsDirectory).Select(Path.GetFileName);
         }
 
         private static byte[] SomeEncrypt(string src)

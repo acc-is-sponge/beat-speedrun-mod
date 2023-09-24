@@ -8,6 +8,9 @@ using Zenject;
 
 namespace BeatSpeedrun.Services
 {
+    /// <summary>
+    /// A class that manages the actual speedrun progression in this plugin.
+    /// </summary>
     internal class SpeedrunFacilitator : IInitializable, IDisposable
     {
         internal event Action OnCurrentSpeedrunChanged;
@@ -15,13 +18,17 @@ namespace BeatSpeedrun.Services
         internal event Action OnSpeedrunLoadingStateChanged;
 
         private readonly SpeedrunRepository _speedrunRepository;
+        private readonly LocalLeaderboardRepository _localLeaderboardRepository;
         private readonly CancellationTokenSource _disposeCts = new CancellationTokenSource();
         private bool _isLoading = true;
         private Speedrun _current;
 
-        internal SpeedrunFacilitator(SpeedrunRepository speedrunRepository)
+        internal SpeedrunFacilitator(
+            SpeedrunRepository speedrunRepository,
+            LocalLeaderboardRepository localLeaderboardRepository)
         {
             _speedrunRepository = speedrunRepository;
+            _localLeaderboardRepository = localLeaderboardRepository;
         }
 
         public void Initialize()
@@ -31,6 +38,8 @@ namespace BeatSpeedrun.Services
 
         private async Task InitializeAsync(CancellationToken ct)
         {
+            await WritePastSpeedrunsToLocalLeaderboardsAsync();
+
             var currentId = PluginConfig.Instance.CurrentSpeedrun;
             if (string.IsNullOrEmpty(currentId))
             {
@@ -153,6 +162,9 @@ namespace BeatSpeedrun.Services
                 else
                 {
                     Current.Finish(DateTime.UtcNow);
+                    var leaderboard = _localLeaderboardRepository.Get(Current.Regulation);
+                    leaderboard.Write(Current);
+                    _localLeaderboardRepository.Save(leaderboard);
                     _speedrunRepository.Save(Current);
                 }
 
@@ -184,6 +196,41 @@ namespace BeatSpeedrun.Services
             {
                 _speedrunRepository.Save(Current);
             }
+        }
+
+        /// <summary>
+        /// This method ensures past speedruns to be recorded to local leaderboards.
+        /// Whether or not they have been written is recorded in PluginConfig.Instance.LeaderboardWriteVersion.
+        /// </summary>
+        private async Task WritePastSpeedrunsToLocalLeaderboardsAsync()
+        {
+            var version = PluginConfig.Instance.LeaderboardWriteVersion;
+
+            if (version < 1) // _ -> 1: added an initial leaderboard feature
+            {
+                foreach (var id in _speedrunRepository.List())
+                {
+                    try
+                    {
+                        var speedrun = await _speedrunRepository.LoadAsync(id);
+                        if (speedrun.Progress.FinishedAt.HasValue)
+                        {
+                            var leaderboard = _localLeaderboardRepository.Get(speedrun.Regulation);
+                            leaderboard.Write(speedrun);
+                            _localLeaderboardRepository.Save(leaderboard);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Plugin.Log.Warn($"Error while writing speedrun {id} to leaderboard:\n{ex}");
+                    }
+                }
+                version = 1;
+            }
+
+            if (version == PluginConfig.Instance.LeaderboardWriteVersion) return;
+            PluginConfig.Instance.LeaderboardWriteVersion = version;
+            PluginConfig.Instance.Changed();
         }
     }
 }

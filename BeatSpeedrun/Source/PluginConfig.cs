@@ -32,7 +32,15 @@ namespace BeatSpeedrun
         [UseConverter(typeof(ListConverter<string>))]
         public virtual List<string> RegulationUris { get; set; }
 
+        /// <summary>
+        /// See <see cref="Repositories.SpeedrunRepository.Migrate"/>.
+        /// </summary>
         public virtual int SpeedrunFileVersion { get; set; }
+
+        /// <summary>
+        /// See <see cref="Services.SpeedrunFacilitator.WritePastSpeedrunsToLocalLeaderboardsAsync"/>.
+        /// </summary>
+        public virtual int LeaderboardWriteVersion { get; set; }
 
         public virtual void OnReload()
         {
