@@ -193,14 +193,23 @@
     <EmbeddedResource Include="Source\Views\Settings.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardMain.bsml" />
+    <EmbeddedResource Include="Source\Resources\chart.png" />
     <EmbeddedResource Include="Source\Resources\clock.png" />
+    <EmbeddedResource Include="Source\Resources\country.png" />
     <EmbeddedResource Include="Source\Resources\diamond.png" />
+    <EmbeddedResource Include="Source\Resources\go-back.png" />
     <EmbeddedResource Include="Source\Resources\emerald.png" />
+    <EmbeddedResource Include="Source\Resources\friends.png" />
+    <EmbeddedResource Include="Source\Resources\global.png" />
+    <EmbeddedResource Include="Source\Resources\leaderboard.png" />
+    <EmbeddedResource Include="Source\Resources\local.png" />
     <EmbeddedResource Include="Source\Resources\master.png" />
-    <EmbeddedResource Include="Source\Resources\ruby.png" />
-    <EmbeddedResource Include="Source\Resources\sapphire.png" />
-    <EmbeddedResource Include="Source\Resources\trophy.png" />
     <EmbeddedResource Include="Source\Resources\route.png" />
+    <EmbeddedResource Include="Source\Resources\ruby.png" />
+    <EmbeddedResource Include="Source\Resources\running.png" />
+    <EmbeddedResource Include="Source\Resources\sapphire.png" />
+    <EmbeddedResource Include="Source\Resources\star.png" />
+    <EmbeddedResource Include="Source\Resources\trophy.png" />
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>
