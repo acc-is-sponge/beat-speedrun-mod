@@ -30,6 +30,9 @@ namespace BeatSpeedrun.Views
         [UIValue("scores")]
         internal LeaderboardScoresView Scores { get; } = new LeaderboardScoresView();
 
+        [UIValue("records")]
+        internal LeaderboardRecordsView Records { get; } = new LeaderboardRecordsView();
+
         [UIValue("footer")]
         internal LeaderboardFooterView Footer { get; } = new LeaderboardFooterView();
 
@@ -38,6 +41,7 @@ namespace BeatSpeedrun.Views
             render(Cards);
             Cards.Show = true;
             Scores.Show = false;
+            Records.Show = false;
         }
 
         internal void ShowScores(Action<LeaderboardScoresView> render)
@@ -45,6 +49,24 @@ namespace BeatSpeedrun.Views
             render(Scores);
             Cards.Show = false;
             Scores.Show = true;
+            Records.Show = false;
+        }
+
+        internal void ShowRecords(Action<LeaderboardRecordsView> render)
+        {
+            render(Records);
+            Cards.Show = false;
+            Scores.Show = false;
+            Records.Show = true;
+        }
+
+        internal void ShowLoading(string title = "loading...")
+        {
+            var loadingEntries = new[]
+            {
+                new LeaderboardRecordsView.Entry(null, "", "", title, ""),
+            };
+            ShowRecords(v => v.ReplaceEntries(loadingEntries));
         }
     }
 
@@ -202,6 +224,7 @@ namespace BeatSpeedrun.Views
         }
 
         internal event Action<SpeedrunTab> OnSpeedrunTabChanged;
+        internal event Action<LeaderboardType> OnLeaderboardTabChanged;
         internal event Action<int> OnPageChanged;
 
         internal LeaderboardSideControlView()
@@ -210,9 +233,25 @@ namespace BeatSpeedrun.Views
             TopScores.OnClicked += () => OnSpeedrunTabChanged?.Invoke(SpeedrunTab.TopScores);
             RecentScores.OnClicked += () => OnSpeedrunTabChanged?.Invoke(SpeedrunTab.RecentScores);
 
+            Local.OnClicked += () => OnLeaderboardTabChanged?.Invoke(LeaderboardType.Local);
+            Global.OnClicked += () => OnLeaderboardTabChanged?.Invoke(LeaderboardType.Global);
+            Country.OnClicked += () => OnLeaderboardTabChanged?.Invoke(LeaderboardType.Country);
+            Friends.OnClicked += () => OnLeaderboardTabChanged?.Invoke(LeaderboardType.Friends);
+
             PrevPage.OnClicked += () => OnPageChanged?.Invoke(-1);
             NextPage.OnClicked += () => OnPageChanged?.Invoke(1);
         }
+
+        [UIValue("navigation-button-groups")]
+        private readonly ButtonGroup[] _navigationButtonGroups = new[]
+        {
+            new ButtonGroup(
+                new Button("BeatSpeedrun.Source.Resources.leaderboard.png", "Leaderboard")
+            ),
+            new ButtonGroup(
+                new Button("BeatSpeedrun.Source.Resources.go-back.png", "Go Back")
+            ),
+        };
 
         [UIValue("tab-button-groups")]
         private readonly ButtonGroup[] _tabButtonGroups = new[]
@@ -222,6 +261,12 @@ namespace BeatSpeedrun.Views
                 new Button("BeatSpeedrun.Source.Resources.trophy.png", "Top Scores"),
                 new Button("BeatSpeedrun.Source.Resources.clock.png", "Recent Scores")
             ),
+            new ButtonGroup(
+                new Button("BeatSpeedrun.Source.Resources.local.png", "Local"),
+                new Button("BeatSpeedrun.Source.Resources.global.png", "Global"),
+                new Button("BeatSpeedrun.Source.Resources.country.png", "Country"),
+                new Button("BeatSpeedrun.Source.Resources.friends.png", "Friends")
+            )
         };
 
         [UIValue("paging-buttons")]
@@ -231,6 +276,15 @@ namespace BeatSpeedrun.Views
             new Button("-", ""),
             new Button("▼", "Next Page"),
         };
+
+        internal Button Leaderboard => _navigationButtonGroups[0].Buttons[0];
+        internal Button GoBack => _navigationButtonGroups[1].Buttons[0];
+
+        internal void ShowNavigationButtons(bool leaderboard = false, bool goBack = false)
+        {
+            _navigationButtonGroups[0].Active = leaderboard;
+            _navigationButtonGroups[1].Active = goBack;
+        }
 
         private Button Progress => _tabButtonGroups[0].Buttons[0];
         private Button TopScores => _tabButtonGroups[0].Buttons[1];
@@ -242,6 +296,22 @@ namespace BeatSpeedrun.Views
             TopScores.Color = tab == SpeedrunTab.TopScores ? activeColor : color;
             RecentScores.Color = tab == SpeedrunTab.RecentScores ? activeColor : color;
             _tabButtonGroups[0].Active = true;
+            _tabButtonGroups[1].Active = false; // exclusive
+        }
+
+        private Button Local => _tabButtonGroups[1].Buttons[0];
+        private Button Global => _tabButtonGroups[1].Buttons[1];
+        private Button Country => _tabButtonGroups[1].Buttons[2];
+        private Button Friends => _tabButtonGroups[1].Buttons[3];
+
+        internal void ShowLeaderboardTabButtons(LeaderboardType type, string color, string activeColor)
+        {
+            Local.Color = type == LeaderboardType.Local ? activeColor : color;
+            Global.Color = type == LeaderboardType.Global ? activeColor : color;
+            Country.Color = type == LeaderboardType.Country ? activeColor : color;
+            Friends.Color = type == LeaderboardType.Friends ? activeColor : color;
+            _tabButtonGroups[0].Active = false; // exclusive
+            _tabButtonGroups[1].Active = true;
         }
 
         private Button PrevPage => _pagingButtons[0];
@@ -345,9 +415,9 @@ namespace BeatSpeedrun.Views
         {
             _columns = new[]
             {
-                new Column(this),
-                new Column(this),
-            };
+                        new Column(this),
+                        new Column(this),
+                    };
         }
 
         private bool _show;
@@ -547,6 +617,74 @@ namespace BeatSpeedrun.Views
                 {
                     Plugin.Log.Warn($"Failed to get cover sprite:\n{ex}");
                 }
+            }
+        }
+    }
+
+    internal class LeaderboardRecordsView : BSMLView
+    {
+        internal event Action<string> OnSelected;
+
+        private bool _show;
+
+        [UIValue("show")]
+        internal bool Show
+        {
+            get => _show;
+            set => ChangeProperty(ref _show, value);
+        }
+
+        [UIComponent("list")]
+        private readonly CustomCellListTableData _list;
+
+        [UIValue("entries")]
+        private readonly List<object> _entries = new List<object>();
+
+        internal void ReplaceEntries(IEnumerable<Entry> entries)
+        {
+            _entries.Clear();
+            _entries.AddRange(entries.Where(e => e != null));
+            _list?.tableView.ReloadData();
+        }
+
+        [UIAction("selected")]
+        private void Selected(TableView tableView, Entry entry)
+        {
+            try
+            {
+                OnSelected?.Invoke(entry.Id);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Error($"Error while invoking OnSelected event:\n{ex}");
+            }
+
+            tableView.ClearSelection();
+        }
+
+        internal class Entry : BSMLView
+        {
+            internal string Id { get; }
+
+            [UIValue("rank")]
+            private string Rank { get; }
+
+            [UIValue("user")]
+            private string User { get; }
+
+            [UIValue("result")]
+            private string Result { get; }
+
+            [UIValue("date")]
+            private string Date { get; }
+
+            internal Entry(string id, string rank, string user, string result, string date)
+            {
+                Id = id;
+                Rank = rank;
+                User = user;
+                Result = result;
+                Date = date;
             }
         }
     }

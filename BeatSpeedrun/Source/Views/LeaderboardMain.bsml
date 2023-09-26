@@ -31,7 +31,20 @@
         <!-- SIDE CONTROL -->
         <macro.as-host host="side-control">
           <horizontal pref-width="8">
-            <vertical spacing="2">
+            <vertical spacing="4">
+              <macro.for-each hosts="navigation-button-groups">
+                <vertical spacing="1" active="~active">
+                  <macro.for-each hosts="buttons">
+                    <clickable-image
+                      src="~source"
+                      default-color="~color"
+                      pref-width="4" pref-height="4" preserve-aspect="true"
+                      hover-hint="~hover-hint"
+                      on-click="clicked"
+                    />
+                  </macro.for-each>
+                </vertical>
+              </macro.for-each>
 
               <vertical bg="round-rect-panel" bg-color="white" spacing="3" pad="2">
                 <macro.for-each hosts="tab-button-groups">
@@ -47,7 +60,7 @@
                     </macro.for-each>
                   </vertical>
                 </macro.for-each>
-                </vertical>
+              </vertical>
 
               <vertical spacing="0">
                 <macro.for-each hosts="paging-buttons">
@@ -163,6 +176,38 @@
               </vertical>
             </custom-list>
           </macro.as-host>
+
+          <!-- RECORDS -->
+          <macro.as-host host="records">
+            <custom-list
+              id="list"
+              cell-size="5.65"
+              visible-cells="10"
+              contents="entries"
+              clickable-cells="true"
+              select-cell="selected"
+              active="~show"
+            >
+              <vertical>
+                <horizontal pref-width="84" pref-height="4">
+                  <vertical pref-width="8">
+                    <text text="~rank" font-size="3.5" align="Center" />
+                  </vertical>
+                  <vertical pref-width="28">
+                    <text text="~user" font-size="3.5" align="Left" />
+                  </vertical>
+                  <vertical pref-width="28">
+                    <text text="~result" font-size="3.5" align="Left" />
+                  </vertical>
+                  <vertical pref-width="16">
+                    <text text="~date" font-size="3.5" align="Left" />
+                  </vertical>
+                </horizontal>
+                <horizontal pref-width="84" pref-height="0.25" bg="panel-top" bg-color="#ef96fd" />
+              </vertical>
+            </custom-list>
+          </macro.as-host>
+
 
         </vertical>
       </horizontal>

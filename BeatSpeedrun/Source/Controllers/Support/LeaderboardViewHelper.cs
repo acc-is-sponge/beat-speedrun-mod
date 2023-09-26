@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models.Leaderboard;
@@ -80,6 +79,33 @@ namespace BeatSpeedrun.Controllers.Support
 
             return new LeaderboardScoresView.Entry(
                 rectGradient, rank, cover, title, subTitle, difficulty, result, meta);
+        }
+
+        internal static LeaderboardCardView.Entry ToCardEntry(LeaderboardRecord record, LeaderboardIndex index)
+        {
+            var theme = LeaderboardTheme.FromIndex(index);
+            var activeTheme = record != null ? theme : LeaderboardTheme.Inactive;
+            var text = record != null
+                ? $"<line-height=55%><$main>{index.Key}\n<size=80%>{index.FormatValue(record.Value)}<$accent> / <$main>{record.StartedAt.ToRelativeString(DateTime.UtcNow)}"
+                : $"<#aaaaaa>{index.Key}";
+
+            return new LeaderboardCardView.Entry(
+                index.Key,
+                activeTheme.Gradient,
+                theme.IconSource,
+                activeTheme.IconColor,
+                ("#000000aa", "#000000dd"),
+                theme.ReplaceRichText(text));
+        }
+
+        internal static LeaderboardRecordsView.Entry ToRecordEntry(LeaderboardRecord record, LeaderboardIndex index)
+        {
+            return new LeaderboardRecordsView.Entry(
+                record.Speedrun,
+                (record.Rank + 1).ToString("00"),
+                record.UserName ?? "",
+                index.FormatValue(record.Value),
+                record.StartedAt.ToRelativeString(DateTime.UtcNow));
         }
     }
 }
