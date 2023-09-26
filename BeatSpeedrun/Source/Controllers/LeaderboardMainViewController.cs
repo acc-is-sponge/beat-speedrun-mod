@@ -561,7 +561,9 @@ namespace BeatSpeedrun.Controllers
 
         void ITickable.Tick()
         {
-            if (GetCurrentState() is LeaderboardState.ShowSpeedrun s && s.Speedrun == null)
+            var speedrun = GetCurrentSpeedrun();
+            if (speedrun == null &&
+                _speedrunFacilitator.Current?.Progress.ComputeState(DateTime.UtcNow) == Progress.State.Running)
             {
                 RenderStatusHeaderTime();
             }
