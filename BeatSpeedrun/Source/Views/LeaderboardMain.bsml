@@ -6,167 +6,210 @@
       anchor-pos-y="9"
       child-control-height="false"
     >
+
       <!-- STATUS HEADER -->
-      <macro.as-host host="status-header">
-        <horizontal pref-height="12" id="rect" bg="round-rect-panel" pad="1">
-          <vertical id="pp-rect" pref-width="27" bg="round-rect-panel">
-            <text text="~pp-text" rich-text="true" font-size="7.5" align="Center" word-wrapping="false" />
-          </vertical>
+      <horizontal pref-height="12">
+        <macro.as-host host="status-header">
+          <horizontal pref-height="12" id="rect" bg="round-rect-panel" pad="1">
+            <vertical id="pp-rect" pref-width="27" bg="round-rect-panel">
+              <text text="~pp-text" rich-text="true" font-size="7.5" align="Center" word-wrapping="false" />
+            </vertical>
 
-          <vertical pref-width="44" pad="1" spacing="2">
-            <text text="~segment-text" font-size="7" align="Midline" word-wrapping="false" />
-          </vertical>
+            <vertical pref-width="44" pad="1" spacing="2">
+              <text text="~segment-text" font-size="7" align="Midline" word-wrapping="false" />
+            </vertical>
 
-          <vertical id="time-rect" pref-width="27" bg="round-rect-panel" pad="1">
-            <text text="~time-text" rich-text="true" font-size="7.5" align="Center" word-wrapping="false" />
-          </vertical>
-        </horizontal>
-      </macro.as-host>
-
-      <horizontal pref-height="65">
-        <horizontal spacing="1">
-          <horizontal pref-width="8" spacing="1">
-            <!-- SIDE CONTROL BAR -->
-            <macro.as-host host="side-control">
-              <vertical bg="round-rect-panel" bg-color="white" pad="2" spacing="3">
-                <clickable-image
-                  src="BeatSpeedrun.Source.Resources.route.png"
-                  pref-width="4"
-                  pref-height="4"
-                  preserve-aspect="true"
-                  hover-hint="Progress"
-                  default-color="~progress-button-color"
-                  on-click="progress-button-clicked"
-                />
-                <clickable-image
-                  src="BeatSpeedrun.Source.Resources.trophy.png"
-                  pref-width="4"
-                  pref-height="4"
-                  preserve-aspect="true"
-                  hover-hint="Top Scores"
-                  default-color="~top-scores-button-color"
-                  on-click="top-scores-button-clicked"
-                />
-                <clickable-image
-                  src="BeatSpeedrun.Source.Resources.clock.png"
-                  pref-width="4"
-                  pref-height="4"
-                  preserve-aspect="true"
-                  hover-hint="Recent Scores"
-                  default-color="~recent-scores-button-color"
-                  on-click="recent-scores-button-clicked"
-                />
-                <clickable-text
-                  text="▲"
-                  default-color="~prev-scores-button-color"
-                  align="Midline"
-                  font-size="4"
-                  on-click="prev-scores-button-clicked"
-                />
-                <horizontal pref-height="4">
-                  <text
-                    text="~scores-page-text"
-                    align="Midline"
-                    font-size="4"
-                  />
-                </horizontal>
-                <clickable-text
-                  text="▼"
-                  default-color="~next-scores-button-color"
-                  align="Midline"
-                  font-size="4"
-                  on-click="next-scores-button-clicked"
-                />
-              </vertical>
-            </macro.as-host>
+            <vertical id="time-rect" pref-width="27" bg="round-rect-panel" pad="1">
+              <text text="~time-text" rich-text="true" font-size="7.5" align="Center" word-wrapping="false" />
+            </vertical>
           </horizontal>
+        </macro.as-host>
+      </horizontal>
 
-          <vertical pref-width="88" expand-child-width="true">
-            <!-- PROGRESS -->
-            <macro.as-host host="progress">
-              <custom-list
-                id="list"
-                cell-size="13"
-                visible-cells="5"
-                contents="entries"
-                stick-scrolling="true"
-                active="~show"
-              >
-                <!-- FIXME: toooo ad-hoc: how to use grid layout dynamically... -->
-                <horizontal min-width="88" spacing="1">
-                  <macro.as-host host="item1">
-                    <horizontal id="rect" pref-width="43" pref-height="12" spacing="2" pad="1" bg="round-rect-panel">
-                      <vertical id="icon-rect" pref-width="10" pad="2" bg="round-rect-panel">
-                        <image src="~icon-source" image-color="~icon-color" preserve-aspect="true" />
-                      </vertical>
+      <horizontal pref-height="65" spacing="2">
 
-                      <vertical pref-width="29">
-                        <text text="~text" rich-text="true" font-size="4" />
-                      </vertical>
-                    </horizontal>
-                  </macro.as-host>
-
-                  <macro.as-host host="item2">
-                    <horizontal id="rect" pref-width="43" pref-height="12" spacing="2" pad="1" bg="round-rect-panel">
-                      <vertical id="icon-rect" pref-width="10" pad="2" bg="round-rect-panel">
-                        <image src="~icon-source" image-color="~icon-color" preserve-aspect="true" />
-                      </vertical>
-
-                      <vertical pref-width="29">
-                        <text text="~text" rich-text="true" font-size="4" />
-                      </vertical>
-                    </horizontal>
-                  </macro.as-host>
-                </horizontal>
-              </custom-list>
-            </macro.as-host>
-
-            <!-- SCORES -->
-            <macro.as-host host="scores">
-              <custom-list
-                id="list"
-                cell-size="8"
-                visible-cells="8"
-                contents="entries"
-                stick-scrolling="true"
-                active="~show"
-              >
-                <vertical>
-                  <horizontal id="rect" min-width="88" bg="round-rect-panel">
-                    <vertical pref-width="3.5">
-                      <text
-                        text="~rank"
-                        font-size="3"
-                        align="Center"
-                      />
-                    </vertical>
-                    <image
-                      id="cover"
-                      src="BeatSpeedrun.Source.Resources.trophy.png"
-                      pref-width="7.5"
-                      pref-height="7.5"
-                      preserve-aspect="true"
+        <!-- SIDE CONTROL -->
+        <macro.as-host host="side-control">
+          <horizontal pref-width="8">
+            <vertical spacing="4">
+              <macro.for-each hosts="navigation-button-groups">
+                <vertical spacing="1" active="~active">
+                  <macro.for-each hosts="buttons">
+                    <clickable-image
+                      src="~source"
+                      default-color="~color"
+                      pref-width="4" pref-height="4" preserve-aspect="true"
+                      hover-hint="~hover-hint"
+                      on-click="clicked"
                     />
-                    <vertical pref-width="40" spacing="-2">
-                      <text text="~title" font-size="4" overflow-mode="Ellipsis" word-wrapping="false" />
-                      <text text="~sub-title" font-size="2.8" overflow-mode="Ellipsis" word-wrapping="false" />
+                  </macro.for-each>
+                </vertical>
+              </macro.for-each>
+
+              <vertical bg="round-rect-panel" bg-color="white" spacing="3" pad="2">
+                <macro.for-each hosts="tab-button-groups">
+                  <vertical pref-height="24" spacing="1" active="~active">
+                    <macro.for-each hosts="buttons">
+                      <clickable-image
+                        src="~source"
+                        default-color="~color"
+                        pref-width="4" pref-height="4" preserve-aspect="true"
+                        hover-hint="~hover-hint"
+                        on-click="clicked"
+                      />
+                    </macro.for-each>
+                  </vertical>
+                </macro.for-each>
+              </vertical>
+
+              <vertical spacing="0">
+                <macro.for-each hosts="paging-buttons">
+                  <clickable-text
+                    text="~source"
+                    default-color="~color"
+                    font-size="4" align="Midline"
+                    hover-hint="~hover-hint"
+                    on-click="clicked"
+                  />
+                </macro.for-each>
+              </vertical>
+
+            </vertical>
+          </horizontal>
+        </macro.as-host>
+
+        <vertical pref-width="90" pad="1">
+
+          <!-- TOP CONTROL -->
+          <macro.as-host host="top-control">
+            <horizontal pref-height="8.5" spacing="1" horizontal-fit="PreferredSize" active="~show">
+
+              <vertical pref-width="57" pref-height="8.5">
+                <text text="~title-text" rich-text="true" align="Left" font-size="3.5" overflow-mode="Ellipsis" />
+              </vertical>
+
+              <macro.for-each hosts="tab-button-groups">
+                <horizontal bg="round-rect-panel" pref-width="14" bg-color="white" spacing="0" pad="1" active="~active">
+                  <macro.for-each hosts="buttons">
+                    <clickable-image
+                      src="~source"
+                      default-color="~color"
+                      pref-width="4" pref-height="4" preserve-aspect="true"
+                      hover-hint="~hover-hint"
+                      on-click="clicked"
+                    />
+                  </macro.for-each>
+                </horizontal>
+              </macro.for-each>
+
+            </horizontal>
+            <horizontal pref-width="88" pref-height="0.25" bg="panel-top" bg-color="#ef96fd" active="~show" />
+          </macro.as-host>
+
+          <!-- CARDS -->
+          <macro.as-host host="cards">
+            <horizontal pad="2" spacing="0.5" active="~show">
+              <macro.for-each hosts="columns">
+                <custom-list
+                  id="list"
+                  pref-width="40"
+                  cell-size="10.5"
+                  visible-cells="5"
+                  contents="entries"
+                  clickable-cells="true"
+                  select-cell="selected"
+                >
+                  <horizontal id="rect" pref-height="10" pad="1" bg="round-rect-panel">
+                    <vertical id="icon-rect" pref-width="8" pad="2" bg="round-rect-panel">
+                      <image src="~icon-source" image-color="~icon-color" preserve-aspect="true" />
                     </vertical>
-                    <vertical pref-width="11">
-                      <text text="~difficulty" font-size="3.5" align="Center" word-wrapping="false" />
-                    </vertical>
-                    <vertical pref-width="11">
-                      <text text="~result" font-size="3.5" align="Center" word-wrapping="false" />
-                    </vertical>
-                    <vertical pref-width="11">
-                      <text text="~meta" font-size="4" align="Center" word-wrapping="false" />
+
+                    <vertical pref-width="28">
+                      <text text="~text" rich-text="true" font-size="4" />
                     </vertical>
                   </horizontal>
-                  <horizontal pref-width="88" pref-height="0.25" bg="panel-top" bg-color="#ef96fd" />
-                </vertical>
-              </custom-list>
-            </macro.as-host>
-          </vertical>
-        </horizontal>
+                </custom-list>
+              </macro.for-each>
+            </horizontal>
+          </macro.as-host>
+
+          <!-- SCORES -->
+          <macro.as-host host="scores">
+            <custom-list
+              id="list"
+              cell-size="8"
+              visible-cells="8"
+              contents="entries"
+              active="~show"
+            >
+              <vertical>
+                <horizontal id="rect" pref-width="88" bg="round-rect-panel">
+                  <vertical pref-width="3.5">
+                    <text
+                      text="~rank"
+                      font-size="3"
+                      align="Center"
+                    />
+                  </vertical>
+                  <image
+                    id="cover"
+                    src="BeatSpeedrun.Source.Resources.trophy.png"
+                    pref-width="7.5"
+                    pref-height="7.5"
+                    preserve-aspect="true"
+                  />
+                  <vertical pref-width="40" spacing="-2">
+                    <text text="~title" font-size="4" overflow-mode="Ellipsis" word-wrapping="false" />
+                    <text text="~sub-title" font-size="2.8" overflow-mode="Ellipsis" word-wrapping="false" />
+                  </vertical>
+                  <vertical pref-width="11">
+                    <text text="~difficulty" font-size="3.5" align="Center" word-wrapping="false" />
+                  </vertical>
+                  <vertical pref-width="11">
+                    <text text="~result" font-size="3.5" align="Center" word-wrapping="false" />
+                  </vertical>
+                  <vertical pref-width="11">
+                    <text text="~meta" font-size="4" align="Center" word-wrapping="false" />
+                  </vertical>
+                </horizontal>
+                <horizontal pref-width="88" pref-height="0.25" bg="panel-top" bg-color="#ef96fd" />
+              </vertical>
+            </custom-list>
+          </macro.as-host>
+
+          <!-- RECORDS -->
+          <macro.as-host host="records">
+            <custom-list
+              id="list"
+              cell-size="5.65"
+              visible-cells="10"
+              contents="entries"
+              clickable-cells="true"
+              select-cell="selected"
+              active="~show"
+            >
+              <vertical>
+                <horizontal pref-width="84" pref-height="4">
+                  <vertical pref-width="8">
+                    <text text="~rank" font-size="3.5" align="Center" />
+                  </vertical>
+                  <vertical pref-width="28">
+                    <text text="~user" font-size="3.5" align="Left" />
+                  </vertical>
+                  <vertical pref-width="28">
+                    <text text="~result" font-size="3.5" align="Left" />
+                  </vertical>
+                  <vertical pref-width="16">
+                    <text text="~date" font-size="3.5" align="Left" />
+                  </vertical>
+                </horizontal>
+                <horizontal pref-width="84" pref-height="0.25" bg="panel-top" bg-color="#ef96fd" />
+              </vertical>
+            </custom-list>
+          </macro.as-host>
+
+
+        </vertical>
       </horizontal>
 
       <!-- FOOTER -->

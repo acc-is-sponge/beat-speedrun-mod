@@ -25,6 +25,23 @@ namespace BeatSpeedrun.Extensions
         }
     }
 
+    internal static class DateTimeExtensions
+    {
+        internal static string ToRelativeString(this DateTime time, DateTime compareTime)
+        {
+            var s = compareTime - time;
+            if (s.TotalSeconds < -60) return "in the future";
+            if (s.TotalSeconds < 60) return "just now";
+            if (s.TotalMinutes < 60) return $"{(int)s.TotalMinutes}min ago";
+            if (s.TotalHours < 48) return $"{(int)s.TotalHours}h ago";
+            if (s.TotalDays < 31) return $"{(int)s.TotalDays}d ago";
+
+            var m = compareTime.Month - time.Month + 12 * (compareTime.Year - time.Year);
+            if (m < 12) return $"{m}mo ago";
+            return $"{m / 12}y ago";
+        }
+    }
+
     internal static class TimeSpanExtensions
     {
         internal static string ToTimerString(this TimeSpan s)
@@ -115,6 +132,11 @@ namespace BeatSpeedrun.Extensions
                 key,
                 k => _loadAsync(k, null),
                 (k, t) => t.IsFaulted ? _loadAsync(k, t) : t);
+        }
+
+        internal void Clear()
+        {
+            _payload.Clear();
         }
     }
 }

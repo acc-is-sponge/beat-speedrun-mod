@@ -168,9 +168,15 @@
     <Compile Include="Source\Models\Speedrun\Progress.cs" />
     <Compile Include="Source\Models\Speedrun\SongScore.cs" />
     <Compile Include="Source\Models\Speedrun\Speedrun.cs" />
+    <Compile Include="Source\Models\Leaderboard\LeaderboardIndex.cs" />
+    <Compile Include="Source\Models\Leaderboard\LeaderboardType.cs" />
+    <Compile Include="Source\Models\Leaderboard\LeaderboardRecord.cs" />
+    <Compile Include="Source\Models\Leaderboard\LeaderboardSort.cs" />
+    <Compile Include="Source\Models\Leaderboard\LocalLeaderboard.cs" />
     <Compile Include="Source\Providers\MapSetProvider.cs" />
     <Compile Include="Source\Providers\RegulationProvider.cs" />
     <Compile Include="Source\Repositories\SpeedrunRepository.cs" />
+    <Compile Include="Source\Repositories\LocalLeaderboardRepository.cs" />
     <Compile Include="Source\Services\SpeedrunFacilitator.cs" />
     <Compile Include="Source\Services\LevelPlayObserver.cs" />
     <Compile Include="Source\Views\SettingsView.cs" />
@@ -179,6 +185,8 @@
     <Compile Include="Source\Views\LeaderboardMainView.cs" />
     <Compile Include="Source\Views\SpeedrunStarView.cs" />
     <Compile Include="Source\Controllers\Support\SelectionState.cs" />
+    <Compile Include="Source\Controllers\Support\LeaderboardState.cs" />
+    <Compile Include="Source\Controllers\Support\LeaderboardViewHelper.cs" />
     <Compile Include="Source\Controllers\SettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
@@ -193,14 +201,23 @@
     <EmbeddedResource Include="Source\Views\Settings.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardMain.bsml" />
+    <EmbeddedResource Include="Source\Resources\chart.png" />
     <EmbeddedResource Include="Source\Resources\clock.png" />
+    <EmbeddedResource Include="Source\Resources\country.png" />
     <EmbeddedResource Include="Source\Resources\diamond.png" />
+    <EmbeddedResource Include="Source\Resources\go-back.png" />
     <EmbeddedResource Include="Source\Resources\emerald.png" />
+    <EmbeddedResource Include="Source\Resources\friends.png" />
+    <EmbeddedResource Include="Source\Resources\global.png" />
+    <EmbeddedResource Include="Source\Resources\leaderboard.png" />
+    <EmbeddedResource Include="Source\Resources\local.png" />
     <EmbeddedResource Include="Source\Resources\master.png" />
-    <EmbeddedResource Include="Source\Resources\ruby.png" />
-    <EmbeddedResource Include="Source\Resources\sapphire.png" />
-    <EmbeddedResource Include="Source\Resources\trophy.png" />
     <EmbeddedResource Include="Source\Resources\route.png" />
+    <EmbeddedResource Include="Source\Resources\ruby.png" />
+    <EmbeddedResource Include="Source\Resources\running.png" />
+    <EmbeddedResource Include="Source\Resources\sapphire.png" />
+    <EmbeddedResource Include="Source\Resources\star.png" />
+    <EmbeddedResource Include="Source\Resources\trophy.png" />
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>

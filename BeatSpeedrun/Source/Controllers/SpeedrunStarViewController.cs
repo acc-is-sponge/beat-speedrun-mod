@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using BeatSpeedrun.Harmony;
 using BeatSpeedrun.Models;
+using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Services;
 using BeatSpeedrun.Views;
 using UnityEngine;
@@ -67,7 +68,7 @@ namespace BeatSpeedrun.Controllers
         }
 
         private void OnRefreshContent(StandardLevelDetailView standardLevelDetailView) => Update(standardLevelDetailView);
-        private void OnCurrentSpeedrunChanged() => Update();
+        private void OnCurrentSpeedrunChanged((Speedrun, Speedrun) _) => Update();
 
         #endregion
     }

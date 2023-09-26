@@ -1,6 +1,7 @@
 using System;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
+using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Services;
 using BeatSpeedrun.Views;
 using Zenject;
@@ -19,25 +20,24 @@ namespace BeatSpeedrun.Controllers
 
         private void Render()
         {
-            var speedrun = _speedrunFacilitator.Current;
-            var theme = speedrun != null
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.Current.Segment)
-                : LeaderboardTheme.NotRunning;
+            var theme = LeaderboardTheme.FromSpeedrun(_speedrunFacilitator.Current);
             _view.IconSource = theme.IconSource;
             _view.IconColor = theme.IconColor;
         }
 
-        public void Initialize()
+        void IInitializable.Initialize()
         {
             Render();
-            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += OnCurrentSpeedrunChanged;
             _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= OnCurrentSpeedrunChanged;
         }
+
+        private void OnCurrentSpeedrunChanged((Speedrun, Speedrun) _) => Render();
     }
 }
