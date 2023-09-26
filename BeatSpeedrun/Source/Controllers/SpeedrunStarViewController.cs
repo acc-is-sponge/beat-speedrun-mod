@@ -22,6 +22,7 @@ namespace BeatSpeedrun.Controllers
 
         private float? GetStar(IDifficultyBeatmap difficultyBeatmap)
         {
+            if (difficultyBeatmap == null) return null;
             var speedrun = _speedrunFacilitator.Current;
             if (speedrun == null) return null;
             if (!(difficultyBeatmap.level is CustomBeatmapLevel)) return null;
