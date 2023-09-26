@@ -88,7 +88,7 @@ namespace BeatSpeedrun.Models.Speedrun
                 StartedAt = Progress.StartedAt,
                 FinishedAt = Progress.FinishedAt,
                 Regulation = RegulationPath,
-                TargetSegment = Progress.TargetSegment?.Segment,
+                TargetSegment = Progress.Target?.Segment,
                 Checksum = _checksum,
                 SongScores = SongScores.Select(score => score.Source).ToList(),
             };

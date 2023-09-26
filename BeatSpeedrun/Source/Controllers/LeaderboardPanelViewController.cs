@@ -21,7 +21,7 @@ namespace BeatSpeedrun.Controllers
         {
             var speedrun = _speedrunFacilitator.Current;
             var theme = speedrun != null
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
+                ? LeaderboardTheme.FromSegment(speedrun.Progress.Current.Segment)
                 : LeaderboardTheme.NotRunning;
             _view.IconSource = theme.IconSource;
             _view.IconColor = theme.IconColor;

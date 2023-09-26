@@ -26,7 +26,7 @@ namespace BeatSpeedrun.Controllers
 
         private LeaderboardTheme CurrentTheme =>
             _speedrunFacilitator.Current is Speedrun speedrun
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
+                ? LeaderboardTheme.FromSegment(speedrun.Progress.Current.Segment)
                 : LeaderboardTheme.NotRunning;
 
         private enum Show
@@ -61,8 +61,8 @@ namespace BeatSpeedrun.Controllers
             }
             else
             {
-                var curr = speedrun.Progress.GetCurrentSegment();
-                var next = speedrun.Progress.GetNextSegment();
+                var curr = speedrun.Progress.Current;
+                var next = speedrun.Progress.Next;
 
                 view.PpText = theme.ReplaceRichText(
                     $"<$main>{speedrun.TotalPp:0.#}<size=80%>pp");
@@ -164,8 +164,6 @@ namespace BeatSpeedrun.Controllers
                     iconColor,
                     ("#000000aa", "#000000dd"),
                     theme.ReplaceRichText(text)));
-
-                if (p.Segment == speedrun.Progress.TargetSegment?.Segment) break;
             }
 
             _view.SideControl.ScoresPageText = "-";
@@ -265,7 +263,7 @@ namespace BeatSpeedrun.Controllers
                 var title = Regulation.IsCustomPath(speedrun.RegulationPath)
                     ? "<$accent>(custom) <$main>" + speedrun.Regulation.Title
                     : "<$main>" + speedrun.Regulation.Title;
-                var target = speedrun.Progress.TargetSegment is Progress.SegmentProgress t
+                var target = speedrun.Progress.Target is Progress.SegmentProgress t
                     ? $"<$main>{t.Segment}<$accent> / <$main>{t.RequiredPp}pp"
                     : "<$main>endless";
                 view.Text = theme.ReplaceRichText($"{title}<$accent> / {target}");

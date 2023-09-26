@@ -65,7 +65,7 @@ namespace BeatSpeedrun.Controllers
             // Speedrunning!
             if (_speedrunFacilitator.Current is Speedrun speedrun)
             {
-                var targetSegment = speedrun.Progress.TargetSegment;
+                var targetSegment = speedrun.Progress.Target;
                 _selectionState.SelectedRegulation = speedrun.RegulationPath;
                 _selectionState.SelectedSegment = targetSegment?.Segment;
 
