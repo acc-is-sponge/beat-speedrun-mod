@@ -147,53 +147,59 @@ namespace BeatSpeedrun.Services
         internal void Stop()
         {
             if (IsLoading) throw new InvalidOperationException("Cannot stop the speedrun while loading");
-            if (Current != null)
+            if (Current == null) return;
+
+            if (Current.SongScores.Count == 0)
             {
-                if (Current.SongScores.Count == 0)
+                try
                 {
-                    try
-                    {
-                        _speedrunRepository.Delete(Current.Id);
-                    }
-                    catch (Exception ex)
-                    {
-                        Plugin.Log.Warn($"Failed to delete an empty speedrun:\n{ex}");
-                    }
+                    _speedrunRepository.Delete(Current.Id);
                 }
-                else
+                catch (Exception ex)
                 {
-                    Current.Finish(DateTime.UtcNow);
-                    var leaderboard = _localLeaderboardRepository.Get(Current.Regulation);
-                    leaderboard.Write(Current);
-                    _localLeaderboardRepository.Save(leaderboard);
-                    _speedrunRepository.Save(Current);
+                    Plugin.Log.Warn($"Failed to delete an empty speedrun:\n{ex}");
                 }
-
-                PluginConfig.Instance.CurrentSpeedrun = null;
-                PluginConfig.Instance.Changed();
-
-                Current = null;
             }
+            else
+            {
+                Current.Finish(DateTime.UtcNow);
+                var leaderboard = _localLeaderboardRepository.Get(Current.Regulation);
+                leaderboard.Write(Current);
+                _localLeaderboardRepository.Save(leaderboard);
+                _speedrunRepository.Save(Current);
+            }
+
+            PluginConfig.Instance.CurrentSpeedrun = null;
+            PluginConfig.Instance.Changed();
+
+            Current = null;
+
         }
 
         internal void NotifyUpdated()
         {
-            if (!IsLoading && Current != null)
+            if (IsLoading || Current == null) return;
+
+            try
             {
-                try
-                {
-                    OnCurrentSpeedrunUpdated?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.Error($"Error while invoking OnCurrentSpeedrunUpdated event:\n{ex}");
-                }
+                OnCurrentSpeedrunUpdated?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.Error($"Error while invoking OnCurrentSpeedrunUpdated event:\n{ex}");
             }
         }
 
         internal void Save()
         {
-            if (!IsLoading && Current != null)
+            if (IsLoading || Current == null) return;
+
+            if (PluginConfig.Instance.StopTargetReachedSpeedrunsAutomatically &&
+                (Current.Progress.Target?.ReachedAt.HasValue ?? false))
+            {
+                Stop();
+            }
+            else
             {
                 _speedrunRepository.Save(Current);
             }

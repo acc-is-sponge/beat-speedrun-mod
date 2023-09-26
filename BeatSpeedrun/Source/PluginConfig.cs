@@ -42,6 +42,11 @@ namespace BeatSpeedrun
         /// </summary>
         public virtual int LeaderboardWriteVersion { get; set; }
 
+        /// <summary>
+        /// Hidden option!
+        /// </summary>
+        public virtual bool StopTargetReachedSpeedrunsAutomatically { get; set; }
+
         public virtual void OnReload()
         {
             // Do stuff after config is read from disk.
