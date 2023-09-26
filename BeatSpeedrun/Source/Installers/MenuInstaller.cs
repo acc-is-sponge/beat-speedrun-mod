@@ -10,6 +10,7 @@ namespace BeatSpeedrun.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<SelectionState>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LeaderboardState>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<SettingsViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardMainViewController>().FromNewComponentAsViewController().AsSingle();

@@ -185,6 +185,8 @@
     <Compile Include="Source\Views\LeaderboardMainView.cs" />
     <Compile Include="Source\Views\SpeedrunStarView.cs" />
     <Compile Include="Source\Controllers\Support\SelectionState.cs" />
+    <Compile Include="Source\Controllers\Support\LeaderboardState.cs" />
+    <Compile Include="Source\Controllers\Support\LeaderboardViewHelper.cs" />
     <Compile Include="Source\Controllers\SettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
