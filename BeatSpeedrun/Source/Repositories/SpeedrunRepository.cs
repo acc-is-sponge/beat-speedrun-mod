@@ -85,6 +85,7 @@ namespace BeatSpeedrun.Repositories
 
         internal IEnumerable<string> List()
         {
+            if (!Directory.Exists(SpeedrunsDirectory)) return Enumerable.Empty<string>();
             return Directory.GetFiles(SpeedrunsDirectory).Select(Path.GetFileName);
         }
 

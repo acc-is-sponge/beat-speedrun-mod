@@ -19,6 +19,7 @@ namespace BeatSpeedrun.Providers
 
         internal Task<MapSet> GetAsync(string mapSetPath)
         {
+            if (string.IsNullOrEmpty(mapSetPath)) return Task.FromResult<MapSet>(null);
             return _cache.GetAsync(mapSetPath);
         }
 

@@ -24,6 +24,7 @@ namespace BeatSpeedrun.Providers
         {
             if (_regulationOptions.IsFaulted)
             {
+                Plugin.Log.Warn($"Failed to get regualtion options:\n{_regulationOptions.Exception}");
                 _regulationOptions = LoadOptionsAsync();
             }
             return _regulationOptions;
@@ -31,6 +32,7 @@ namespace BeatSpeedrun.Providers
 
         internal Task<Regulation> GetAsync(string regulationPath)
         {
+            if (string.IsNullOrEmpty(regulationPath)) return Task.FromResult<Regulation>(null);
             return _cache.GetAsync(regulationPath);
         }
 
