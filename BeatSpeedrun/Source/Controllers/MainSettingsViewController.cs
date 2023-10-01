@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.MenuButtons;
 using System;
 using Zenject;
 
-namespace BeatSpeedrun.Source.Controllers
+namespace BeatSpeedrun.Controllers
 {
     internal class MainSettingsViewController : IInitializable, IDisposable
     {

@@ -2,7 +2,6 @@
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Services;
-using BeatSpeedrun.Views;
 using BS_Utils.Utilities;
 using IPA.Utilities;
 using System;
@@ -10,7 +9,7 @@ using UnityEngine;
 using VRUIControls;
 using Zenject;
 
-namespace BeatSpeedrun.Source.Views
+namespace BeatSpeedrun.Views
 {
     internal class FloatingTimerViewController : IInitializable, ITickable, IDisposable
     {

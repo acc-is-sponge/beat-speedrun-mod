@@ -1,7 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 
-namespace BeatSpeedrun.Source.Views
+namespace BeatSpeedrun.Views
 {
     [ViewDefinition("BeatSpeedrun.Source.Views.MainSettings.bsml")]
     [HotReload(RelativePathToLayout = @".\MainSettings.bsml")]

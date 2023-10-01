@@ -1,8 +1,7 @@
 using BeatSpeedrun.Controllers;
 using BeatSpeedrun.Controllers.Support;
 using BeatSpeedrun.Registerers;
-using BeatSpeedrun.Source.Controllers;
-using BeatSpeedrun.Source.Views;
+using BeatSpeedrun.Views;
 using Zenject;
 
 namespace BeatSpeedrun.Installers

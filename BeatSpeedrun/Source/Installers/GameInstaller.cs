@@ -1,4 +1,4 @@
-﻿using BeatSpeedrun.Source.Views;
+﻿using BeatSpeedrun.Views;
 using Zenject;
 
 namespace BeatSpeedrun.Installers

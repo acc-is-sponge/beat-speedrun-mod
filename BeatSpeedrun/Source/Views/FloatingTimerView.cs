@@ -4,7 +4,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSpeedrun.Source.Views
+namespace BeatSpeedrun.Views
 {
     [ViewDefinition("BeatSpeedrun.Source.Views.FloatingTimer.bsml")]
     [HotReload(RelativePathToLayout = @".\FloatingTimer.bsml")]

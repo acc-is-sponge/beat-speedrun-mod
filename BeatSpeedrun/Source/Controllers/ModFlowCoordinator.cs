@@ -1,9 +1,9 @@
 ﻿using BeatSaberMarkupLanguage;
-using BeatSpeedrun.Source.Views;
+using BeatSpeedrun.Views;
 using HMUI;
 using Zenject;
 
-namespace BeatSpeedrun.Source.Controllers
+namespace BeatSpeedrun.Controllers
 {
     internal class ModFlowCoordinator : FlowCoordinator
     {

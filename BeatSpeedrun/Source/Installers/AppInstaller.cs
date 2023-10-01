@@ -1,7 +1,7 @@
 using BeatSpeedrun.Providers;
 using BeatSpeedrun.Repositories;
 using BeatSpeedrun.Services;
-using BeatSpeedrun.Source.Views;
+using BeatSpeedrun.Views;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
