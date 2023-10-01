@@ -14,10 +14,10 @@ using Zenject;
 
 namespace BeatSpeedrun.Source.Views
 {
-    internal class TimerInGameViewController: IInitializable, ITickable, IDisposable
+    internal class FloatingTimerViewController: IInitializable, ITickable, IDisposable
     {
         private FloatingScreen _floatingScreen;
-        private readonly TimerInGameView _timeInGameView;
+        private readonly FloatingTimerView _floatingTimerView;
         private readonly SpeedrunFacilitator _speedrunFacilitator;
         private readonly PhysicsRaycasterWithCache _physicsRaycasterWithCache;
         private readonly MainSettingsView _mainSettingsView;
@@ -26,21 +26,21 @@ namespace BeatSpeedrun.Source.Views
                 ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
                 : LeaderboardTheme.NotRunning;
 
-        public TimerInGameViewController(PhysicsRaycasterWithCache physicsRaycasterWithCache, SpeedrunFacilitator speedrunFacilitator, TimerInGameView timeInGameView, MainSettingsView mainSettingsView)
+        public FloatingTimerViewController(PhysicsRaycasterWithCache physicsRaycasterWithCache, SpeedrunFacilitator speedrunFacilitator, FloatingTimerView floatingTimerView, MainSettingsView mainSettingsView)
         {
             _physicsRaycasterWithCache = physicsRaycasterWithCache;
             _speedrunFacilitator = speedrunFacilitator;
-            _timeInGameView = timeInGameView;
+            _floatingTimerView = floatingTimerView;
             _mainSettingsView = mainSettingsView;
         }
 
         private bool activeFloor = false;
-        public void Enable()
+        public void Display()
         {
             activeFloor = true;
         }
 
-        public void Disable()
+        public void Hide()
         {
             activeFloor = false;
         }
@@ -48,25 +48,25 @@ namespace BeatSpeedrun.Source.Views
         public void Initialize()
         {
             PrepareFloatingScreen();
-            BSEvents.gameSceneLoaded += Enable;
-            BSEvents.menuSceneLoaded += Disable;
+            BSEvents.gameSceneLoaded += Display;
+            BSEvents.menuSceneLoaded += Hide;
         }
 
         private void PrepareFloatingScreen()
         {
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(150f, 50f), false, new Vector3(0f, 3f, 3.9f), Quaternion.Euler(new Vector3(325f, 0f, 0f)));
             _floatingScreen.GetComponent<VRGraphicRaycaster>().SetField("_physicsRaycaster", _physicsRaycasterWithCache);
-            _floatingScreen.SetRootViewController(_timeInGameView, HMUI.ViewController.AnimationType.Out);
+            _floatingScreen.SetRootViewController(_floatingTimerView, HMUI.ViewController.AnimationType.Out);
         }
 
         public void Tick()
         {
-            RenderTimerInGame();
+            RenderFloatingTimer();
         }
 
-        private void RenderTimerInGame()
+        private void RenderFloatingTimer()
         {
-            if (!_mainSettingsView.TimerInGameEnable || !activeFloor)
+            if (!_mainSettingsView.FloatingTimerEnable || !activeFloor)
             {
                 if(_floatingScreen.gameObject.activeSelf)
                     _floatingScreen.gameObject.SetActive(false);
@@ -93,12 +93,12 @@ namespace BeatSpeedrun.Source.Views
                     text = time.ToTimerString();
                     break;
             }
-            _timeInGameView.TimerText = theme.ReplaceRichText(text);
+            _floatingTimerView.TimerText = theme.ReplaceRichText(text);
             string segment = _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment != null ? 
                 _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment.ToString() : "-";
-            _timeInGameView.TimerText += "\n" + segment;
-            _timeInGameView.TimerText += "\n" + _speedrunFacilitator.Current.TotalPp.ToString("F2");
-            _timeInGameView.TimerColor = new Color(
+            _floatingTimerView.TimerText += "\n" + segment;
+            _floatingTimerView.TimerText += "\n" + _speedrunFacilitator.Current.TotalPp.ToString("F2");
+            _floatingTimerView.TimerColor = new Color(
                 System.Convert.ToInt32(theme.IconColor.Substring(1, 2), 16) / 255f,
                 System.Convert.ToInt32(theme.IconColor.Substring(3, 2), 16) / 255f,
                 System.Convert.ToInt32(theme.IconColor.Substring(5, 2), 16) / 255f
@@ -107,8 +107,8 @@ namespace BeatSpeedrun.Source.Views
 
         public void Dispose()
         {
-            BSEvents.gameSceneLoaded -= Enable;
-            BSEvents.menuSceneLoaded -= Disable;
+            BSEvents.gameSceneLoaded -= Display;
+            BSEvents.menuSceneLoaded -= Hide;
         }
     }
 }

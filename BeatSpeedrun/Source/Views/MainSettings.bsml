@@ -10,10 +10,10 @@
 			</modifier-container>
 		</tab>
 
-		<!--Timer In Game Tab-->
-		<tab tab-name='Timer In Game' tags='_'>
+		<!--Floating Timer Tab-->
+		<tab tab-name='Floating Timer' tags='_'>
 			<modifier-container child-expand-width='true' horizontal-fit='PreferredSize'>
-				<checkbox text='Enabled' value='timer-in-game-enabled' apply-on-change='true'/>
+				<checkbox text='Enabled' value='floating-timer-enabled' apply-on-change='true'/>
 			</modifier-container>
 		</tab>
 	</vertical>

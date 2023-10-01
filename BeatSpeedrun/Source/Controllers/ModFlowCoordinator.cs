@@ -15,15 +15,15 @@ namespace BeatSpeedrun.Source.Controllers
     {
         private MainFlowCoordinator _mainFlowCoordinator;
         private MainSettingsView _mainSettingsView;
-        private TimerInGameViewController _timerInGameViewController;
+        private FloatingTimerViewController _floatingTimerViewController;
 
         // Normal constructor with no Inject attribute would cause MainSettingsView to be null!
         [Inject]
-        public void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView, TimerInGameViewController timerInGameViewController)
+        public void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView, FloatingTimerViewController floatingTimerViewController)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _mainSettingsView = mainSettingsView;
-            _timerInGameViewController = timerInGameViewController;
+            _floatingTimerViewController = floatingTimerViewController;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -35,14 +35,14 @@ namespace BeatSpeedrun.Source.Controllers
                 ProvideInitialViewControllers(_mainSettingsView);
                 showBackButton = true;
             }
-            _timerInGameViewController.Enable();
+            _floatingTimerViewController.Display();
         }
 
         protected override void BackButtonWasPressed(ViewController topViewController)
         {
             base.BackButtonWasPressed(topViewController);
             _mainFlowCoordinator.DismissFlowCoordinator(this, null, ViewController.AnimationDirection.Vertical, false);
-            _timerInGameViewController.Disable();
+            _floatingTimerViewController.Hide();
         }
     }
 }

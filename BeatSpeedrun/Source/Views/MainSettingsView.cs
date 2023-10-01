@@ -21,12 +21,12 @@ namespace BeatSpeedrun.Source.Views
             set => modEnable = value;
         }
 
-        private bool timerInGameEnable = true;
-        [UIValue("timer-in-game-enabled")]
-        public bool TimerInGameEnable
+        private bool floatingtimerEnable = true;
+        [UIValue("floating-timer-enabled")]
+        public bool FloatingTimerEnable
         {
-            get => timerInGameEnable;
-            set => timerInGameEnable = value;
+            get => floatingtimerEnable;
+            set => floatingtimerEnable = value;
         }
 
         [UIAction("#post-parse")]

@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace BeatSpeedrun.Source.Views
 {
-    [ViewDefinition("BeatSpeedrun.Source.Views.TimerInGame.bsml")]
-    [HotReload(RelativePathToLayout = @".\TimerInGame.bsml")]
-    internal class TimerInGameView : BSMLAutomaticViewController
+    [ViewDefinition("BeatSpeedrun.Source.Views.FloatingTimer.bsml")]
+    [HotReload(RelativePathToLayout = @".\FloatingTimer.bsml")]
+    internal class FloatingTimerView : BSMLAutomaticViewController
     {
         [UIComponent("timer-text")]
         protected FormattableText _timerTextObject;

@@ -196,8 +196,8 @@
     <Compile Include="Source\Installers\AppInstaller.cs" />
     <Compile Include="Source\Installers\MenuInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\Controllers\TimerInGameViewController.cs" />
-    <Compile Include="Source\Views\TimerInGameView.cs" />
+    <Compile Include="Source\Controllers\FloatingTimerViewController.cs" />
+    <Compile Include="Source\Views\FloatingTimerView.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Source\Views\Settings.bsml" />
@@ -216,7 +216,7 @@
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
     <None Include="BeatSpeedrun.csproj.user" Condition="Exists('BeatSpeedrun.csproj.user')" />
-    <EmbeddedResource Include="Source\Views\TimerInGame.bsml" />
+    <EmbeddedResource Include="Source\Views\FloatingTimer.bsml" />
     <EmbeddedResource Include="Source\Views\MainSettings.bsml" />
   </ItemGroup>
   <ItemGroup>
