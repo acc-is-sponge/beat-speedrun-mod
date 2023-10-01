@@ -1,6 +1,7 @@
 using BeatSpeedrun.Providers;
 using BeatSpeedrun.Repositories;
 using BeatSpeedrun.Services;
+using BeatSpeedrun.Source.Views;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
@@ -14,6 +15,8 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<SpeedrunRepository>().AsSingle();
             Container.BindInterfacesAndSelfTo<SpeedrunFacilitator>().AsSingle();
             Container.BindInterfacesAndSelfTo<LevelPlayObserver>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<MainSettingsView>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }
