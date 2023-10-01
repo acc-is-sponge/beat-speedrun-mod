@@ -1,12 +1,11 @@
-﻿using IPA;
+﻿using System;
+using System.Reflection;
+using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
 using SiraUtil.Zenject;
 using BeatSpeedrun.Installers;
-using System;
-using HarmonyLib;
-using System.Reflection;
 
 namespace BeatSpeedrun
 {
@@ -15,8 +14,6 @@ namespace BeatSpeedrun
     {
         internal static Plugin Instance { get; private set; }
         internal static IPALogger Log { get; private set; }
-        private const string HarmonyId = "com.github.acc-is-sponge.beat-speedrun-mod";
-        private static readonly Harmony harmony = new Harmony(HarmonyId);
 
         [Init]
         public void Init(IPALogger logger, Config conf, Zenjector zenjector)
@@ -51,6 +48,7 @@ namespace BeatSpeedrun
         }
 
         #region Harmony
+
         /// <summary>
         /// Attempts to apply all the Harmony patches in this assembly.
         /// </summary>
@@ -58,12 +56,12 @@ namespace BeatSpeedrun
         {
             try
             {
-                harmony.PatchAll(Assembly.GetExecutingAssembly());
+                Harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Error("Error applying Harmony patches: " + ex.Message);
-                Plugin.Log?.Debug(ex);
+                Log?.Error("Error applying Harmony patches: " + ex.Message);
+                Log?.Debug(ex);
             }
         }
 
@@ -74,14 +72,18 @@ namespace BeatSpeedrun
         {
             try
             {
-                harmony.UnpatchSelf();
+                Harmony.UnpatchSelf();
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Error("Error removing Harmony patches: " + ex.Message);
-                Plugin.Log?.Debug(ex);
+                Log?.Error("Error removing Harmony patches: " + ex.Message);
+                Log?.Debug(ex);
             }
         }
+
+        private static readonly HarmonyLib.Harmony Harmony =
+            new HarmonyLib.Harmony("com.github.acc-is-sponge.beat-speedrun-mod");
+
         #endregion
     }
 }

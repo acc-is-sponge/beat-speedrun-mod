@@ -13,6 +13,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<RegulationProvider>().AsSingle();
             Container.BindInterfacesAndSelfTo<MapSetProvider>().AsSingle();
             Container.BindInterfacesAndSelfTo<SpeedrunRepository>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LocalLeaderboardRepository>().AsSingle();
             Container.BindInterfacesAndSelfTo<SpeedrunFacilitator>().AsSingle();
             Container.BindInterfacesAndSelfTo<LevelPlayObserver>().AsSingle();
 

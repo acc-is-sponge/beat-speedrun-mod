@@ -3,9 +3,9 @@
   "id": "BeatSpeedrun",
   "name": "BeatSpeedrun",
   "author": "ACC IS SPONGE",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Provides Leaderboard UI and score aggregator for speedrunning in Beat Saber!",
-  "gameVersion": "1.27.1",
+  "gameVersion": "1.27.0",
   "dependsOn": {
     "LeaderboardCore": "^1.4.2",
     "SongCore": "^3.9.1",

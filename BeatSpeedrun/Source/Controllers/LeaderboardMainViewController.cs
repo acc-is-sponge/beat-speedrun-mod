@@ -6,11 +6,14 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models;
+using BeatSpeedrun.Models.Leaderboard;
 using BeatSpeedrun.Models.Speedrun;
+using BeatSpeedrun.Providers;
 using BeatSpeedrun.Services;
+using BeatSpeedrun.Controllers.Support;
 using BeatSpeedrun.Views;
-using Zenject;
 using SongCore;
+using Zenject;
 
 namespace BeatSpeedrun.Controllers
 {
@@ -19,323 +22,594 @@ namespace BeatSpeedrun.Controllers
     internal class LeaderboardMainViewController : BSMLAutomaticViewController, IInitializable, IDisposable, ITickable
     {
         [Inject]
+        private readonly RegulationProvider _regulationProvider;
+
+        [Inject]
         private readonly SpeedrunFacilitator _speedrunFacilitator;
+
+        [Inject]
+        private readonly LeaderboardState _leaderboardState;
+
+        [Inject]
+        private readonly SelectionState _selectionState;
+
+        private readonly TaskWaiter _taskWaiter;
+
+        internal LeaderboardMainViewController()
+        {
+            _taskWaiter = new TaskWaiter(Render);
+        }
+
+        #region hooks
+
+        private Regulation UseRegulation(string regulation) =>
+            _taskWaiter.Wait(_regulationProvider.GetAsync(regulation));
+
+        private (Speedrun Speedrun, bool IsLoading) UseSpeedrun(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return (_speedrunFacilitator.Current, _speedrunFacilitator.IsLoading);
+            }
+            var speedrun = _taskWaiter.Wait(_leaderboardState.GetSpeedrunAsync(id));
+            return (speedrun, speedrun != null); // TODO: distinguish load errors
+        }
+
+        private LocalLeaderboard UseLocalLeaderboard(string regulation) =>
+            _taskWaiter.Wait(_leaderboardState.GetLocalLeaderboardAsync(regulation));
+
+        private IEnumerable<(LeaderboardIndex, LeaderboardRecord)> UseLeaderboardRecords(
+            string regulation,
+            LeaderboardType leaderboardType,
+            LeaderboardIndex.Group indexGroup,
+            LeaderboardSort sort)
+        {
+            switch (leaderboardType)
+            {
+                case LeaderboardType.Local:
+                    return UseLocalLeaderboard(regulation)?.QueryRecords(indexGroup, sort);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        private (IEnumerable<LeaderboardRecord> Records, int Page, int MaxPage) UseLeaderboardRecords(
+            string regulation,
+            LeaderboardType leaderboardType,
+            LeaderboardIndex index,
+            int page,
+            LeaderboardSort sort)
+        {
+            switch (leaderboardType)
+            {
+                case LeaderboardType.Local:
+                    var localLeaderboard = UseLocalLeaderboard(regulation);
+                    if (localLeaderboard == null) return (null, page, page);
+                    var records = localLeaderboard.QueryRecords(index, sort).ToList();
+                    var maxPage = (records.Count - 1) / PageRecords;
+                    if (page < 0) page = 0;
+                    if (maxPage < page) page = maxPage;
+                    return (records.Skip(page * PageRecords).Take(PageRecords), page, maxPage);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region state
+
+        private readonly Stack<LeaderboardState.Node> _stateStack = new Stack<LeaderboardState.Node>();
+
+        private LeaderboardState.Node GetCurrentState()
+        {
+            if (_stateStack.Count == 0)
+            {
+                _stateStack.Push(_speedrunFacilitator.Current != null
+                    ? (LeaderboardState.Node)new LeaderboardState.ShowSpeedrun()
+                    : (LeaderboardState.Node)new LeaderboardState.ShowLeaderboard());
+            }
+            return _stateStack.Peek();
+        }
+
+        // Used by Render methods that always display speedrun status
+        private string GetCurrentSpeedrun()
+        {
+            return GetCurrentState() is LeaderboardState.ShowSpeedrun s
+                ? s.Speedrun
+                : null;
+        }
+
+        private bool CanGoBack => 1 < _stateStack.Count;
+
+        private void GoBack()
+        {
+            if (CanGoBack)
+            {
+                _stateStack.Pop();
+                Render();
+            }
+        }
+
+        private void GoToLeaderboard()
+        {
+            if (_stateStack.OfType<LeaderboardState.ShowLeaderboard>().Any())
+            {
+                while (_stateStack.Peek() is LeaderboardState.ShowLeaderboard)
+                {
+                    _stateStack.Pop();
+                }
+            }
+            else
+            {
+                _stateStack.Push(new LeaderboardState.ShowLeaderboard());
+            }
+            Render();
+        }
+
+        private void GoToSpeedrun(string id)
+        {
+            if (id == null) return;
+
+            if (_stateStack.OfType<LeaderboardState.ShowSpeedrun>().Any(s => s.Speedrun == id))
+            {
+                while (!(_stateStack.Peek() is LeaderboardState.ShowSpeedrun s && s.Speedrun == id))
+                {
+                    _stateStack.Pop();
+                }
+            }
+            else
+            {
+                _stateStack.Push(new LeaderboardState.ShowSpeedrun { Speedrun = id });
+            }
+            Render();
+        }
+
+        private void MovePage(int offset)
+        {
+            switch (GetCurrentState())
+            {
+                case LeaderboardState.ShowSpeedrun s:
+                    s.Page += offset;
+                    RenderSpeedrunContents(s);
+                    break;
+                case LeaderboardState.ShowLeaderboard l:
+                    l.Page += offset;
+                    RenderLeaderboardContents(l);
+                    break;
+            }
+        }
+
+        private void SwitchSpeedrunTab(LeaderboardSideControlView.SpeedrunTab tab)
+        {
+            if (GetCurrentState() is LeaderboardState.ShowSpeedrun s)
+            {
+                s.Tab = tab;
+                s.Page = 0;
+                RenderSpeedrunContents(s);
+            }
+        }
+
+        private void SwitchLeaderboardType(LeaderboardType leaderboardType)
+        {
+            if (GetCurrentState() is LeaderboardState.ShowLeaderboard s)
+            {
+                s.Type = leaderboardType;
+                s.Page = 0;
+                RenderLeaderboardContents(s);
+            }
+        }
+
+        private void SwitchIndexGroup(LeaderboardIndex.Group indexGroup)
+        {
+            switch (GetCurrentState())
+            {
+                case LeaderboardState.ShowSpeedrun s:
+                    s.ProgressIndexGroup = indexGroup;
+                    RenderSpeedrunContents(s);
+                    break;
+                case LeaderboardState.ShowLeaderboard l:
+                    l.IndexGroup = indexGroup;
+                    l.IndexKey = null;
+                    RenderLeaderboardContents(l);
+                    break;
+            }
+        }
+
+        private void SwitchIndexKey(string indexKey)
+        {
+            switch (GetCurrentState())
+            {
+                case LeaderboardState.ShowSpeedrun s:
+                    _stateStack.Push(new LeaderboardState.ShowLeaderboard
+                    {
+                        IndexGroup = s.ProgressIndexGroup,
+                        IndexKey = indexKey,
+                        Sort = LeaderboardSort.Best,
+                    });
+                    break;
+                case LeaderboardState.ShowLeaderboard l:
+                    l.IndexKey = indexKey;
+                    break;
+            }
+            RenderContents();
+        }
+
+        private void SwitchLeaderboardSort(LeaderboardSort sort)
+        {
+            if (GetCurrentState() is LeaderboardState.ShowLeaderboard s)
+            {
+                s.Sort = sort;
+                s.Page = 0;
+                RenderLeaderboardContents(s);
+            }
+        }
+
+        #endregion
+
+        #region render
 
         [UIValue("view")]
         private readonly LeaderboardMainView _view = new LeaderboardMainView();
 
-        private LeaderboardTheme CurrentTheme =>
-            _speedrunFacilitator.Current is Speedrun speedrun
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
-                : LeaderboardTheme.NotRunning;
-
-        private enum Show
-        {
-            TopScores,
-            RecentScores,
-            Progress,
-        }
-
-        private int _scoresPage = 0;
-        private Show _show = Show.TopScores;
-
         private void Render()
         {
-            RenderStatusHeader();
+            RenderHeader();
             RenderContents();
             RenderFooter();
         }
 
-        private void RenderStatusHeader()
+        private void RenderHeader()
         {
-            var speedrun = _speedrunFacilitator.Current;
-            var theme = CurrentTheme;
-            var view = _view.StatusHeader;
+            var s = UseSpeedrun(GetCurrentSpeedrun());
+            var theme = LeaderboardTheme.FromSpeedrun(s.Speedrun);
 
-            view.RectGradient = theme.Gradient;
-
-            if (speedrun == null)
+            string ppText;
+            string segmentText;
+            if (s.Speedrun == null)
             {
-                view.PpText = theme.ReplaceRichText("<$main>0<size=80%>pp");
-                view.SegmentText = theme.ReplaceRichText("<$main>; )");
+                ppText = "<$sub>0pp";
+                segmentText = "<size=70%><$main>" + (s.IsLoading ? "loading..." : "(not running)");
             }
             else
             {
-                var curr = speedrun.Progress.GetCurrentSegment();
-                var next = speedrun.Progress.GetNextSegment();
+                var curr = s.Speedrun.Progress.Current;
+                var next = s.Speedrun.Progress.FinishedAt.HasValue ? null : s.Speedrun.Progress.Next;
 
-                view.PpText = theme.ReplaceRichText(
-                    $"<$main>{speedrun.TotalPp:0.#}<size=80%>pp");
-                view.SegmentText = theme.ReplaceRichText(
-                    "<line-height=45%><$main>" + (curr.Segment is Segment c ? c.ToString() : "start") + $"<size=60%><$sub> at {curr.ReachedAt.Value.ToTimerString()}" +
-                    (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$main>{n.Segment}<$accent> / <$main>{n.RequiredPp}pp" : ""));
+                ppText = $"<$main>{s.Speedrun.TotalPp:0.#}<size=80%>pp";
+
+                if (s.Speedrun.Progress.FinishedAt.HasValue)
+                {
+                    // TODO: show runner name
+                    segmentText =
+                        $"<line-height=45%><$main>Your<size=80%><$sub> Speedrun\n<size=60%><$accent>{s.Speedrun.Progress.StartedAt.ToRelativeString(DateTime.UtcNow)}";
+                }
+                else
+                {
+                    segmentText =
+                        $"<line-height=45%><$main>{(curr.Segment is Segment c ? c.ToString() : "start")}<size=60%><$sub> at {curr.ReachedAt.Value.ToTimerString()}" +
+                        (next is Progress.SegmentProgress n ? $"\n<$accent><size=50%>Next ⇒ <$main>{n.Segment}<$accent> / <$main>{n.RequiredPp}pp" : "");
+                }
             }
 
+            _view.StatusHeader.RectGradient = theme.Gradient;
+            _view.StatusHeader.PpText = theme.ReplaceRichText(ppText);
+            _view.StatusHeader.SegmentText = theme.ReplaceRichText(segmentText);
             RenderStatusHeaderTime();
         }
 
         private void RenderStatusHeaderTime()
         {
-            var speedrun = _speedrunFacilitator.Current;
-            var theme = CurrentTheme;
-            var view = _view.StatusHeader;
+            var speedrun = UseSpeedrun(GetCurrentSpeedrun()).Speedrun;
+            var theme = LeaderboardTheme.FromSpeedrun(speedrun);
 
-            if (speedrun == null)
+            string text;
+            if (speedrun != null)
             {
-                view.TimeText = theme.ReplaceRichText($"<$main>0:00:00");
+                var now = DateTime.UtcNow;
+                var time = speedrun.Progress.ElapsedTime(now);
+                if (speedrun.Progress.ComputeState(now) == Progress.State.TimeIsUp &&
+                    !speedrun.Progress.FinishedAt.HasValue)
+                {
+                    text = $"<line-height=40%><size=80%><$main>TIME IS UP!\n<size=60%><$sub>{time.ToTimerString()}";
+                }
+                else
+                {
+                    text = $"<$main>{time.ToTimerString()}";
+                }
             }
             else
             {
-
-                var now = DateTime.UtcNow;
-                var time = speedrun.Progress.ElapsedTime(now);
-                string text;
-                switch (speedrun.Progress.ComputeState(now))
-                {
-                    case Progress.State.TimeIsUp:
-                        text = $"<line-height=40%><size=80%><$main>TIME IS UP!\n<size=60%><$sub>{time.ToTimerString()}";
-                        break;
-                    default:
-                        text = $"<$main>{time.ToTimerString()}";
-                        break;
-                }
-                view.TimeText = theme.ReplaceRichText(text);
+                text = "<$sub>0:00:00";
             }
+            _view.StatusHeader.TimeText = theme.ReplaceRichText(text);
         }
-
-        const string EnabledButtonColor = "#ffffff";
-        const string DisabledButtonColor = "#777777";
 
         private void RenderContents()
         {
-            var speedrun = _speedrunFacilitator.Current;
-            var theme = CurrentTheme;
-
-            if (speedrun == null)
+            switch (GetCurrentState())
             {
-                _view.SideControl.ProgressButtonColor = DisabledButtonColor;
-                _view.SideControl.TopScoresButtonColor = DisabledButtonColor;
-                _view.SideControl.RecentScoresButtonColor = DisabledButtonColor;
-                _view.SideControl.PrevScoresButtonColor = DisabledButtonColor;
-                _view.SideControl.NextScoresButtonColor = DisabledButtonColor;
-                _view.SideControl.ScoresPageText = "-";
-                _view.Progress.Show = false;
-                _view.Scores.Show = false;
-                return;
+                case LeaderboardState.ShowSpeedrun s:
+                    RenderSpeedrunContents(s);
+                    break;
+                case LeaderboardState.ShowLeaderboard l:
+                    RenderLeaderboardContents(l);
+                    break;
             }
+        }
 
-            _view.SideControl.ProgressButtonColor = _show == Show.Progress ? theme.AccentColor : EnabledButtonColor;
-            _view.SideControl.TopScoresButtonColor = _show == Show.TopScores ? theme.AccentColor : EnabledButtonColor;
-            _view.SideControl.RecentScoresButtonColor = _show == Show.RecentScores ? theme.AccentColor : EnabledButtonColor;
+        private void RenderSpeedrunContents(LeaderboardState.ShowSpeedrun state)
+        {
+            var speedrun = UseSpeedrun(state.Speedrun).Speedrun;
+            var theme = LeaderboardTheme.FromSpeedrun(speedrun);
 
-            if (_show == Show.Progress)
+            if (1 < _stateStack.Count)
             {
-                RenderProgress(speedrun);
+                _view.SideControl.ShowNavigationButtons(goBack: true);
+                _view.SideControl.GoBack.Color = EnabledButtonColor;
             }
             else
             {
-                RenderScores(speedrun);
+                _view.SideControl.ShowNavigationButtons(leaderboard: true);
+                _view.SideControl.Leaderboard.Color = EnabledButtonColor;
             }
-        }
+            _view.SideControl.ShowSpeedrunTabButtons(state.Tab, EnabledButtonColor, theme.AccentColor);
+            _view.TopControl.Show = false;
 
-        private void RenderProgress(Speedrun speedrun)
-        {
-            var progressEntries = new List<LeaderboardProgressView.Entry>();
-
-            foreach (var p in speedrun.Progress.Segments)
+            switch (state.Tab)
             {
-                if (!p.Segment.HasValue) continue;
-
-                var theme = LeaderboardTheme.FromSegment(p.Segment);
-                var rectGradient = p.ReachedAt.HasValue
-                    ? theme.Gradient
-                    : LeaderboardTheme.NotRunning.Gradient;
-                var iconColor = p.ReachedAt.HasValue
-                    ? theme.IconColor
-                    : "#666666";
-                var text = p.ReachedAt is TimeSpan at
-                    ? $"<line-height=70%><$main>{p.Segment}<size=80%><$accent> / <$main>{p.RequiredPp}pp"
-                        + $"\n<size=80%><$accent>reached at <$main>{at.ToTimerString()}"
-                    : $"<#aaaaaa>{p.Segment}<size=80%><$icon> / <#888888>{p.RequiredPp}pp";
-
-                progressEntries.Add(new LeaderboardProgressView.Entry(
-                    rectGradient,
-                    theme.IconSource,
-                    iconColor,
-                    ("#000000aa", "#000000dd"),
-                    theme.ReplaceRichText(text)));
-
-                if (p.Segment == speedrun.Progress.TargetSegment?.Segment) break;
+                case LeaderboardSideControlView.SpeedrunTab.Progress:
+                    RenderSpeedrunProgressContents(state);
+                    break;
+                case LeaderboardSideControlView.SpeedrunTab.TopScores:
+                    RenderSpeedrunScoresContents(
+                        state,
+                        speedrun?.TopScores.Count ?? 0,
+                        speedrun?.TopScores ?? Enumerable.Empty<SongScore>());
+                    break;
+                case LeaderboardSideControlView.SpeedrunTab.RecentScores:
+                    RenderSpeedrunScoresContents(
+                        state,
+                        speedrun?.SongScores.Count ?? 0,
+                        speedrun != null ? Enumerable.Reverse(speedrun.SongScores) : Enumerable.Empty<SongScore>());
+                    break;
             }
-
-            _view.SideControl.ScoresPageText = "-";
-            _view.Scores.Show = false;
-            _view.Progress.Show = true;
-            _view.Progress.ReplaceEntries(progressEntries);
         }
 
-        private void RenderScores(Speedrun speedrun)
+        private void RenderSpeedrunProgressContents(LeaderboardState.ShowSpeedrun state)
         {
-            var scoresCount = _show == Show.TopScores
-                ? speedrun.TopScores.Count
-                : speedrun.SongScores.Count;
+            var speedrun = UseSpeedrun(state.Speedrun).Speedrun;
+            var theme = LeaderboardTheme.FromSpeedrun(speedrun);
+            var entries = LeaderboardIndex.List(state.ProgressIndexGroup)
+                .Select(index => LeaderboardViewHelper.ToProgressCardEntry(speedrun, index));
+
+            _view.SideControl.DisablePagingButtons(DisabledButtonColor);
+            _view.TopControl.TitleText = theme.ReplaceRichText(
+                $"<#ffffff>This Speedrun<$accent> ≫ <#ffffff>{state.ProgressIndexGroup}");
+            _view.TopControl.ShowIndexGroupButtons(state.ProgressIndexGroup, EnabledButtonColor, theme.AccentColor);
+            _view.TopControl.HideSortButtons();
+            _view.TopControl.Show = true;
+            _view.ShowCards(v => v.ReplaceEntries(entries));
+        }
+
+        private void RenderSpeedrunScoresContents(
+            LeaderboardState.ShowSpeedrun state,
+            int scoresCount,
+            IEnumerable<SongScore> scores)
+        {
             if (scoresCount == 0)
             {
-                _view.SideControl.PrevScoresButtonColor = DisabledButtonColor;
-                _view.SideControl.NextScoresButtonColor = DisabledButtonColor;
-                _view.SideControl.ScoresPageText = "1";
-                _view.Progress.Show = false;
-                _view.Scores.Show = false;
+                _view.SideControl.DisablePagingButtons(DisabledButtonColor);
+                _view.ShowScores(v => v.ReplaceEntries(Enumerable.Empty<LeaderboardScoresView.Entry>()));
                 return;
             }
 
-            var maxPage = (scoresCount - 1) / 8;
-            if (_scoresPage < 0) _scoresPage = 0;
-            if (maxPage < _scoresPage) _scoresPage = maxPage;
+            var maxPage = (scoresCount - 1) / PageScores;
+            if (state.Page < 0) state.Page = 0;
+            if (maxPage < state.Page) state.Page = maxPage;
 
-            _view.SideControl.PrevScoresButtonColor =
-                0 < _scoresPage ? EnabledButtonColor : DisabledButtonColor;
-            _view.SideControl.NextScoresButtonColor =
-                _scoresPage < maxPage ? EnabledButtonColor : DisabledButtonColor;
-            _view.SideControl.ScoresPageText = (_scoresPage + 1).ToString();
+            var entries = scores.Skip(state.Page * PageScores).Take(PageScores)
+                .Select(LeaderboardViewHelper.ToScoreEntry);
 
-            var scores = _show == Show.TopScores
-                ? speedrun.TopScores.Skip(_scoresPage * 8).Take(8)
-                : Enumerable.Reverse(speedrun.SongScores).Skip(_scoresPage * 8).Take(8);
-
-            var scoreEntries = scores.Select(score =>
-            {
-                var rectGradient = score.LatestPpChange.HasValue ? ("#ffff6622", "#ffff664f") : ("#00000000", "#00000000");
-                var rank = score.Rank?.ToString("00") ?? "<#777777>--";
-                var cover = score.GetCoverImageAsync(default);
-                var title = $"<line-height=45%><noparse>{score.SongName}</noparse> <size=80%><#cccccc><noparse>{score.SongSubName}</noparse>";
-                var subTitle = $"<#bbbbbb><noparse>{score.SongAuthorName}</noparse> [<#aaeeaa><noparse>{score.LevelAuthorName}</noparse><#bbbbbb>]";
-                var difficulty =
-                    $"<{score.DifficultyRaw.Difficulty.ToTextColor()}>" +
-                    (score.Star != 0 ? $"★{score.Star:0.##}" : score.DifficultyRaw.Difficulty.ToShortLabel());
-                var result =
-                    $"<line-height=45%>{score.Source.BaseAccuracy * 100:0.##}<size=70%>%" +
-                    "\n<size=75%>";
-                result += score.Source.FullCombo
-                    ? "<#33ff33>FC"
-                    : score.Source.MissOrBadCutNoteCount == 0
-                        ? "<#ff3333>×FC"
-                        : $"<#ff3333>×{score.Source.MissOrBadCutNoteCount}";
-                var modifiers = score.Source.Modifiers.ToString();
-                if (!string.IsNullOrEmpty(modifiers)) result += $"<#bbbbbb>,{modifiers}";
-                var meta = score.Pp != 0
-                    ? $"<{(score.Rank.HasValue ? "#ffff99" : "#777777")}>{score.Pp:0.#}<size=80%>pp"
-                    : "<#777777>---";
-                if (score.LatestPpChange is float diff)
-                {
-                    meta = $"<line-height=45%>{meta}\n<size=60%><#33ff33>+{diff:0.#}<size=50%>pp";
-                }
-
-                return new LeaderboardScoresView.Entry(
-                    rectGradient, rank, cover, title, subTitle, difficulty, result, meta);
-            });
-
-            _view.Progress.Show = false;
-            _view.Scores.Show = true;
-            _view.Scores.ReplaceEntries(scoreEntries);
+            _view.SideControl.EnablePagingButtons(state.Page, maxPage, EnabledButtonColor, DisabledButtonColor);
+            _view.ShowScores(v => v.ReplaceEntries(entries));
         }
 
-        private void RenderScoresForSongCore(
-            Loader _loader,
-            ConcurrentDictionary<string, CustomPreviewBeatmapLevel> _dictionary)
+        private void RenderLeaderboardContents(LeaderboardState.ShowLeaderboard state)
         {
-            RenderContents();
+            var regulation = UseRegulation(_selectionState.SelectedRegulation);
+            var speedrun = UseSpeedrun(GetCurrentSpeedrun()).Speedrun;
+            var theme = LeaderboardTheme.FromSpeedrun(speedrun);
+
+            _view.SideControl.ShowNavigationButtons(goBack: true);
+            _view.SideControl.GoBack.Color = CanGoBack ? EnabledButtonColor : DisabledButtonColor;
+            _view.SideControl.ShowLeaderboardTabButtons(state.Type, EnabledButtonColor, theme.AccentColor);
+
+            if (regulation == null)
+            {
+                _view.TopControl.TitleText = "loading...";
+                _view.TopControl.HideIndexGroupButtons();
+                _view.TopControl.HideSortButtons();
+                _view.TopControl.Show = true;
+                _view.ShowLoading();
+                return;
+            }
+
+            _view.TopControl.TitleText = theme.ReplaceRichText(
+                $"<line-height=60%><#ffffff>Leaderboard<$accent> ≫ <#ffffff>{regulation.Title}<$accent> ≫\n<#ffffff>{state.IndexGroup}" +
+                (state.IndexKey != null ? $"<$accent> ≫ <#ffffff>{state.IndexKey}" : ""));
+            _view.TopControl.ShowIndexGroupButtons(state.IndexGroup, EnabledButtonColor, theme.AccentColor);
+            _view.TopControl.ShowSortButtons(state.Sort, EnabledButtonColor, theme.AccentColor);
+            _view.TopControl.Show = true;
+
+            if (state.Type != LeaderboardType.Local)
+            {
+                _view.SideControl.DisablePagingButtons(DisabledButtonColor);
+                _view.ShowLoading("coming soon!");
+                return;
+            }
+
+            if (state.IndexKey == null)
+            {
+                var records = UseLeaderboardRecords(
+                    _selectionState.SelectedRegulation,
+                    state.Type,
+                    state.IndexGroup,
+                    state.Sort);
+
+                _view.SideControl.DisablePagingButtons(DisabledButtonColor);
+                if (records != null)
+                {
+                    var entries = records.Select(r => LeaderboardViewHelper.ToCardEntry(r.Item2, r.Item1));
+                    _view.ShowCards(v => v.ReplaceEntries(entries));
+                }
+                else
+                {
+                    _view.ShowLoading();
+                }
+            }
+            else
+            {
+                var index = LeaderboardIndex.Map[state.IndexKey];
+                var (records, page, maxPage) = UseLeaderboardRecords(
+                    _selectionState.SelectedRegulation,
+                    state.Type,
+                    index,
+                    state.Page,
+                    state.Sort);
+                state.Page = page;
+
+                _view.SideControl.EnablePagingButtons(state.Page, maxPage, EnabledButtonColor, DisabledButtonColor);
+                if (records != null)
+                {
+                    var entries = records.Select(r => LeaderboardViewHelper.ToRecordEntry(r, index));
+                    _view.ShowRecords(v => v.ReplaceEntries(entries));
+                }
+                else
+                {
+                    _view.ShowLoading();
+                }
+            }
         }
 
         private void RenderFooter()
         {
-            var speedrun = _speedrunFacilitator.Current;
-            var theme = CurrentTheme;
-            var view = _view.Footer;
+            var s = UseSpeedrun(GetCurrentSpeedrun());
+            var theme = LeaderboardTheme.FromSpeedrun(s.Speedrun);
 
-            view.RectGradient = theme.Gradient;
+            string text;
 
-            if (speedrun == null)
+            if (s.Speedrun == null)
             {
-                view.Text = theme.ReplaceRichText(
-                    "<$main>You can start your speedrun on the Beat Speedrun MOD tab");
+                text = s.IsLoading
+                    ? "<$main>loading..."
+                    : "<$main>You can start your speedrun on the Beat Speedrun MOD tab";
             }
             else
             {
-                var title = Regulation.IsCustomPath(speedrun.RegulationPath)
-                    ? "<$accent>(custom) <$main>" + speedrun.Regulation.Title
-                    : "<$main>" + speedrun.Regulation.Title;
-                var target = speedrun.Progress.TargetSegment is Progress.SegmentProgress t
+                text = Regulation.IsCustomPath(s.Speedrun.RegulationPath)
+                    ? "<$accent>(custom) <$main>" + s.Speedrun.Regulation.Title
+                    : "<$main>" + s.Speedrun.Regulation.Title;
+                text += "<$accent> ::: ";
+                text += s.Speedrun.Progress.Target is Progress.SegmentProgress t
                     ? $"<$main>{t.Segment}<$accent> / <$main>{t.RequiredPp}pp"
                     : "<$main>endless";
-                view.Text = theme.ReplaceRichText($"{title}<$accent> / {target}");
+            }
+
+            _view.Footer.RectGradient = theme.Gradient;
+            _view.Footer.Text = theme.ReplaceRichText(text);
+        }
+
+        #endregion
+
+        #region callbacks
+
+        void IInitializable.Initialize()
+        {
+            Loader.SongsLoadedEvent += OnSongsLoaded;
+            _view.SideControl.Leaderboard.OnClicked += GoToLeaderboard;
+            _view.SideControl.GoBack.OnClicked += GoBack;
+            _view.SideControl.OnSpeedrunTabChanged += SwitchSpeedrunTab;
+            _view.SideControl.OnLeaderboardTabChanged += SwitchLeaderboardType;
+            _view.SideControl.OnPageChanged += MovePage;
+            _view.TopControl.OnIndexGroupChanged += SwitchIndexGroup;
+            _view.TopControl.OnSortTypeChanged += SwitchLeaderboardSort;
+            _view.Records.OnSelected += OnRecordSelected;
+            _view.Cards.OnSelected += OnCardSelected;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += OnCurrentSpeedrunChanged;
+            _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
+            _selectionState.OnRegulationSelected += OnRegulationSelected;
+            Render();
+        }
+
+        void IDisposable.Dispose()
+        {
+            _selectionState.OnRegulationSelected -= OnRegulationSelected;
+            _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= OnCurrentSpeedrunChanged;
+            _view.Cards.OnSelected -= OnCardSelected;
+            _view.Records.OnSelected -= OnRecordSelected;
+            _view.TopControl.OnSortTypeChanged -= SwitchLeaderboardSort;
+            _view.TopControl.OnIndexGroupChanged -= SwitchIndexGroup;
+            _view.SideControl.OnPageChanged -= MovePage;
+            _view.SideControl.OnLeaderboardTabChanged -= SwitchLeaderboardType;
+            _view.SideControl.OnSpeedrunTabChanged -= SwitchSpeedrunTab;
+            _view.SideControl.GoBack.OnClicked -= GoBack;
+            _view.SideControl.Leaderboard.OnClicked -= GoToLeaderboard;
+            Loader.SongsLoadedEvent -= OnSongsLoaded;
+        }
+
+        void ITickable.Tick()
+        {
+            var speedrun = GetCurrentSpeedrun();
+            if (speedrun == null &&
+                _speedrunFacilitator.Current?.Progress.ComputeState(DateTime.UtcNow) == Progress.State.Running)
+            {
+                RenderStatusHeaderTime();
             }
         }
 
-        public void Initialize()
+        private void OnSongsLoaded(
+            Loader _loader,
+            ConcurrentDictionary<string, CustomPreviewBeatmapLevel> _dictionary)
         {
             Render();
-            Loader.SongsLoadedEvent += RenderScoresForSongCore;
-            _view.SideControl.OnNextScoresSelected += ShowNextScores;
-            _view.SideControl.OnPrevScoresSelected += ShowPrevScores;
-            _view.SideControl.OnProgressSelected += ShowProgress;
-            _view.SideControl.OnTopScoresSelected += ShowTopScores;
-            _view.SideControl.OnRecentScoresSelected += ShowRecentScores;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
-            _speedrunFacilitator.OnCurrentSpeedrunUpdated += Render;
         }
 
-        public void Dispose()
+        private void OnCardSelected(string id) => SwitchIndexKey(id);
+        private void OnRecordSelected(string id) => GoToSpeedrun(id);
+
+        private void OnCurrentSpeedrunChanged((Speedrun, Speedrun) diff)
         {
-            _speedrunFacilitator.OnCurrentSpeedrunUpdated -= Render;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
-            _view.SideControl.OnRecentScoresSelected -= ShowRecentScores;
-            _view.SideControl.OnTopScoresSelected -= ShowTopScores;
-            _view.SideControl.OnProgressSelected -= ShowProgress;
-            _view.SideControl.OnPrevScoresSelected -= ShowPrevScores;
-            _view.SideControl.OnNextScoresSelected -= ShowNextScores;
-            Loader.SongsLoadedEvent -= RenderScoresForSongCore;
+            if (diff.Item1 != null && diff.Item2 == null && diff.Item1.SongScores.Count != 0)
+            {
+                _leaderboardState.ClearCaches();
+                var state =
+                    _stateStack.OfType<LeaderboardState.ShowSpeedrun>().FirstOrDefault(s => s.Speedrun == null) ??
+                    new LeaderboardState.ShowSpeedrun();
+                state.Speedrun = diff.Item1.Id;
+                _stateStack.Clear();
+                _stateStack.Push(new LeaderboardState.ShowLeaderboard());
+                _stateStack.Push(state);
+            }
+            else
+            {
+                _stateStack.Clear();
+            }
+            Render();
         }
 
-        public void Tick()
+        private void OnRegulationSelected()
         {
-            var speedrun = _speedrunFacilitator.Current;
-            if (speedrun == null || speedrun.Progress.IsTargetReached) return;
-
-            RenderStatusHeaderTime();
+            _stateStack.Clear();
+            Render();
         }
 
-        internal void ShowNextScores()
-        {
-            _scoresPage++;
-            RenderContents();
-        }
+        #endregion
 
-        internal void ShowPrevScores()
-        {
-            _scoresPage--;
-            RenderContents();
-        }
-
-        internal void ShowProgress()
-        {
-            _show = Show.Progress;
-            _scoresPage = 0;
-            RenderContents();
-        }
-
-        internal void ShowTopScores()
-        {
-            _show = Show.TopScores;
-            _scoresPage = 0;
-            RenderContents();
-        }
-
-        internal void ShowRecentScores()
-        {
-            _show = Show.RecentScores;
-            _scoresPage = 0;
-            RenderContents();
-        }
+        private const string EnabledButtonColor = "#ffffff";
+        private const string DisabledButtonColor = "#666666";
+        private const int PageRecords = 10;
+        private const int PageScores = 8;
     }
 }

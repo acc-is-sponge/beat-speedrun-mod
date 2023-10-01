@@ -65,7 +65,7 @@ namespace BeatSpeedrun.Controllers
             // Speedrunning!
             if (_speedrunFacilitator.Current is Speedrun speedrun)
             {
-                var targetSegment = speedrun.Progress.TargetSegment;
+                var targetSegment = speedrun.Progress.Target;
                 _selectionState.SelectedRegulation = speedrun.RegulationPath;
                 _selectionState.SelectedSegment = targetSegment?.Segment;
 
@@ -117,7 +117,7 @@ namespace BeatSpeedrun.Controllers
         void IInitializable.Initialize()
         {
             Render();
-            _speedrunFacilitator.OnCurrentSpeedrunChanged += Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged += OnCurrentSpeedrunChanged;
             _speedrunFacilitator.OnSpeedrunLoadingStateChanged += Render;
             _selectionState.OnRegulationSelected += Render;
             _selectionState.OnSegmentSelected += Render;
@@ -137,18 +137,12 @@ namespace BeatSpeedrun.Controllers
             _selectionState.OnSegmentSelected -= Render;
             _selectionState.OnRegulationSelected -= Render;
             _speedrunFacilitator.OnSpeedrunLoadingStateChanged -= Render;
-            _speedrunFacilitator.OnCurrentSpeedrunChanged -= Render;
+            _speedrunFacilitator.OnCurrentSpeedrunChanged -= OnCurrentSpeedrunChanged;
         }
 
-        private void OnSelectRegulation(string regulation)
-        {
-            _selectionState.SelectedRegulation = regulation;
-        }
-
-        private void OnSelectSegment(Segment? segment)
-        {
-            _selectionState.SelectedSegment = segment;
-        }
+        private void OnCurrentSpeedrunChanged((Speedrun, Speedrun) _) => Render();
+        private void OnSelectRegulation(string regulation) => _selectionState.SelectedRegulation = regulation;
+        private void OnSelectSegment(Segment? segment) => _selectionState.SelectedSegment = segment;
 
         private async void OnStartAsync()
         {

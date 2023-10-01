@@ -12,18 +12,18 @@ namespace BeatSpeedrun.Installers
         public override void InstallBindings()
         {
             Container.BindInterfacesAndSelfTo<SelectionState>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LeaderboardState>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<SettingsViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanelViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<SpeedrunStarViewController>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<ModFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             Container.BindInterfacesAndSelfTo<MainSettingsViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<SettingsRegisterer>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardRegisterer>().AsSingle();
-
-            Container.BindInterfacesAndSelfTo<StarDisplay>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<FloatingTimerViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<FloatingTimerView>().FromNewComponentAsViewController().AsSingle();

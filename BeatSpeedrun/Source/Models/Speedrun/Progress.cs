@@ -15,34 +15,28 @@ namespace BeatSpeedrun.Models.Speedrun
         /// </summary>
         internal List<SegmentProgress> Segments { get; }
 
-        private readonly int? _targetSegmentIndex;
-        private int _currentSegmentIndex;
+        private readonly int? _targetIndex;
+        private int _currentIndex;
 
         /// <summary>
         /// Get the target segment. On the surface, speedruns stop when they
         /// reach the target segment. Returns null if target is unspecified.
         /// </summary>
-        internal SegmentProgress? TargetSegment =>
-            _targetSegmentIndex is int i ? (SegmentProgress?)Segments[i] : null;
+        internal SegmentProgress? Target =>
+            _targetIndex is int i ? (SegmentProgress?)Segments[i] : null;
 
-        internal bool IsTargetReached => TargetSegment?.ReachedAt != null;
+        internal bool IsTargetReached => Target?.ReachedAt != null;
 
         /// <summary>
         /// Get the current segment.
         /// </summary>
-        internal SegmentProgress GetCurrentSegment(bool ignoresTarget = false)
-        {
-            if (!ignoresTarget && IsTargetReached) return TargetSegment.Value;
-            return Segments[_currentSegmentIndex];
-        }
+        internal SegmentProgress Current =>
+            IsTargetReached ? Target.Value : Segments[_currentIndex];
 
-        internal SegmentProgress? GetNextSegment(bool ignoresTarget = false)
-        {
-            if (!ignoresTarget && IsTargetReached) return null;
-            return _currentSegmentIndex + 1 < Segments.Count
-                ? (SegmentProgress?)Segments[_currentSegmentIndex + 1]
-                : null;
-        }
+        internal SegmentProgress? Next =>
+            IsTargetReached || Segments.Count <= _currentIndex + 1
+            ? null
+            : (SegmentProgress?)Segments[_currentIndex + 1];
 
         /// <summary>
         /// When is the speedrun started?
@@ -64,10 +58,10 @@ namespace BeatSpeedrun.Models.Speedrun
             Finished,
         }
 
-        internal State ComputeState(DateTime time, bool ignoresTarget = false)
+        internal State ComputeState(DateTime time)
         {
             // We can't update progress after TIME IS UP or FINISHED, so it can be checked first
-            if (!ignoresTarget && IsTargetReached) return State.TargetReached;
+            if (IsTargetReached) return State.TargetReached;
 
             var upTime = StartedAt + TimeLimit;
             var finishedTime = FinishedAt ?? DateTime.MaxValue;
@@ -84,12 +78,12 @@ namespace BeatSpeedrun.Models.Speedrun
         /// <summary>
         /// Speedrun time elapsed to the argument time.
         /// </summary>
-        internal TimeSpan ElapsedTime(DateTime time, bool ignoresTarget = false)
+        internal TimeSpan ElapsedTime(DateTime time)
         {
-            switch (ComputeState(time, ignoresTarget))
+            switch (ComputeState(time))
             {
                 case State.TargetReached:
-                    return TargetSegment.Value.ReachedAt.Value;
+                    return Target.Value.ReachedAt.Value;
                 case State.TimeIsUp:
                     return TimeLimit;
                 case State.Finished:
@@ -109,29 +103,29 @@ namespace BeatSpeedrun.Models.Speedrun
             TimeLimit = timeLimit;
             Segments = Enum.GetValues(typeof(Segment))
                 .Cast<Segment>()
+                .TakeWhile(segment => segment <= (targetSegment ?? Segment.Grandmaster))
                 .Select(s => new SegmentProgress { Segment = s, RequiredPp = segmentRequirements.GetValue(s) })
                 .ToList();
-            Segments.Add(SegmentProgress.Start);
-            Segments.Sort((a, b) => a.RequiredPp.CompareTo(b.RequiredPp));
+            Segments.Insert(0, SegmentProgress.Start);
 
-            _targetSegmentIndex = targetSegment == null
+            _targetIndex = targetSegment == null
                 ? null
                 : (int?)Segments.FindIndex(segment => segment.Segment == targetSegment);
-            _currentSegmentIndex = 0;
+            _currentIndex = 0;
         }
 
-        internal void Update(DateTime ppChangedAt, Func<float> applyPpChange, bool ignoresTarget = false)
+        internal void Update(DateTime ppChangedAt, Func<float> applyPpChange)
         {
-            if (ComputeState(ppChangedAt, ignoresTarget) != State.Running) return;
+            if (ComputeState(ppChangedAt) != State.Running) return;
 
             var pp = applyPpChange();
-            for (var i = _currentSegmentIndex + 1; i < Segments.Count; ++i)
+            for (var i = _currentIndex + 1; i < Segments.Count; ++i)
             {
                 var nextSegment = Segments[i];
                 if (nextSegment.RequiredPp > pp) break;
                 nextSegment.ReachedAt = ppChangedAt - StartedAt;
                 Segments[i] = nextSegment;
-                _currentSegmentIndex = i;
+                _currentIndex = i;
             }
         }
 

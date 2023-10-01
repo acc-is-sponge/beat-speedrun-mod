@@ -73,6 +73,18 @@ namespace BeatSpeedrun.Models.Speedrun
             });
         }
 
+        internal float SongsPp(int count)
+        {
+            var songs = TopScores.Take(count);
+            return SongScore.ComputeTotalPp(songs, Regulation.Rules.Weight);
+        }
+
+        internal float TimePp(TimeSpan time)
+        {
+            var songs = TopScores.Where(s => s.Source.CompletedAt - Progress.StartedAt < time);
+            return SongScore.ComputeTotalPp(songs, Regulation.Rules.Weight);
+        }
+
         internal void Finish(DateTime finieshedAt)
         {
             if (Progress.FinishedAt.HasValue) return;
@@ -88,7 +100,7 @@ namespace BeatSpeedrun.Models.Speedrun
                 StartedAt = Progress.StartedAt,
                 FinishedAt = Progress.FinishedAt,
                 Regulation = RegulationPath,
-                TargetSegment = Progress.TargetSegment?.Segment,
+                TargetSegment = Progress.Target?.Segment,
                 Checksum = _checksum,
                 SongScores = SongScores.Select(score => score.Source).ToList(),
             };

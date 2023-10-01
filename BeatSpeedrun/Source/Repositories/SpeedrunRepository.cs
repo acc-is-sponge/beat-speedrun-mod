@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,6 +83,12 @@ namespace BeatSpeedrun.Repositories
             return new Speedrun(snapshot, regulation, mapSet);
         }
 
+        internal IEnumerable<string> List()
+        {
+            if (!Directory.Exists(SpeedrunsDirectory)) return Enumerable.Empty<string>();
+            return Directory.GetFiles(SpeedrunsDirectory).Select(Path.GetFileName);
+        }
+
         private static byte[] SomeEncrypt(string src)
         {
             var key = new byte[32];
@@ -150,6 +157,8 @@ namespace BeatSpeedrun.Repositories
 
         private void MigrateToV1()
         {
+            if (!Directory.Exists(SpeedrunsDirectory)) return;
+
             var modProvidedRegulationChecksumChanges = new Dictionary<string, string>()
             {
                 {
