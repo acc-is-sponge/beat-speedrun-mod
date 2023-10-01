@@ -1,17 +1,11 @@
-﻿using BeatSaberMarkupLanguage.MenuButtons;
-using BeatSaberMarkupLanguage;
+﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.MenuButtons;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Zenject;
-using HMUI;
-using BeatSpeedrun.Source.Views;
 
 namespace BeatSpeedrun.Source.Controllers
 {
-    internal class MainSettingsViewController: IInitializable, IDisposable
+    internal class MainSettingsViewController : IInitializable, IDisposable
     {
         private readonly MenuButton menuButton;
         private readonly MainFlowCoordinator _mainFlowCoordinator;
@@ -39,7 +33,6 @@ namespace BeatSpeedrun.Source.Controllers
 
         private void SummonFlowCoordinator()
         {
-            Plugin.Log?.Info("Summoning ModFlowCoordinator");
             _mainFlowCoordinator.PresentFlowCoordinator(_modFlowCoordinator);
         }
     }

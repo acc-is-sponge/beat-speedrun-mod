@@ -1,17 +1,11 @@
-﻿using BeatSpeedrun.Source.Views;
-using BeatSpeedrun.Views;
+﻿using BeatSaberMarkupLanguage;
+using BeatSpeedrun.Source.Views;
 using HMUI;
-using BeatSaberMarkupLanguage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Zenject;
 
 namespace BeatSpeedrun.Source.Controllers
 {
-    internal class ModFlowCoordinator: FlowCoordinator
+    internal class ModFlowCoordinator : FlowCoordinator
     {
         private MainFlowCoordinator _mainFlowCoordinator;
         private MainSettingsView _mainSettingsView;
@@ -30,7 +24,6 @@ namespace BeatSpeedrun.Source.Controllers
         {
             if (firstActivation && addedToHierarchy)
             {
-                Plugin.Log?.Info("Activating ModFlowCoordinator");
                 SetTitle("BeetSpeedrun");
                 ProvideInitialViewControllers(_mainSettingsView);
                 showBackButton = true;

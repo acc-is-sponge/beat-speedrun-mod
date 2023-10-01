@@ -2,19 +2,17 @@
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Services;
-using BeatSpeedrun.Source.Controllers;
 using BeatSpeedrun.Views;
 using BS_Utils.Utilities;
 using IPA.Utilities;
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using VRUIControls;
 using Zenject;
 
 namespace BeatSpeedrun.Source.Views
 {
-    internal class FloatingTimerViewController: IInitializable, ITickable, IDisposable
+    internal class FloatingTimerViewController : IInitializable, ITickable, IDisposable
     {
         private FloatingScreen _floatingScreen;
         private readonly FloatingTimerView _floatingTimerView;
@@ -68,7 +66,7 @@ namespace BeatSpeedrun.Source.Views
         {
             if (!_mainSettingsView.FloatingTimerEnable || !activeFloor)
             {
-                if(_floatingScreen.gameObject.activeSelf)
+                if (_floatingScreen.gameObject.activeSelf)
                     _floatingScreen.gameObject.SetActive(false);
                 return;
             }
@@ -76,13 +74,13 @@ namespace BeatSpeedrun.Source.Views
             if (!_floatingScreen.gameObject.activeSelf)
                 PrepareFloatingScreen();
 
-            var speedrun = _speedrunFacilitator.Current;
-            var theme = CurrentTheme;
+            Speedrun speedrun = _speedrunFacilitator.Current;
+            LeaderboardTheme theme = CurrentTheme;
 
             if (speedrun == null) return;
 
-            var now = DateTime.UtcNow;
-            var time = speedrun.Progress.ElapsedTime(now);
+            DateTime now = DateTime.UtcNow;
+            TimeSpan time = speedrun.Progress.ElapsedTime(now);
             string text;
             switch (speedrun.Progress.ComputeState(now))
             {
@@ -94,7 +92,7 @@ namespace BeatSpeedrun.Source.Views
                     break;
             }
             _floatingTimerView.TimerText = theme.ReplaceRichText(text);
-            string segment = _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment != null ? 
+            string segment = _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment != null ?
                 _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment.ToString() : "-";
             _floatingTimerView.TimerText += "\n" + segment;
             _floatingTimerView.TimerText += "\n" + _speedrunFacilitator.Current.TotalPp.ToString("F2");

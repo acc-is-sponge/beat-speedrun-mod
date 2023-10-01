@@ -53,7 +53,7 @@ namespace BeatSpeedrun.Source.Views
         [UIAction("#post-parse")]
         protected void Parsed()
         {
-            var mat = new Material(_timerTextObject.material) { shader = Shader.Find("UI/Default") };
+            Material mat = new Material(_timerTextObject.material) { shader = Shader.Find("UI/Default") };
             _timerTextObject.material = mat;
         }
     }

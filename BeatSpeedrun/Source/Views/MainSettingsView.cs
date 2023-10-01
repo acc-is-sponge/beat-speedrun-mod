@@ -1,11 +1,5 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using HMUI;
-using System;
-using System.Collections.Generic;
-using Zenject;
 
 namespace BeatSpeedrun.Source.Views
 {
