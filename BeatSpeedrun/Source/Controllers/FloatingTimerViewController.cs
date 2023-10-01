@@ -21,8 +21,8 @@ namespace BeatSpeedrun.Source.Views
         private readonly MainSettingsView _mainSettingsView;
         private LeaderboardTheme CurrentTheme =>
             _speedrunFacilitator.Current is Speedrun speedrun
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.GetCurrentSegment().Segment)
-                : LeaderboardTheme.NotRunning;
+                ? LeaderboardTheme.FromSegment(speedrun.Progress.Current.Segment)
+                : LeaderboardTheme.Inactive;
 
         public FloatingTimerViewController(PhysicsRaycasterWithCache physicsRaycasterWithCache, SpeedrunFacilitator speedrunFacilitator, FloatingTimerView floatingTimerView, MainSettingsView mainSettingsView)
         {
@@ -92,8 +92,8 @@ namespace BeatSpeedrun.Source.Views
                     break;
             }
             _floatingTimerView.TimerText = theme.ReplaceRichText(text);
-            string segment = _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment != null ?
-                _speedrunFacilitator.Current.Progress.GetCurrentSegment().Segment.ToString() : "-";
+            string segment = _speedrunFacilitator.Current.Progress.Current.Segment != null ?
+                _speedrunFacilitator.Current.Progress.Current.Segment.ToString() : "-";
             _floatingTimerView.TimerText += "\n" + segment;
             _floatingTimerView.TimerText += "\n" + _speedrunFacilitator.Current.TotalPp.ToString("F2");
             _floatingTimerView.TimerColor = new Color(
