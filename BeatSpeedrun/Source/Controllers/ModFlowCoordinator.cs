@@ -7,15 +7,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Zenject;
 
 namespace BeatSpeedrun.Source.Controllers
 {
     internal class ModFlowCoordinator: FlowCoordinator
     {
-        private readonly MainFlowCoordinator _mainFlowCoordinator;
+        private MainFlowCoordinator _mainFlowCoordinator;
         private MainSettingsView _mainSettingsView;
 
-        public ModFlowCoordinator(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView)
+        // Normal constructor with no Inject attribute would cause MainSettingsView to be null!
+        [Inject]
+        public void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _mainSettingsView = mainSettingsView;

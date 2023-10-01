@@ -91,7 +91,6 @@ namespace BeatSpeedrun.Views
             set => ChangeProperty(ref _runInteractable, value);
         }
 
-        //
         [UIComponent("confirm-stop-modal")]
         private readonly ModalView _confirmStopModal;
 
