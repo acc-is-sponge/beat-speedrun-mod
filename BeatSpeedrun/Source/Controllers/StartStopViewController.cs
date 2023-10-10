@@ -14,18 +14,18 @@ using Zenject;
 
 namespace BeatSpeedrun.Controllers
 {
-    internal class SettingsViewController : IInitializable, IDisposable
+    internal class StartStopViewController : IInitializable, IDisposable
     {
         // Since this class cannot be directly derived from BSMLViewController,
         // it is redefined for SettingsRegisterer
-        internal const string TabResource = SettingsView.ResourceName;
+        internal const string TabResource = StartStopView.ResourceName;
 
         private readonly RegulationProvider _regulationProvider;
         private readonly SpeedrunFacilitator _speedrunFacilitator;
         private readonly SelectionState _selectionState;
         private readonly TaskWaiter _taskWaiter;
 
-        public SettingsViewController(
+        public StartStopViewController(
             RegulationProvider regulationProvider,
             SpeedrunFacilitator speedrunFacilitator,
             SelectionState selectionState)
@@ -34,7 +34,7 @@ namespace BeatSpeedrun.Controllers
             _speedrunFacilitator = speedrunFacilitator;
             _selectionState = selectionState;
             _taskWaiter = new TaskWaiter(Render);
-            _view = new SettingsView(GetSegmentPp);
+            _view = new StartStopView(GetSegmentPp);
         }
 
         private int GetSegmentPp(Segment? segment)
@@ -58,7 +58,7 @@ namespace BeatSpeedrun.Controllers
         #region render
 
         [UIValue("view")]
-        private readonly SettingsView _view;
+        private readonly StartStopView _view;
 
         private void Render()
         {

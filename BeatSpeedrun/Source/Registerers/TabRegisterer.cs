@@ -6,20 +6,20 @@ using Zenject;
 
 namespace BeatSpeedrun.Registerers
 {
-    internal class SettingsRegisterer : IInitializable, IDisposable
+    internal class TabRegisterer : IInitializable, IDisposable
     {
         internal const string TabName = "Beat Speedrun";
 
-        private readonly SettingsViewController _settingsViewController;
+        private readonly StartStopViewController _startStopViewController;
 
-        internal SettingsRegisterer(SettingsViewController settingsViewController)
+        internal TabRegisterer(StartStopViewController startStopViewController)
         {
-            _settingsViewController = settingsViewController;
+            _startStopViewController = startStopViewController;
         }
 
         void IInitializable.Initialize()
         {
-            GameplaySetup.instance.AddTab(TabName, SettingsViewController.TabResource, _settingsViewController);
+            GameplaySetup.instance.AddTab(TabName, StartStopViewController.TabResource, _startStopViewController);
         }
 
         void IDisposable.Dispose()

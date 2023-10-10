@@ -13,7 +13,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<SelectionState>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardState>().AsSingle();
 
-            Container.BindInterfacesAndSelfTo<SettingsViewController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<StartStopViewController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardMainViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardPanelViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<SpeedrunStarViewController>().AsSingle();
@@ -21,7 +21,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<ModFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             Container.BindInterfacesAndSelfTo<MainSettingsViewController>().AsSingle();
-            Container.BindInterfacesAndSelfTo<SettingsRegisterer>().AsSingle();
+            Container.BindInterfacesAndSelfTo<TabRegisterer>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardRegisterer>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<FloatingTimerViewController>().AsSingle();

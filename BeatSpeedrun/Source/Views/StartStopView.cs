@@ -6,14 +6,14 @@ using HMUI;
 
 namespace BeatSpeedrun.Views
 {
-    internal class SettingsView : BSMLView
+    internal class StartStopView : BSMLView
     {
-        internal const string ResourceName = "BeatSpeedrun.Source.Views.Settings.bsml";
+        internal const string ResourceName = "BeatSpeedrun.Source.Views.StartStop.bsml";
 
         internal event Action OnStarted;
         internal event Action OnStopped;
 
-        public SettingsView(Func<Segment?, int> getSegmentPp)
+        public StartStopView(Func<Segment?, int> getSegmentPp)
         {
             RegulationDropdown = new BSMLDropdownView<string>(Regulation.ShortenPath);
             SegmentDropdown = new BSMLDropdownView<Segment?>(SegmentSummary(getSegmentPp));

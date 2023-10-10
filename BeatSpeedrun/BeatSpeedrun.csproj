@@ -184,7 +184,7 @@
     <Compile Include="Source\Repositories\LocalLeaderboardRepository.cs" />
     <Compile Include="Source\Services\SpeedrunFacilitator.cs" />
     <Compile Include="Source\Services\LevelPlayObserver.cs" />
-    <Compile Include="Source\Views\SettingsView.cs" />
+    <Compile Include="Source\Views\StartStopView.cs" />
     <Compile Include="Source\Views\MainSettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />
@@ -193,13 +193,13 @@
     <Compile Include="Source\Controllers\Support\SelectionState.cs" />
     <Compile Include="Source\Controllers\Support\LeaderboardState.cs" />
     <Compile Include="Source\Controllers\Support\LeaderboardViewHelper.cs" />
-    <Compile Include="Source\Controllers\SettingsViewController.cs" />
+    <Compile Include="Source\Controllers\StartStopViewController.cs" />
     <Compile Include="Source\Controllers\MainSettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
     <Compile Include="Source\Controllers\SpeedrunStarViewController.cs" />
     <Compile Include="Source\Controllers\ModFlowCoordinator.cs" />
-    <Compile Include="Source\Registerers\SettingsRegisterer.cs" />
+    <Compile Include="Source\Registerers\TabRegisterer.cs" />
     <Compile Include="Source\Registerers\LeaderboardRegisterer.cs" />
     <Compile Include="Source\Installers\AppInstaller.cs" />
     <Compile Include="Source\Installers\MenuInstaller.cs" />
@@ -209,7 +209,7 @@
     <Compile Include="Source\Views\FloatingTimerView.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Source\Views\Settings.bsml" />
+    <EmbeddedResource Include="Source\Views\StartStop.bsml" />
     <EmbeddedResource Include="Source\Views\MainSettings.bsml" />
     <EmbeddedResource Include="Source\Views\FloatingTimer.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardPanel.bsml" />
