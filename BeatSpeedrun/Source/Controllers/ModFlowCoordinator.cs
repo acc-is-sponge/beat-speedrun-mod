@@ -11,9 +11,8 @@ namespace BeatSpeedrun.Controllers
         private MainSettingsView _mainSettingsView;
         private FloatingTimerViewController _floatingTimerViewController;
 
-        // Normal constructor with no Inject attribute would cause MainSettingsView to be null!
         [Inject]
-        public void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView, FloatingTimerViewController floatingTimerViewController)
+        internal void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView, FloatingTimerViewController floatingTimerViewController)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _mainSettingsView = mainSettingsView;

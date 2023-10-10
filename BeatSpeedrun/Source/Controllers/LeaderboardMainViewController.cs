@@ -21,23 +21,28 @@ namespace BeatSpeedrun.Controllers
     [ViewDefinition(LeaderboardMainView.ResourceName)]
     internal class LeaderboardMainViewController : BSMLAutomaticViewController, IInitializable, IDisposable, ITickable
     {
-        [Inject]
-        private readonly RegulationProvider _regulationProvider;
-
-        [Inject]
-        private readonly SpeedrunFacilitator _speedrunFacilitator;
-
-        [Inject]
-        private readonly LeaderboardState _leaderboardState;
-
-        [Inject]
-        private readonly SelectionState _selectionState;
-
+        private RegulationProvider _regulationProvider;
+        private SpeedrunFacilitator _speedrunFacilitator;
+        private LeaderboardState _leaderboardState;
+        private SelectionState _selectionState;
         private readonly TaskWaiter _taskWaiter;
 
         internal LeaderboardMainViewController()
         {
             _taskWaiter = new TaskWaiter(Render);
+        }
+
+        [Inject]
+        internal void Construct(
+            RegulationProvider regulationProvider,
+            SpeedrunFacilitator speedrunFacilitator,
+            LeaderboardState leaderboardState,
+            SelectionState selectionState)
+        {
+            _regulationProvider = regulationProvider;
+            _speedrunFacilitator = speedrunFacilitator;
+            _leaderboardState = leaderboardState;
+            _selectionState = selectionState;
         }
 
         #region hooks

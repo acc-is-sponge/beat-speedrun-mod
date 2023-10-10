@@ -12,8 +12,13 @@ namespace BeatSpeedrun.Controllers
     [ViewDefinition(LeaderboardPanelView.ResourceName)]
     internal class LeaderboardPanelViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
+        private SpeedrunFacilitator _speedrunFacilitator;
+
         [Inject]
-        private readonly SpeedrunFacilitator _speedrunFacilitator;
+        internal void Construct(SpeedrunFacilitator speedrunFacilitator)
+        {
+            _speedrunFacilitator = speedrunFacilitator;
+        }
 
         [UIValue("view")]
         private readonly LeaderboardPanelView _view = new LeaderboardPanelView();
