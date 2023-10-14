@@ -1,4 +1,5 @@
-﻿using BeatSpeedrun.Views;
+﻿using BeatSpeedrun.Controllers;
+using BeatSpeedrun.Registerers;
 using Zenject;
 
 namespace BeatSpeedrun.Installers
@@ -7,8 +8,9 @@ namespace BeatSpeedrun.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<FloatingTimerViewController>().AsSingle();
-            Container.BindInterfacesAndSelfTo<FloatingTimerView>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<FloatingTimerViewController>().FromNewComponentAsViewController().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<FloatingTimerRegisterer>().AsSingle();
         }
     }
 }

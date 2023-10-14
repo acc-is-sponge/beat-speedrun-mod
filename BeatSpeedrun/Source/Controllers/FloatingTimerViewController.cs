@@ -1,111 +1,65 @@
-﻿using BeatSaberMarkupLanguage.FloatingScreen;
+﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
 using BeatSpeedrun.Extensions;
 using BeatSpeedrun.Models.Speedrun;
 using BeatSpeedrun.Services;
-using BS_Utils.Utilities;
-using IPA.Utilities;
+using BeatSpeedrun.Views;
 using System;
-using UnityEngine;
-using VRUIControls;
 using Zenject;
 
-namespace BeatSpeedrun.Views
+namespace BeatSpeedrun.Controllers
 {
-    internal class FloatingTimerViewController : IInitializable, ITickable, IDisposable
+    [HotReload(RelativePathToLayout = @"..\Views\FloatingTimer.bsml")]
+    [ViewDefinition(FloatingTimerView.ResourceName)]
+    internal class FloatingTimerViewController : BSMLAutomaticViewController, ITickable
     {
-        private FloatingScreen _floatingScreen;
-        private readonly FloatingTimerView _floatingTimerView;
-        private readonly SpeedrunFacilitator _speedrunFacilitator;
-        private readonly PhysicsRaycasterWithCache _physicsRaycasterWithCache;
-        private readonly MainSettingsView _mainSettingsView;
-        private LeaderboardTheme CurrentTheme =>
-            _speedrunFacilitator.Current is Speedrun speedrun
-                ? LeaderboardTheme.FromSegment(speedrun.Progress.Current.Segment)
-                : LeaderboardTheme.Inactive;
+        private SpeedrunFacilitator _speedrunFacilitator;
 
-        public FloatingTimerViewController(PhysicsRaycasterWithCache physicsRaycasterWithCache, SpeedrunFacilitator speedrunFacilitator, FloatingTimerView floatingTimerView, MainSettingsView mainSettingsView)
+        [Inject]
+        internal void Construct(SpeedrunFacilitator speedrunFacilitator)
         {
-            _physicsRaycasterWithCache = physicsRaycasterWithCache;
             _speedrunFacilitator = speedrunFacilitator;
-            _floatingTimerView = floatingTimerView;
-            _mainSettingsView = mainSettingsView;
         }
 
-        private bool activeFloor = false;
-        public void Display()
-        {
-            activeFloor = true;
-        }
+        #region render
 
-        public void Hide()
-        {
-            activeFloor = false;
-        }
+        [UIValue("view")]
+        private readonly FloatingTimerView _view = new FloatingTimerView();
 
-        public void Initialize()
+        private void Render()
         {
-            PrepareFloatingScreen();
-            BSEvents.gameSceneLoaded += Display;
-            BSEvents.menuSceneLoaded += Hide;
-        }
-
-        private void PrepareFloatingScreen()
-        {
-            _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(150f, 50f), false, new Vector3(0f, 3f, 3.9f), Quaternion.Euler(new Vector3(325f, 0f, 0f)));
-            _floatingScreen.GetComponent<VRGraphicRaycaster>().SetField("_physicsRaycaster", _physicsRaycasterWithCache);
-            _floatingScreen.SetRootViewController(_floatingTimerView, HMUI.ViewController.AnimationType.Out);
-        }
-
-        public void Tick()
-        {
-            RenderFloatingTimer();
-        }
-
-        private void RenderFloatingTimer()
-        {
-            if (!_mainSettingsView.FloatingTimerEnable || !activeFloor)
+            if (!PluginConfig.Instance.FloatingTimerEnabled)
             {
-                if (_floatingScreen.gameObject.activeSelf)
-                    _floatingScreen.gameObject.SetActive(false);
+                _view.TimerText = "";
                 return;
             }
 
-            if (!_floatingScreen.gameObject.activeSelf)
-                PrepareFloatingScreen();
-
-            Speedrun speedrun = _speedrunFacilitator.Current;
-            LeaderboardTheme theme = CurrentTheme;
-
-            if (speedrun == null) return;
-
-            DateTime now = DateTime.UtcNow;
-            TimeSpan time = speedrun.Progress.ElapsedTime(now);
-            string text;
-            switch (speedrun.Progress.ComputeState(now))
+            var speedrun = _speedrunFacilitator.Current;
+            var now = DateTime.UtcNow;
+            switch (speedrun?.Progress.ComputeState(now) ?? Progress.State.Finished)
             {
+                case Progress.State.Running:
                 case Progress.State.TimeIsUp:
-                    text = $"<line-height=40%><size=80%><$main>TIME IS UP!\n<size=60%><$sub>{time.ToTimerString()}";
+                    var theme = LeaderboardTheme.FromSpeedrun(speedrun);
+                    var time = speedrun.Progress.ElapsedTime(now);
+                    var text =
+                        $"<line-height=60%><$icon>{time.ToTimerString()}" +
+                        (speedrun.Progress.Current is Progress.SegmentProgress p ? $"\n{p.Segment}" : "") +
+                        $"\n{speedrun.TotalPp:0.#}pp";
+                    _view.TimerText = theme.ReplaceRichText(text);
                     break;
                 default:
-                    text = time.ToTimerString();
+                    _view.TimerText = "";
                     break;
             }
-            _floatingTimerView.TimerText = theme.ReplaceRichText(text);
-            string segment = _speedrunFacilitator.Current.Progress.Current.Segment != null ?
-                _speedrunFacilitator.Current.Progress.Current.Segment.ToString() : "-";
-            _floatingTimerView.TimerText += "\n" + segment;
-            _floatingTimerView.TimerText += "\n" + _speedrunFacilitator.Current.TotalPp.ToString("F2");
-            _floatingTimerView.TimerColor = new Color(
-                System.Convert.ToInt32(theme.IconColor.Substring(1, 2), 16) / 255f,
-                System.Convert.ToInt32(theme.IconColor.Substring(3, 2), 16) / 255f,
-                System.Convert.ToInt32(theme.IconColor.Substring(5, 2), 16) / 255f
-            ).ColorWithAlpha(1f);
         }
 
-        public void Dispose()
-        {
-            BSEvents.gameSceneLoaded -= Display;
-            BSEvents.menuSceneLoaded -= Hide;
-        }
+        #endregion
+
+        #region callbacks
+
+        void ITickable.Tick() => Render();
+
+        #endregion
     }
 }

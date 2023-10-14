@@ -185,6 +185,7 @@
     <Compile Include="Source\Services\SpeedrunFacilitator.cs" />
     <Compile Include="Source\Services\LevelPlayObserver.cs" />
     <Compile Include="Source\Views\StartStopView.cs" />
+    <Compile Include="Source\Views\FloatingTimerView.cs" />
     <Compile Include="Source\Views\MainSettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />
@@ -194,24 +195,24 @@
     <Compile Include="Source\Controllers\Support\LeaderboardState.cs" />
     <Compile Include="Source\Controllers\Support\LeaderboardViewHelper.cs" />
     <Compile Include="Source\Controllers\StartStopViewController.cs" />
+    <Compile Include="Source\Controllers\FloatingTimerViewController.cs" />
     <Compile Include="Source\Controllers\MainSettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
     <Compile Include="Source\Controllers\SpeedrunStarViewController.cs" />
     <Compile Include="Source\Controllers\ModFlowCoordinator.cs" />
     <Compile Include="Source\Registerers\TabRegisterer.cs" />
+    <Compile Include="Source\Registerers\FloatingTimerRegisterer.cs" />
     <Compile Include="Source\Registerers\LeaderboardRegisterer.cs" />
     <Compile Include="Source\Installers\AppInstaller.cs" />
     <Compile Include="Source\Installers\MenuInstaller.cs" />
     <Compile Include="Source\Installers\GameInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\Controllers\FloatingTimerViewController.cs" />
-    <Compile Include="Source\Views\FloatingTimerView.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Source\Views\StartStop.bsml" />
-    <EmbeddedResource Include="Source\Views\MainSettings.bsml" />
     <EmbeddedResource Include="Source\Views\FloatingTimer.bsml" />
+    <EmbeddedResource Include="Source\Views\MainSettings.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardMain.bsml" />
     <EmbeddedResource Include="Source\Resources\chart.png" />

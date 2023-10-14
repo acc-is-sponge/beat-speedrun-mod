@@ -47,6 +47,11 @@ namespace BeatSpeedrun
         /// </summary>
         public virtual bool StopTargetReachedSpeedrunsAutomatically { get; set; }
 
+        /// <summary>
+        /// Whether FloatingTimer is displayed during the game.
+        /// </summary>
+        public virtual bool FloatingTimerEnabled { get; set; }
+
         public virtual void OnReload()
         {
             // Do stuff after config is read from disk.

@@ -9,14 +9,12 @@ namespace BeatSpeedrun.Controllers
     {
         private MainFlowCoordinator _mainFlowCoordinator;
         private MainSettingsView _mainSettingsView;
-        private FloatingTimerViewController _floatingTimerViewController;
 
         [Inject]
-        internal void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView, FloatingTimerViewController floatingTimerViewController)
+        internal void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _mainSettingsView = mainSettingsView;
-            _floatingTimerViewController = floatingTimerViewController;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -27,14 +25,12 @@ namespace BeatSpeedrun.Controllers
                 ProvideInitialViewControllers(_mainSettingsView);
                 showBackButton = true;
             }
-            _floatingTimerViewController.Display();
         }
 
         protected override void BackButtonWasPressed(ViewController topViewController)
         {
             base.BackButtonWasPressed(topViewController);
             _mainFlowCoordinator.DismissFlowCoordinator(this, null, ViewController.AnimationDirection.Vertical, false);
-            _floatingTimerViewController.Hide();
         }
     }
 }
