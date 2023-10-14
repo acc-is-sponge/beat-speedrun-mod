@@ -21,7 +21,7 @@ namespace BeatSpeedrun.FlowCoordinators
         {
             if (firstActivation && addedToHierarchy)
             {
-                SetTitle("BeetSpeedrun");
+                SetTitle("Beat Speedrun");
                 ProvideInitialViewControllers(_modSettingsViewController);
                 showBackButton = true;
             }
