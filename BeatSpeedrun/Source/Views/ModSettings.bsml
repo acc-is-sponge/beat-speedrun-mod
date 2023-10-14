@@ -2,6 +2,10 @@
   <macro.as-host host="view">
     <vertical child-expand-height="false" child-control-height="false" spacing="1">
       <modifier-container child-expand-width="true" horizontal-fit="PreferredSize">
+        <checkbox text="Show Star on Playlist" value="show-speedrun-star" apply-on-change="true" />
+      </modifier-container>
+
+      <modifier-container child-expand-width="true" horizontal-fit="PreferredSize">
         <checkbox text="Show Timer on Game" value="show-floating-timer" apply-on-change="true" />
       </modifier-container>
     </vertical>

@@ -48,6 +48,11 @@ namespace BeatSpeedrun
         public virtual bool StopTargetReachedSpeedrunsAutomatically { get; set; }
 
         /// <summary>
+        /// Whether SpeedrunStar is displayed on the playlist.
+        /// </summary>
+        public virtual bool SpeedrunStarEnabled { get; set; }
+
+        /// <summary>
         /// Whether FloatingTimer is displayed during the game.
         /// </summary>
         public virtual bool FloatingTimerEnabled { get; set; }

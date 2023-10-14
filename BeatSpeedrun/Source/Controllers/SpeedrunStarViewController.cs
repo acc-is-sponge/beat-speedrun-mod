@@ -36,6 +36,12 @@ namespace BeatSpeedrun.Controllers
 
         private void Update(StandardLevelDetailView standardLevelDetailView = null)
         {
+            if (!PluginConfig.Instance.SpeedrunStarEnabled)
+            {
+                _view.Disappear();
+                return;
+            }
+
             if (standardLevelDetailView == null)
             {
                 standardLevelDetailView = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().FirstOrDefault();

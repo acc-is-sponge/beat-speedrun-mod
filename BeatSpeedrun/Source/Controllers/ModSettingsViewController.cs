@@ -18,6 +18,7 @@ namespace BeatSpeedrun.Controllers
 
         private void Render()
         {
+            _view.ShowSpeedrunStar = PluginConfig.Instance.SpeedrunStarEnabled;
             _view.ShowFloatingTimer = PluginConfig.Instance.FloatingTimerEnabled;
         }
 
@@ -42,6 +43,10 @@ namespace BeatSpeedrun.Controllers
             {
                 case nameof(ModSettingsView.ShowFloatingTimer):
                     PluginConfig.Instance.FloatingTimerEnabled = _view.ShowFloatingTimer;
+                    PluginConfig.Instance.Changed();
+                    break;
+                case nameof(ModSettingsView.ShowSpeedrunStar):
+                    PluginConfig.Instance.SpeedrunStarEnabled = _view.ShowSpeedrunStar;
                     PluginConfig.Instance.Changed();
                     break;
             }
