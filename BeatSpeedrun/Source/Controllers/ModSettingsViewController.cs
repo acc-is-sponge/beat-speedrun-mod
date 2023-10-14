@@ -1,39 +1,52 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.MenuButtons;
+﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
+using BeatSpeedrun.Views;
 using System;
+using System.ComponentModel;
 using Zenject;
 
 namespace BeatSpeedrun.Controllers
 {
-    internal class ModSettingsViewController : IInitializable, IDisposable
+    [HotReload(RelativePathToLayout = @"..\Views\ModSettings.bsml")]
+    [ViewDefinition(ModSettingsView.ResourceName)]
+    internal class ModSettingsViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
-        private readonly MenuButton menuButton;
-        private readonly MainFlowCoordinator _mainFlowCoordinator;
-        private readonly ModFlowCoordinator _modFlowCoordinator;
+        #region render
 
-        public ModSettingsViewController(MainFlowCoordinator mainFlowCoordinator, ModFlowCoordinator modFlowCoordinator)
+        [UIValue("view")]
+        private readonly ModSettingsView _view = new ModSettingsView();
+
+        private void Render()
         {
-            _mainFlowCoordinator = mainFlowCoordinator;
-            _modFlowCoordinator = modFlowCoordinator;
-            menuButton = new MenuButton("BeatSpeedrun", SummonFlowCoordinator);
+            _view.ShowFloatingTimer = PluginConfig.Instance.FloatingTimerEnabled;
         }
 
-        public void Initialize()
+        #endregion
+
+        #region callbacks
+
+        void IInitializable.Initialize()
         {
-            MenuButtons.instance.RegisterButton(menuButton);
+            Render();
+            _view.PropertyChanged += HandleChange;
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
-            if (MenuButtons.instance != null && BSMLParser.instance != null)
+            _view.PropertyChanged -= HandleChange;
+        }
+
+        private void HandleChange(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
             {
-                MenuButtons.instance.UnregisterButton(menuButton);
+                case nameof(ModSettingsView.ShowFloatingTimer):
+                    PluginConfig.Instance.FloatingTimerEnabled = _view.ShowFloatingTimer;
+                    PluginConfig.Instance.Changed();
+                    break;
             }
         }
 
-        private void SummonFlowCoordinator()
-        {
-            _mainFlowCoordinator.PresentFlowCoordinator(_modFlowCoordinator);
-        }
+        #endregion
     }
 }

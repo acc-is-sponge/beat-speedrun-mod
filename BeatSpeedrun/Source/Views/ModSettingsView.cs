@@ -1,31 +1,19 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
+using BeatSpeedrun.Extensions;
 
 namespace BeatSpeedrun.Views
 {
-    [ViewDefinition("BeatSpeedrun.Source.Views.ModSettings.bsml")]
-    [HotReload(RelativePathToLayout = @".\ModSettings.bsml")]
-    internal class ModSettingsView : BSMLAutomaticViewController
+    internal class ModSettingsView : BSMLView
     {
-        private bool modEnable = true;
-        [UIValue("main-enabled")]
-        public bool ModEnable
-        {
-            get => modEnable;
-            set => modEnable = value;
-        }
+        internal const string ResourceName = "BeatSpeedrun.Source.Views.ModSettings.bsml";
 
-        private bool floatingtimerEnable = true;
-        [UIValue("floating-timer-enabled")]
-        public bool FloatingTimerEnable
-        {
-            get => floatingtimerEnable;
-            set => floatingtimerEnable = value;
-        }
+        private bool _showFloatingTimer;
 
-        [UIAction("#post-parse")]
-        protected void Parsed()
+        [UIValue("show-floating-timer")]
+        public bool ShowFloatingTimer
         {
+            get => _showFloatingTimer;
+            set => ChangeProperty(ref _showFloatingTimer, value);
         }
     }
 }

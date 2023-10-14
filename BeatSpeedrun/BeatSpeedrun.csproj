@@ -200,7 +200,8 @@
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
     <Compile Include="Source\Controllers\SpeedrunStarViewController.cs" />
-    <Compile Include="Source\Controllers\ModFlowCoordinator.cs" />
+    <Compile Include="Source\FlowCoordinators\ModSettingsFlowCoordinator.cs" />
+    <Compile Include="Source\Registerers\ModSettingsRegisterer.cs" />
     <Compile Include="Source\Registerers\TabRegisterer.cs" />
     <Compile Include="Source\Registerers\FloatingTimerRegisterer.cs" />
     <Compile Include="Source\Registerers\LeaderboardRegisterer.cs" />

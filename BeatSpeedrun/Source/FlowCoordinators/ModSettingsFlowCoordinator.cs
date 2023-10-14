@@ -1,20 +1,20 @@
 ﻿using BeatSaberMarkupLanguage;
-using BeatSpeedrun.Views;
+using BeatSpeedrun.Controllers;
 using HMUI;
 using Zenject;
 
-namespace BeatSpeedrun.Controllers
+namespace BeatSpeedrun.FlowCoordinators
 {
-    internal class ModFlowCoordinator : FlowCoordinator
+    internal class ModSettingsFlowCoordinator : FlowCoordinator
     {
         private MainFlowCoordinator _mainFlowCoordinator;
-        private ModSettingsView _modSettingsView;
+        private ModSettingsViewController _modSettingsViewController;
 
         [Inject]
-        internal void Construct(MainFlowCoordinator mainFlowCoordinator, ModSettingsView modSettingsView)
+        internal void Construct(MainFlowCoordinator mainFlowCoordinator, ModSettingsViewController modSettingsViewController)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
-            _modSettingsView = modSettingsView;
+            _modSettingsViewController = modSettingsViewController;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -22,7 +22,7 @@ namespace BeatSpeedrun.Controllers
             if (firstActivation && addedToHierarchy)
             {
                 SetTitle("BeetSpeedrun");
-                ProvideInitialViewControllers(_modSettingsView);
+                ProvideInitialViewControllers(_modSettingsViewController);
                 showBackButton = true;
             }
         }
@@ -30,7 +30,7 @@ namespace BeatSpeedrun.Controllers
         protected override void BackButtonWasPressed(ViewController topViewController)
         {
             base.BackButtonWasPressed(topViewController);
-            _mainFlowCoordinator.DismissFlowCoordinator(this, null, ViewController.AnimationDirection.Vertical, false);
+            _mainFlowCoordinator.DismissFlowCoordinator(this, null, ViewController.AnimationDirection.Horizontal, false);
         }
     }
 }
