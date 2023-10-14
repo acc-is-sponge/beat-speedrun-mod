@@ -17,7 +17,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<SpeedrunFacilitator>().AsSingle();
             Container.BindInterfacesAndSelfTo<LevelPlayObserver>().AsSingle();
 
-            Container.BindInterfacesAndSelfTo<MainSettingsView>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<ModSettingsView>().FromNewComponentAsViewController().AsSingle();
         }
     }
 }

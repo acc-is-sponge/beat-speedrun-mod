@@ -8,13 +8,13 @@ namespace BeatSpeedrun.Controllers
     internal class ModFlowCoordinator : FlowCoordinator
     {
         private MainFlowCoordinator _mainFlowCoordinator;
-        private MainSettingsView _mainSettingsView;
+        private ModSettingsView _modSettingsView;
 
         [Inject]
-        internal void Construct(MainFlowCoordinator mainFlowCoordinator, MainSettingsView mainSettingsView)
+        internal void Construct(MainFlowCoordinator mainFlowCoordinator, ModSettingsView modSettingsView)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
-            _mainSettingsView = mainSettingsView;
+            _modSettingsView = modSettingsView;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -22,7 +22,7 @@ namespace BeatSpeedrun.Controllers
             if (firstActivation && addedToHierarchy)
             {
                 SetTitle("BeetSpeedrun");
-                ProvideInitialViewControllers(_mainSettingsView);
+                ProvideInitialViewControllers(_modSettingsView);
                 showBackButton = true;
             }
         }

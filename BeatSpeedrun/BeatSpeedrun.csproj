@@ -184,9 +184,9 @@
     <Compile Include="Source\Repositories\LocalLeaderboardRepository.cs" />
     <Compile Include="Source\Services\SpeedrunFacilitator.cs" />
     <Compile Include="Source\Services\LevelPlayObserver.cs" />
+    <Compile Include="Source\Views\ModSettingsView.cs" />
     <Compile Include="Source\Views\StartStopView.cs" />
     <Compile Include="Source\Views\FloatingTimerView.cs" />
-    <Compile Include="Source\Views\MainSettingsView.cs" />
     <Compile Include="Source\Views\LeaderboardTheme.cs" />
     <Compile Include="Source\Views\LeaderboardPanelView.cs" />
     <Compile Include="Source\Views\LeaderboardMainView.cs" />
@@ -194,9 +194,9 @@
     <Compile Include="Source\Controllers\Support\SelectionState.cs" />
     <Compile Include="Source\Controllers\Support\LeaderboardState.cs" />
     <Compile Include="Source\Controllers\Support\LeaderboardViewHelper.cs" />
+    <Compile Include="Source\Controllers\ModSettingsViewController.cs" />
     <Compile Include="Source\Controllers\StartStopViewController.cs" />
     <Compile Include="Source\Controllers\FloatingTimerViewController.cs" />
-    <Compile Include="Source\Controllers\MainSettingsViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardPanelViewController.cs" />
     <Compile Include="Source\Controllers\LeaderboardMainViewController.cs" />
     <Compile Include="Source\Controllers\SpeedrunStarViewController.cs" />
@@ -210,9 +210,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Source\Views\ModSettings.bsml" />
     <EmbeddedResource Include="Source\Views\StartStop.bsml" />
     <EmbeddedResource Include="Source\Views\FloatingTimer.bsml" />
-    <EmbeddedResource Include="Source\Views\MainSettings.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardPanel.bsml" />
     <EmbeddedResource Include="Source\Views\LeaderboardMain.bsml" />
     <EmbeddedResource Include="Source\Resources\chart.png" />

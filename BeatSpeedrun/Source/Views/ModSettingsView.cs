@@ -3,9 +3,9 @@ using BeatSaberMarkupLanguage.ViewControllers;
 
 namespace BeatSpeedrun.Views
 {
-    [ViewDefinition("BeatSpeedrun.Source.Views.MainSettings.bsml")]
-    [HotReload(RelativePathToLayout = @".\MainSettings.bsml")]
-    internal class MainSettingsView : BSMLAutomaticViewController
+    [ViewDefinition("BeatSpeedrun.Source.Views.ModSettings.bsml")]
+    [HotReload(RelativePathToLayout = @".\ModSettings.bsml")]
+    internal class ModSettingsView : BSMLAutomaticViewController
     {
         private bool modEnable = true;
         [UIValue("main-enabled")]

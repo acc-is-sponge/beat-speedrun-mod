@@ -5,13 +5,13 @@ using Zenject;
 
 namespace BeatSpeedrun.Controllers
 {
-    internal class MainSettingsViewController : IInitializable, IDisposable
+    internal class ModSettingsViewController : IInitializable, IDisposable
     {
         private readonly MenuButton menuButton;
         private readonly MainFlowCoordinator _mainFlowCoordinator;
         private readonly ModFlowCoordinator _modFlowCoordinator;
 
-        public MainSettingsViewController(MainFlowCoordinator mainFlowCoordinator, ModFlowCoordinator modFlowCoordinator)
+        public ModSettingsViewController(MainFlowCoordinator mainFlowCoordinator, ModFlowCoordinator modFlowCoordinator)
         {
             _mainFlowCoordinator = mainFlowCoordinator;
             _modFlowCoordinator = modFlowCoordinator;

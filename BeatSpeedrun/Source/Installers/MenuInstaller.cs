@@ -21,7 +21,7 @@ namespace BeatSpeedrun.Installers
             Container.BindInterfacesAndSelfTo<LeaderboardRegisterer>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<ModFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
-            Container.BindInterfacesAndSelfTo<MainSettingsViewController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ModSettingsViewController>().AsSingle();
         }
     }
 }
